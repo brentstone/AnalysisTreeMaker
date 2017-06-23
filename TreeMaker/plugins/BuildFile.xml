@@ -1,0 +1,4 @@
+<library   name="AnalysisTreeMakerTreeMakerPlugins" file="*.cc">
+    <use   name="AnalysisTreeMaker/TreeMaker"/>
+    <use   name="AnalysisTreeMaker/TreeFillers"/>           
+</library>

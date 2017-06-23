@@ -1,0 +1,10 @@
+<use   name="root"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+
+<use   name="AnalysisSupport/TreeInterface"/>
+<use   name="AnalysisSupport/Utilities"/>
+<export>
+  <lib   name="1"/>
+</export>
+

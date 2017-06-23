@@ -1,0 +1,13 @@
+<use   name="root"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+
+<use   name="AnalysisTreeMaker/TreeMaker"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<export>
+  <lib   name="1"/>
+</export>
+
