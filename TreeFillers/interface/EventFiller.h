@@ -49,6 +49,7 @@ private:
     edm::EDGetTokenT<reco::VertexCollection>          token_vtx     ;
     edm::EDGetTokenT<double>                          token_rho     ;
     edm::EDGetTokenT<pat::METCollection>              token_met     ;
+    edm::EDGetTokenT<pat::METCollection>              token_rawMet  ;
     edm::EDGetTokenT<std::vector<PileupSummaryInfo> > token_puSum   ;
     edm::EDGetTokenT<GenEventInfoProduct>             token_genEvent;
 
@@ -56,6 +57,7 @@ private:
     edm::Handle<double>                          han_rho     ;
     edm::Handle<std::vector<PileupSummaryInfo> > han_puSum   ;
     edm::Handle<pat::METCollection>              han_met     ;
+    edm::Handle<pat::METCollection>              han_rawMet  ;
     edm::Handle<GenEventInfoProduct>             han_genEvent;
 
 

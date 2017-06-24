@@ -6,6 +6,7 @@ EventFiller = cms.PSet(
     vertices               = cms.InputTag('offlineSlimmedPrimaryVertices'),
     rho                    = cms.InputTag('fixedGridRhoFastjetAll'),
     puSummaryInfo          = cms.InputTag('slimmedAddPileupInfo'),    
-    met                    = cms.InputTag('slimmedMETs'),  
+    met                    = cms.InputTag('slimmedMETs'),
+    rawMet                 = cms.InputTag('slimmedMETs'),  
     genEvent               = cms.InputTag('generator'),
 )

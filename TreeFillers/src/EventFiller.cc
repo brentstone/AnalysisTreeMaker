@@ -15,6 +15,7 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	token_vtx            =cc.consumes<reco::VertexCollection>         (cfg.getParameter<edm::InputTag>("vertices"));
 	token_rho            =cc.consumes<double>                         (cfg.getParameter<edm::InputTag>("rho"));
 	token_met            =cc.consumes<pat::METCollection>             (cfg.getParameter<edm::InputTag>("met"));
+	token_rawMet         =cc.consumes<pat::METCollection>             (cfg.getParameter<edm::InputTag>("rawMet"));
 	if(!isRealData){
 		token_puSum          =cc.consumes<std::vector<PileupSummaryInfo> >(cfg.getParameter<edm::InputTag>("puSummaryInfo"));
 		token_genEvent       =cc.consumes<GenEventInfoProduct>            (cfg.getParameter<edm::InputTag>("genEvent"));
@@ -47,6 +48,7 @@ void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	iEvent.getByToken(token_vtx     ,han_vtx     );
 	iEvent.getByToken(token_rho     ,han_rho     );
 	iEvent.getByToken(token_met     ,han_met     );
+	iEvent.getByToken(token_rawMet  ,han_rawMet  );
 
 	if(!isRealData){
 		iEvent.getByToken(token_puSum   ,han_puSum   );
@@ -78,8 +80,8 @@ void EventFiller::fill(){
 	  data.fill(i_met_sig          ,float(han_met->front().significance()));
 	  data.fill(i_met_unclUp       ,float(han_met->front().shiftedPt(pat::MET::UnclusteredEnUp)));
 	  data.fill(i_met_unclDown     ,float(han_met->front().shiftedPt(pat::MET::UnclusteredEnDown)));
-	  data.fill(i_met_raw_pt       ,float(han_met->front().uncorPt()));
-	  data.fill(i_met_raw_phi      ,float(han_met->front().uncorPhi()));
+	  data.fill(i_met_raw_pt       ,float(han_rawMet->front().uncorPt()));
+	  data.fill(i_met_raw_phi      ,float(han_rawMet->front().uncorPhi()));
 
 	  if(isRealData) return;
 
