@@ -25,7 +25,7 @@ public:
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void fill();
 
-	const reco::Vertex * getPrimVertex() const {return primaryVertex();}
+	const reco::Vertex * getPrimVertex() const {return primaryVertex;}
 
 private:
     bool isRealData           = false;
@@ -36,7 +36,6 @@ private:
 	size i_goodVtx            = 0;
 	size i_npv                = 0;
 	size i_rho                = 0;
-	size i_nTruePUInts        = 0;
 	size i_met_pt             = 0;
 	size i_met_phi            = 0;
 	size i_met_sig            = 0;
@@ -44,12 +43,13 @@ private:
 	size i_met_unclDown       = 0;
 	size i_met_raw_pt         = 0;
 	size i_met_raw_phi        = 0;
+	size i_nTruePUInts        = 0;
 	size i_weight             = 0;
 
     edm::EDGetTokenT<reco::VertexCollection>          token_vtx     ;
     edm::EDGetTokenT<double>                          token_rho     ;
-    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > token_puSum   ;
     edm::EDGetTokenT<pat::METCollection>              token_met     ;
+    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > token_puSum   ;
     edm::EDGetTokenT<GenEventInfoProduct>             token_genEvent;
 
     edm::Handle<reco::VertexCollection>          han_vtx     ;
@@ -59,7 +59,7 @@ private:
     edm::Handle<GenEventInfoProduct>             han_genEvent;
 
 
-    reco::Vertex * primaryVertex =0;
+    const reco::Vertex * primaryVertex =0;
     EventCoords evtCoord;
     bool hassGoodVertex = false;
 

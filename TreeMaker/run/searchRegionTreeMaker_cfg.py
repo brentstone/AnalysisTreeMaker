@@ -5,7 +5,7 @@ process = cms.Process('run')
 
 process.options = cms.untracked.PSet(
     allowUnscheduled=cms.untracked.bool(True),
-    wantSummary=cms.untracked.bool(False)
+    wantSummary=cms.untracked.bool(True)
 )
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -55,19 +55,26 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 isCrab =  True if options.crabDataset else False
 datasetName = options.crabDataset if isCrab else options.inputFiles[0]
 print datasetName
-isRealData = ('/store/data' in DatasetName) or (re.match(r'^/[a-zA-Z]+/Run[0-9]{4}[A-Z]', datasetName))
+isRealData = ('/store/data' in datasetName) or (re.match(r'^/[a-zA-Z]+/Run[0-9]{4}[A-Z]', datasetName))
+
 
 
 from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
-process.treeMaker = cms.EDFilter('TestAnalyzer',
-                                 realData = cms.bool(False)
-                                 ,globalTag = cms.string("")
-                                 , EventFiller
-)
+process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
+                                 , realData = cms.bool(False)
+                                 , globalTag = cms.string('')
+                                 , EventFiller = cms.PSet(EventFiller)
+                                 )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,datasetName)
+
+#==============================================================================================================================#
+#==============================================================================================================================#
 
 if isRealData and not isCrab:
     setupJSONFiltering(process)
+
+from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
+metCorrections(process,process.treeMaker.EventFiller.met,isRealData)
 
 #==============================================================================================================================#
 #==============================================================================================================================#

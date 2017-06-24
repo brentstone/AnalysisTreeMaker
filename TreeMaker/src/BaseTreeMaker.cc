@@ -18,8 +18,8 @@ AnalysisTreeMaker::AnalysisTreeMaker(const edm::ParameterSet & iConfig) :
 	std::cout << " ++  Setting up AnalysisTreeMaker"<<std::endl;
 	std::cout << " ++  globalTag           = " << globalTag                      << std::endl;
 	std::cout << " ++  dataset             = ";
-	  if      (isRealData == 1)       std::cout << "  ...  \033[31mDATA\033[0m";
-	  else if (isRealData == 0)       std::cout << "  ...  \033[1;34mMC\033[0m";
+	  if      (realData) std::cout << "  ...  \033[31mDATA\033[0m";
+	  else               std::cout << "  ...  \033[1;34mMC\033[0m";
 	std::cout << std::endl;
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
 	usesResource("TFileService");
@@ -33,20 +33,20 @@ BaseFiller * AnalysisTreeMaker::initialize(BaseFiller * filler){
 	return initializedFillers.back();
 }
 //--------------------------
-virtual void AnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+void AnalysisTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	load    (iEvent, iSetup);
 	fill();
 	++nEvents;;
 }
 //--------------------------
-virtual void AnalysisTreeMaker::beginJob() {
+void AnalysisTreeMaker::beginJob() {
 	// Create and register TTree
 	edm::Service<TFileService> fs;
-	tree = new TreeWrapper(fs->make<TTree>("Events", ""),"Events");
-	virtual void AnalysisTreeMaker::book();
+	treeWrapper = new TreeWrapper(fs->make<TTree>("Events", ""),"Events");
+	book();
 }
 //--------------------------
-virtual void AnalysisTreeMaker::endJob() {
+void AnalysisTreeMaker::endJob() {
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
 	std::cout << " \033[1;34m~~\033[0m  Done! There were:" << std::endl;
 	if(numEvents())

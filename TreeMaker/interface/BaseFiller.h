@@ -13,21 +13,21 @@ using ASTypes::size;
 namespace AnaTM{
 class BaseFiller {
 public:
-	BaseFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName);
+	BaseFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, const std::string& typeName);
 	virtual ~BaseFiller() {};
 	virtual void book(TreeWrapper * wrapper) {data.book(wrapper);}
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup) = 0; //load data
 	virtual void fill() =0;	   //do actual filling
 
     bool isLoaded() const {return loadedStatus;}
-    bool ignore()   const {return ignore;}
+    bool ignore()   const {return shouldIgnore;}
 
 
 
 protected:
 	void reset() {loadedStatus = false; data.reset();}
 	const edm::ParameterSet cfg            ;
-	const bool turnedOn                    ;
+	const bool shouldIgnore                ;
 	const std::string branchName           ;
 	bool loadedStatus                      ;
 

@@ -2,11 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from AnalysisTreeMaker.TreeFillers.eventFiller_cff import EventFiller
 
-TreeMaker = cms.EDFilter('TestAnalyzer',
-    realData = cms.bool(False)
-   ,globalTag = cms.string("")
-)
-#     setattr( process, digi_name, simMuonME0NewGeoDigis.clone(numberOfSrips=cms.uint32(nStrips), numberOfPartitions =cms.uint32(nPartitions)))
+TreeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
+                        ,realData = cms.bool(False)
+                        ,globalTag = cms.string(""))
 
 def setupTreeMakerAndGlobalTag(process, analyzer, isRealData,datasetName):
     if isRealData:
