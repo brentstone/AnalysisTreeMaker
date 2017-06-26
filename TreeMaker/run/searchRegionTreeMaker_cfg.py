@@ -63,6 +63,7 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , realData = cms.bool(False)
                                  , globalTag = cms.string('')
                                  , EventFiller = cms.PSet(EventFiller)
+                                 , METFilterFiller = cms.PSet(METFilterFiller)
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,datasetName)
 
@@ -77,4 +78,15 @@ metCorrections(process,process.treeMaker.EventFiller.met,isRealData)
 
 #==============================================================================================================================#
 #==============================================================================================================================#
-process.p = cms.Path(process.treeMaker)
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Details_about_the_application_of
+process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
+process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
+process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+process.BadPFMuonFilter.taggingMode = cms.bool(True)
+
+process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
+process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
+process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
+process.BadChargedCandidateFilter.taggingMode = cms.bool(True)
+
+process.p = cms.Path(process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)

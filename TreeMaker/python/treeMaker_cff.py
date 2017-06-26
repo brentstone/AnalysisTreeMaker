@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from AnalysisTreeMaker.TreeFillers.eventFiller_cff import EventFiller
+from AnalysisTreeMaker.TreeFillers.metFilterFiller_cff import METFilterFiller
 
 TreeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                         ,realData = cms.bool(False)
