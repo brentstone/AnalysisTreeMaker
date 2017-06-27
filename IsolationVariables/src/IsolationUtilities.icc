@@ -1,0 +1,115 @@
+/*
+ * IsolationUtilities.icc
+ *
+ *  Created on: Sep 24, 2015
+ *      Author: hqu
+ */
+
+#ifndef ANALYSISTREEMAKER_ISOLATIONVARIABLES_ISOLATIONUTILITIES_ICC_
+#define ANALYSISTREEMAKER_ISOLATIONVARIABLES_ISOLATIONUTILITIES_ICC_
+
+#include "AnalysisTreeMaker/IsolationVariables/interface/IsolationUtilities.h"
+
+// ------------------------------------------------------------------------
+// Isolation::leptonPtRel -------------------------------------------------
+template<typename Lepton, typename Jet>
+double Isolation::leptonPtRel(const Lepton& lepton, const std::vector<Jet>& jets) {
+  const double ptmin = PTREL_MIN_JET_PT;
+  const Jet *closestJet = 0;
+  double minDR = 9999;
+  for (const Jet &j : jets) {
+    if (j.pt() < ptmin) continue;
+    double tmpDR = deltaR2(lepton, j);
+    if (tmpDR < minDR) {
+      minDR = tmpDR;
+      closestJet = &j;
+    }
+  }
+
+  //if no jet was found nearby, return some large default value
+  if (!closestJet) return 9999;
+
+  TLorentzVector closestJetFourVector(closestJet->px(),closestJet->py(),closestJet->pz(),closestJet->energy());
+  for (unsigned int i = 0, n = closestJet->numberOfSourceCandidatePtrs(); i < n; ++i) {
+    const pat::PackedCandidate &candidate = dynamic_cast<const pat::PackedCandidate &>(*(closestJet->sourceCandidatePtr(i)));
+    //if the PF candidate is part of the lepton, subtract its momentum from the jet momentum
+    if (isPartOfLepton(candidate, lepton)) {
+      closestJetFourVector.SetPxPyPzE( closestJetFourVector.Px() - candidate.px(),
+          closestJetFourVector.Py() - candidate.py(),
+          closestJetFourVector.Pz() - candidate.pz(),
+          closestJetFourVector.E() - candidate.energy());
+    }
+  }
+  TLorentzVector lepFourVector(lepton.px(),lepton.py(),lepton.pz(),lepton.energy());
+  return lepFourVector.Perp(closestJetFourVector.Vect());
+
+}
+
+// ------------------------------------------------------------------------
+// Isolation::leptonPtRatio -----------------------------------------------
+template<typename Lepton, typename Jet>
+double Isolation::leptonPtRatio(const Lepton& lepton, const std::vector<Jet>& jets) {
+  const double ptmin = PTRATIO_MIN_JET_PT;
+  const Jet *closestJet = 0;
+  double minDR = 9999;
+  for (const Jet &j : jets) {
+    if (j.pt() < ptmin) continue;
+    double tmpDR = deltaR2(lepton, j);
+    if (tmpDR < minDR) {
+      minDR = tmpDR;
+      closestJet = &j;
+    }
+  }
+
+  //if no jet was found nearby, return some large default value
+  if (!closestJet) return 9999;
+
+  return lepton.pt()/closestJet->pt();
+
+}
+
+
+// ------------------------------------------------------------------------
+// Isolation::LSF ---------------------------------------------------------
+template<typename Lepton, typename Jet>
+double Isolation::LSF(const Lepton& lepton, const std::vector<Jet>& ca8jets) {
+  const double ptmin = LSF_MIN_JET_PT;
+  double deltaRjet=100;
+  const Jet *closestJet = 0;
+  //Find closest jet
+  for(const Jet& j : ca8jets){
+    if(j.pt() < ptmin) continue;
+    double tmpDR = deltaR2(lepton, j);
+    if(tmpDR<deltaRjet) {
+      deltaRjet=tmpDR;
+      closestJet = &j;
+    }
+  }
+
+  double deltaRsub=100;
+  double subjetpt=-1;
+  //Create subjets and find the closest one.
+  if(deltaRjet<10){
+    std::vector<fastjet::PseudoJet> FJparticles;
+    for (unsigned int k = 0; k < closestJet->numberOfDaughters(); k++)
+    {
+      auto this_constituent = closestJet->daughter(k);
+      FJparticles.emplace_back(this_constituent->px(), this_constituent->py(), this_constituent->pz(), this_constituent->energy());
+    }
+    fastjet::JetDefinition jet_def_kt2(fastjet::kt_algorithm, 0.2);
+    fastjet::ClusterSequence clust_seq_kt(FJparticles, jet_def_kt2);
+    std::vector<fastjet::PseudoJet> subjets_kt = sorted_by_pt(clust_seq_kt.inclusive_jets(ptmin));
+    for(unsigned iSJ=0;iSJ<subjets_kt.size();iSJ++){
+      LorentzVector subjet;
+      subjet.SetPxPyPzE(subjets_kt[iSJ].px(),subjets_kt[iSJ].py(),subjets_kt[iSJ].pz(),subjets_kt[iSJ].e());
+      if(deltaR2(lepton,subjet)<deltaRsub) {
+        deltaRsub=deltaR2(lepton,subjet);
+        subjetpt=subjets_kt[iSJ].pt();
+      }
+    }
+  }
+  return lepton.pt()/subjetpt;
+
+}
+
+#endif /* ANALYSISTOOLS_ISOLATIONVARIABLES_ISOLATIONUTILITIES_ICC_ */
