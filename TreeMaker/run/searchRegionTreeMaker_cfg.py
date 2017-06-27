@@ -62,8 +62,11 @@ from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , realData = cms.bool(False)
                                  , globalTag = cms.string('')
-                                 , EventFiller = cms.PSet(EventFiller)
-                                 , METFilterFiller = cms.PSet(METFilterFiller)
+                                 , EventFiller            = cms.PSet(EventFiller)
+                                 , METFilterFiller        = cms.PSet(METFilterFiller)
+                                 , ak4JetFiller           = cms.PSet(ak4JetFiller)
+                                 , ak4PuppiJetFiller      = cms.PSet(ak4PuppiJetFiller)
+                                 , ak4PuppiNoLepJetFiller = cms.PSet(ak4PuppiNoLepJetFiller)
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,datasetName)
 
@@ -75,6 +78,9 @@ if isRealData and not isCrab:
 
 from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
 metCorrections(process,process.treeMaker.EventFiller.met,isRealData)
+from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
+defaultJetSequences(process,isRealData)
+
 
 #==============================================================================================================================#
 #==============================================================================================================================#
