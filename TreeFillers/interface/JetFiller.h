@@ -14,12 +14,13 @@ public:
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void fill();
 
-private:
-	std::vector<ASTypes::size8> processGenJets();
-	bool passLooseID(const pat::Jet& jet) const;
-	bool passTightID(const pat::Jet& jet) const;
+	static bool passLooseID(const pat::Jet& jet);
+	static bool passTightID(const pat::Jet& jet);
 
-private:
+protected:
+	std::vector<ASTypes::size8> processGenJets();
+
+protected:
 	size i_pt                 = 0;
 	size i_eta                = 0;
 	size i_phi                = 0;

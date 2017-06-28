@@ -43,7 +43,7 @@ void JetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 };
 
 
-bool JetFiller::passLooseID(const pat::Jet& jet) const {
+bool JetFiller::passLooseID(const pat::Jet& jet)  {
 	const float aEta    = std::fabs(jet.eta());
 	const float neutHF  = jet.neutralHadronEnergyFraction();
 	const float neutEMF = jet.neutralEmEnergyFraction();
@@ -72,7 +72,7 @@ bool JetFiller::passLooseID(const pat::Jet& jet) const {
 	}
 	return true;
 }
-bool JetFiller::passTightID(const pat::Jet& jet) const {
+bool JetFiller::passTightID(const pat::Jet& jet)  {
 	const float aEta    = std::fabs(jet.eta());
 	const float neutHF  = jet.neutralHadronEnergyFraction();
 	const float neutEMF = jet.neutralEmEnergyFraction();

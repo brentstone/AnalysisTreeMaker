@@ -62,11 +62,13 @@ from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , realData = cms.bool(False)
                                  , globalTag = cms.string('')
-                                 , EventFiller            = cms.PSet(EventFiller)
-                                 , METFilterFiller        = cms.PSet(METFilterFiller)
-                                 , ak4JetFiller           = cms.PSet(ak4JetFiller)
-                                 , ak4PuppiJetFiller      = cms.PSet(ak4PuppiJetFiller)
-                                 , ak4PuppiNoLepJetFiller = cms.PSet(ak4PuppiNoLepJetFiller)
+                                 , EventFiller               = cms.PSet(EventFiller)
+                                 , METFilterFiller           = cms.PSet(METFilterFiller)
+                                 , ak4JetFiller              = cms.PSet(ak4JetFiller)
+                                 , ak4PuppiJetFiller         = cms.PSet(ak4PuppiJetFiller)
+                                 , ak4PuppiNoLepJetFiller    = cms.PSet(ak4PuppiNoLepJetFiller)
+                                 , ak8PuppiNoLepFatJetFiller = cms.PSet(ak8PuppiNoLepFatJetFiller)
+                                 , ElectronFiller            = cms.PSet(ElectronFiller)
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,datasetName)
 
@@ -80,6 +82,8 @@ from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
 metCorrections(process,process.treeMaker.EventFiller.met,isRealData)
 from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
 defaultJetSequences(process,isRealData)
+from AnalysisTreeMaker.TreeMaker.eleVIDProducer_cff import eleVIDProducer
+eleVIDProducer(process)
 
 
 #==============================================================================================================================#

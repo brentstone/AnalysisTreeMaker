@@ -19,9 +19,11 @@ def ak4JetSequences(process,isRealData):
     jetToolbox(process, 'ak4', 'jetSequence', 'out',postFix="NoLep", PUMethod = 'Puppi', JETCorrPayload = 'AK4PFPuppi', JETCorrLevels = JETCorrLevels,runOnMC=(not isRealData),miniAOD=True, newPFCollection=True, nameNewPFCollection='leptonLessPuppi')
     
 def ak8JetSequences(process,isRealData):
+    #https://twiki.cern.ch/twiki/bin/view/CMS/Hbbtagging#V4_training
+    bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags','pfBoostedDoubleSecondaryVertexAK8BJetTags']
     JETCorrLevels = ['L1FastJet','L2Relative','L3Absolute']
     if isRealData: JETCorrLevels.append('L2L3Residual')  
-    jetToolbox(process, 'ak8',  'jetSequence','out',postFix="NoLep", PUMethod = 'Puppi', JETCorrPayload = 'AK8PFPuppi', JETCorrLevels = JETCorrLevels,runOnMC=(not isRealData),miniAOD=True, newPFCollection=True,nameNewPFCollection='leptonLessPuppi', addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, subJETCorrPayload='AK4PFPuppi',subJETCorrLevels = JETCorrLevels)
+    jetToolbox(process, 'ak8',  'jetSequence','out',postFix="NoLep", PUMethod = 'Puppi', JETCorrPayload = 'AK8PFPuppi', JETCorrLevels = JETCorrLevels,runOnMC=(not isRealData),miniAOD=True, newPFCollection=True,nameNewPFCollection='leptonLessPuppi', addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, subJETCorrPayload='AK4PFPuppi',subJETCorrLevels = JETCorrLevels, bTagDiscriminators=bTagDiscriminators)
 
 def defaultJetSequences(process,isRealData):
     producePF(process)

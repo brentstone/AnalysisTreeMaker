@@ -6,5 +6,5 @@ leptonLessPFProducer = cms.EDProducer('LeptonLessPFProducer',
                                       inputPFParticles = cms.InputTag('packedPFCandidates'),
                                       inputMuons = cms.InputTag('slimmedMuons'),
                                       inputElectrons = cms.InputTag('slimmedElectrons'),
-                                      electron_vetoId = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto")
+                                      electron_vetoId = cms.InputTag('egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium')
 )

@@ -25,7 +25,7 @@ public:
 
 
 protected:
-	void reset() {loadedStatus = false; data.reset();}
+	virtual void reset() {loadedStatus = false; data.reset();}
 	const edm::ParameterSet cfg            ;
 	const bool shouldIgnore                ;
 	const std::string branchName           ;

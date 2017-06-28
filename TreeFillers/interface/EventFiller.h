@@ -26,6 +26,8 @@ public:
 	virtual void fill();
 
 	const reco::Vertex * getPrimVertex() const {return primaryVertex;}
+	bool  realData() const {return isRealData;}
+	float rho() const {return *han_rho;}
 
 private:
     bool isRealData           = false;

@@ -4,6 +4,8 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/EventFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/METFilterFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/JetFiller.h"
+#include "AnalysisTreeMaker/TreeFillers/interface/FatJetFiller.h"
+#include "AnalysisTreeMaker/TreeFillers/interface/ElectronFiller.h"
 
 
 class SearchRegionTreeMaker : public AnaTM::AnalysisTreeMaker {
@@ -11,11 +13,13 @@ class SearchRegionTreeMaker : public AnaTM::AnalysisTreeMaker {
 public:
 	SearchRegionTreeMaker(const edm::ParameterSet &cfg) : AnalysisTreeMaker(cfg)
 {
-		initialize(new AnaTM::EventFiller(cfg,"EventFiller",consumesCollector(),isRealData()));
+		const auto * eventFiller = initialize(new AnaTM::EventFiller(cfg,"EventFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::METFilterFiller(cfg,"METFilterFiller",consumesCollector()));
 		initialize(new AnaTM::JetFiller(cfg,"ak4JetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiJetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiNoLepJetFiller",consumesCollector(),isRealData()));
+		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiNoLepFatJetFiller",consumesCollector(),isRealData()));
+		initialize(new AnaTM::ElectronFiller(cfg,"ElectronFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
 }
 
 	~SearchRegionTreeMaker() {}
