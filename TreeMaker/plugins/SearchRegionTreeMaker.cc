@@ -6,6 +6,7 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/JetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/FatJetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/ElectronFiller.h"
+#include "AnalysisTreeMaker/TreeFillers/interface/MuonFiller.h"
 
 
 class SearchRegionTreeMaker : public AnaTM::AnalysisTreeMaker {
@@ -20,6 +21,7 @@ public:
 		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiNoLepJetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiNoLepFatJetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::ElectronFiller(cfg,"ElectronFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
+		initialize(new AnaTM::MuonFiller(cfg,"MuonFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
 }
 
 	~SearchRegionTreeMaker() {}

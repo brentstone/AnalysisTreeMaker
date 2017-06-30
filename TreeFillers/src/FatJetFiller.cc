@@ -27,8 +27,6 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
 	i_mass           = data.addMulti<float>(branchName,"mass"                  , 0);
 	i_csv            = data.addMulti<float>(branchName,"csv"                   , 0);
 	i_id             = data.addMulti<size8>(branchName,"id"                    , 0);
-	i_hadronFlavor   = data.addMulti<size8>(branchName,"hadronFlavor"          , 0);
-	i_partonFlavor   = data.addMulti<size8>(branchName,"partonFlavor"          , 0);
 
 	if(!isRealData && fillGenJets){
 		i_genIDX         = data.addMulti<size8>(branchName,"genIDX"                , 0);
@@ -36,6 +34,8 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
 		i_gen_eta        = data.addMulti<float>(branchName,"gen_eta"               , 0);
 		i_gen_phi        = data.addMulti<float>(branchName,"gen_phi"               , 0);
 		i_gen_mass       = data.addMulti<float>(branchName,"gen_mass"              , 0);
+		i_hadronFlavor   = data.addMulti<size8>(branchName,"hadronFlavor"          , 0);
+		i_partonFlavor   = data.addMulti<size8>(branchName,"partonFlavor"          , 0);
 	}
 
 
@@ -48,23 +48,23 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
 	i_sj1_phi            = data.addMulti<float>(branchName,"sj1_phi"                             , 0);
 	i_sj1_mass           = data.addMulti<float>(branchName,"sj1_mass"                            , 0);
 	i_sj1_raw_pt         = data.addMulti<float>(branchName,"sj1_raw_pt"                          , 0);
-	i_sj1_raw_eta        = data.addMulti<float>(branchName,"sj1_raw_eta"                         , 0);
-	i_sj1_raw_phi        = data.addMulti<float>(branchName,"sj1_raw_phi"                         , 0);
 	i_sj1_raw_mass       = data.addMulti<float>(branchName,"sj1_raw_mass"                        , 0);
 	i_sj1_csv            = data.addMulti<float>(branchName,"sj1_csv"                             , 0);
+	if(!isRealData && fillGenJets){
 	i_sj1_hadronFlavor   = data.addMulti<size8>(branchName,"sj1_hadronFlavor"                    , 0);
 	i_sj1_partonFlavor   = data.addMulti<size8>(branchName,"sj1_partonFlavor"                    , 0);
+	}
 	i_sj2_pt             = data.addMulti<float>(branchName,"sj2_pt"                              , 0);
 	i_sj2_eta            = data.addMulti<float>(branchName,"sj2_eta"                             , 0);
 	i_sj2_phi            = data.addMulti<float>(branchName,"sj2_phi"                             , 0);
 	i_sj2_mass           = data.addMulti<float>(branchName,"sj2_mass"                            , 0);
 	i_sj2_raw_pt         = data.addMulti<float>(branchName,"sj2_raw_pt"                          , 0);
-	i_sj2_raw_eta        = data.addMulti<float>(branchName,"sj2_raw_eta"                         , 0);
-	i_sj2_raw_phi        = data.addMulti<float>(branchName,"sj2_raw_phi"                         , 0);
 	i_sj2_raw_mass       = data.addMulti<float>(branchName,"sj2_raw_mass"                        , 0);
 	i_sj2_csv            = data.addMulti<float>(branchName,"sj2_csv"                             , 0);
+	if(!isRealData && fillGenJets){
 	i_sj2_hadronFlavor   = data.addMulti<size8>(branchName,"sj2_hadronFlavor"                    , 0);
 	i_sj2_partonFlavor   = data.addMulti<size8>(branchName,"sj2_partonFlavor"                    , 0);
+	}
 
 }
 ;
@@ -115,9 +115,9 @@ void FatJetFiller::fill(){
 		bool passLoose = JetFiller::passLooseID(jet);
 		bool passTight = JetFiller::passTightID(jet);
 		data.fillMulti(i_id ,FillerConstants::convToJetIDStatus(passPU,passLoose,passTight));
-		data.fillMulti(i_hadronFlavor ,ASTypes::convertTo<size8>(jet.hadronFlavour(),"JetFiller::hadronFlavor") );
-		data.fillMulti(i_partonFlavor ,ASTypes::convertTo<size8>(jet.partonFlavour(),"JetFiller::partonFlavor") );
 		if(!isRealData && fillGenJets){
+			data.fillMulti(i_hadronFlavor ,ASTypes::convertTo<size8>(jet.hadronFlavour(),"JetFiller::hadronFlavor") );
+			data.fillMulti(i_partonFlavor ,ASTypes::convertTo<size8>(jet.partonFlavour(),"JetFiller::partonFlavor") );
 			auto genRef = jet.genJetFwdRef().backRef();
 			data.fillMulti(i_genIDX , genRef.isNull() ? size8(255) : genIndicies[genRef.key()] );
 		}
@@ -135,24 +135,24 @@ void FatJetFiller::fill(){
 			data.fillMulti(i_sj1_phi         ,float(subjets[0]->phi()                ));
 			data.fillMulti(i_sj1_mass        ,float(subjets[0]->mass()               ));
 			data.fillMulti(i_sj1_raw_pt      ,float(subjets[0]->correctedP4(0).pt()  ));//https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging
-			data.fillMulti(i_sj1_raw_eta     ,float(subjets[0]->correctedP4(0).eta() ));
-			data.fillMulti(i_sj1_raw_phi     ,float(subjets[0]->correctedP4(0).phi() ));
 			data.fillMulti(i_sj1_raw_mass    ,float(subjets[0]->correctedP4(0).mass()));
 			data.fillMulti(i_sj1_csv         ,float(subjets[0]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
+			if(!isRealData && fillGenJets){
 			data.fillMulti(i_sj1_hadronFlavor,ASTypes::convertTo<size8>(subjets[0]->hadronFlavour(),"FatJetFiller::hadronFlavor"));
 			data.fillMulti(i_sj1_partonFlavor,ASTypes::convertTo<size8>(subjets[0]->partonFlavour(),"FatJetFiller::partonFlavor"));
+			}
 		} else {
 			data.fillMulti(i_sj1_pt          ,float(0));
 			data.fillMulti(i_sj1_eta         ,float(0));
 			data.fillMulti(i_sj1_phi         ,float(0));
 			data.fillMulti(i_sj1_mass        ,float(0));
 			data.fillMulti(i_sj1_raw_pt      ,float(0));
-			data.fillMulti(i_sj1_raw_eta     ,float(0));
-			data.fillMulti(i_sj1_raw_phi     ,float(0));
 			data.fillMulti(i_sj1_raw_mass    ,float(0));
 			data.fillMulti(i_sj1_csv         ,float(0));
+			if(!isRealData && fillGenJets){
 			data.fillMulti(i_sj1_hadronFlavor,size8(0));
 			data.fillMulti(i_sj1_partonFlavor,size8(0));
+			}
 		}
 		if(subjets.size() >1){
 			data.fillMulti(i_sj2_pt          ,float(subjets[1]->pt()                 ));
@@ -160,24 +160,24 @@ void FatJetFiller::fill(){
 			data.fillMulti(i_sj2_phi         ,float(subjets[1]->phi()                ));
 			data.fillMulti(i_sj2_mass        ,float(subjets[1]->mass()               ));
 			data.fillMulti(i_sj2_raw_pt      ,float(subjets[1]->correctedP4(0).pt()  ));//https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging
-			data.fillMulti(i_sj2_raw_eta     ,float(subjets[1]->correctedP4(0).eta() ));
-			data.fillMulti(i_sj2_raw_phi     ,float(subjets[1]->correctedP4(0).phi() ));
 			data.fillMulti(i_sj2_raw_mass    ,float(subjets[1]->correctedP4(0).mass()));
 			data.fillMulti(i_sj2_csv         ,float(subjets[1]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
+			if(!isRealData && fillGenJets){
 			data.fillMulti(i_sj2_hadronFlavor,ASTypes::convertTo<size8>(subjets[1]->hadronFlavour(),"FatJetFiller::hadronFlavor"));
 			data.fillMulti(i_sj2_partonFlavor,ASTypes::convertTo<size8>(subjets[1]->partonFlavour(),"FatJetFiller::partonFlavor"));
+			}
 		} else {
 			data.fillMulti(i_sj2_pt          ,float(0));
 			data.fillMulti(i_sj2_eta         ,float(0));
 			data.fillMulti(i_sj2_phi         ,float(0));
 			data.fillMulti(i_sj2_mass        ,float(0));
 			data.fillMulti(i_sj2_raw_pt      ,float(0));
-			data.fillMulti(i_sj2_raw_eta     ,float(0));
-			data.fillMulti(i_sj2_raw_phi     ,float(0));
 			data.fillMulti(i_sj2_raw_mass    ,float(0));
 			data.fillMulti(i_sj2_csv         ,float(0));
+			if(!isRealData && fillGenJets){
 			data.fillMulti(i_sj2_hadronFlavor,size8(0));
 			data.fillMulti(i_sj2_partonFlavor,size8(0));
+			}
 		}
 
 

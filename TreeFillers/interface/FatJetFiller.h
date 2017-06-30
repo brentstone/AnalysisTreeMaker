@@ -43,8 +43,6 @@ private:
     size i_sj1_phi            = 0;
     size i_sj1_mass           = 0;
     size i_sj1_raw_pt         = 0;
-    size i_sj1_raw_eta        = 0;
-    size i_sj1_raw_phi        = 0;
     size i_sj1_raw_mass       = 0;
     size i_sj1_csv            = 0;
     size i_sj1_hadronFlavor   = 0;
@@ -55,8 +53,6 @@ private:
     size i_sj2_phi            = 0;
     size i_sj2_mass           = 0;
     size i_sj2_raw_pt         = 0;
-    size i_sj2_raw_eta        = 0;
-    size i_sj2_raw_phi        = 0;
     size i_sj2_raw_mass       = 0;
     size i_sj2_csv            = 0;
     size i_sj2_hadronFlavor   = 0;

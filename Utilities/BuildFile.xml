@@ -1,0 +1,7 @@
+<use   name="root"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/Math"/>
+<export>
+  <lib   name="1"/>
+</export>
+

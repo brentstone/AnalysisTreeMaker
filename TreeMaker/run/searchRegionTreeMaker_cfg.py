@@ -69,6 +69,7 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , ak4PuppiNoLepJetFiller    = cms.PSet(ak4PuppiNoLepJetFiller)
                                  , ak8PuppiNoLepFatJetFiller = cms.PSet(ak8PuppiNoLepFatJetFiller)
                                  , ElectronFiller            = cms.PSet(ElectronFiller)
+                                 , MuonFiller                = cms.PSet(MuonFiller)                                 
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,datasetName)
 

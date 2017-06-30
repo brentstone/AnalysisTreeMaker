@@ -7,8 +7,6 @@
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
-#include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-
 namespace AnaTM{
 class EventFiller;
 class ElectronFiller : public BaseFiller {
@@ -26,19 +24,13 @@ private:
 	size i_scEta          ;
 	size i_d0             ;
 	size i_dz             ;
+	size i_sip3D          ;
 	size i_mvaID          ;
+	size i_mvaID_cat      ;
 	size i_miniIso        ;
-	size i_relISO         ;
+	size i_eaRelISO       ;
 	size i_id             ;
 
-	size i_gen_pt         ;
-	size i_gen_status     ;
-	size i_gen_pdgid      ;
-	size i_gen_mom_status ;
-	size i_gen_mom_pdgid  ;
-
-	bool  isRealData           = false;
-    bool  fillGenInfo          = false;
     float minPT                = 0;
 
     edm::EDGetTokenT<pat::ElectronCollection>            token_electrons;
@@ -46,15 +38,25 @@ private:
     edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_loose;
     edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_med  ;
     edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_tight;
+    edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_heep;
+    edm::EDGetTokenT<edm::ValueMap<float              >> token_mva  ;
+    edm::EDGetTokenT<edm::ValueMap<int                >> token_mvaCat;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>	    token_pfCands;
+    edm::EDGetTokenT<double>                             token_miniiso_rho;
 
     edm::Handle<pat::ElectronCollection>                 han_electrons;
     edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_veto ;
     edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_loose;
     edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_med  ;
     edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_tight;
+    edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_heep ;
+    edm::Handle<edm::ValueMap<float              >>      han_mva  ;
+    edm::Handle<edm::ValueMap<int                >>      han_mvaCat;
+    edm::Handle<pat::PackedCandidateCollection>			han_pfCands;
+    edm::Handle<double>                                  han_miniiso_rho;
 
     const EventFiller * event;
-    EffectiveAreas   effectiveAreas;
+
 };
 }
 

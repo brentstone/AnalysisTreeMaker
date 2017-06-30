@@ -3,11 +3,11 @@
 <use   name="FWCore/ParameterSet"/>
 
 <use   name="AnalysisTreeMaker/TreeMaker"/>
+<use   name="AnalysisTreeMaker/Utilities"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="RecoEgamma/EgammaTools"/>
 <export>
   <lib   name="1"/>
 </export>
