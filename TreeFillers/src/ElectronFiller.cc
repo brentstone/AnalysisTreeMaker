@@ -99,10 +99,7 @@ void ElectronFiller::fill(){
 		setID(han_cut_med  ,FillerConstants::ELID_CUT_MED  ,FillerConstants::ELID_CUT_NOISO_MED  );
 		setID(han_cut_tight,FillerConstants::ELID_CUT_TIGHT,FillerConstants::ELID_CUT_NOISO_TIGHT);
 
-
-		if ((*han_cut_tight)[ lep ].cutFlowPassed()) FillerConstants::addPass(idResult,FillerConstants::ELID_CUT_HEEP);
-		if ((*han_cut_tight)[ lep ].cutFlowPassed()) FillerConstants::addPass(idResult,FillerConstants::ELID_CUT_HEEP);
-		auto maskedCutFlowData = (*han_cut_tight)[ lep ].getCutFlowResultMasking("GsfEleValueMapIsoRhoCut_0");
+		auto maskedCutFlowData = (*han_cut_heep)[ lep ].getCutFlowResultMasking("GsfEleValueMapIsoRhoCut_0");
 		maskedCutFlowData = maskedCutFlowData.getCutFlowResultMasking("GsfEleEmHadD1IsoRhoCut_0");
 		if (maskedCutFlowData.cutFlowPassed()) FillerConstants::addPass(idResult,FillerConstants::ELID_CUT_NOISO_HEEP);
 

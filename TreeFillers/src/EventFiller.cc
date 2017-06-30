@@ -90,7 +90,7 @@ void EventFiller::fill(){
 		  if(psu.getBunchCrossing() == 0)
 			  num_true_interactions = psu.getTrueNumInteractions();
 	  }
-	  data.fill(i_nTruePUInts      ,num_true_interactions);
+	  data.fill(i_nTruePUInts         ,num_true_interactions);
 	  data.fill(i_weight              ,float(han_genEvent	->weight()));
 
 

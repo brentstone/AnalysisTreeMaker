@@ -34,7 +34,7 @@ METFilterFiller::METFilterFiller(const edm::ParameterSet& fullParamSet, const st
 	    triggerIDs["AnaTM_dupECALClusters"]                   = 1 << 16; //true if duplicates are present..bad
 	    triggerIDs["AnaTM_hitsNotReplaced"]                   = 1 << 17; //true of not empty...bad
 
-	    i_trigResult =  data.add<size>   (branchName,"trigbits"                     ,"i",0);
+	    i_trigResult =  data.add<size>   (branchName,"metFilters"                     ,"i",0);
 
 
 
