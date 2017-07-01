@@ -6,7 +6,7 @@ ak8PuppiNoLepFatJetFiller = cms.PSet(
     fillGenJets                     = cms.bool(True),
     minJetPT                        = cms.double(50),
     jets                            = cms.InputTag('packedPatJetsAK8PFPuppiNoLepSoftDrop'),
-    genjets                         = cms.InputTag('packedPatJetsAK8PFPuppiNoLepSoftDrop'),     
+    genjets                         = cms.InputTag('ak8GenJetsNoNu'),     
     jetDef                          = cms.string('AK8PuppiNoLep'),  
     subjetDef                       = cms.string('SoftDrop'),  
 )

@@ -10,7 +10,7 @@
 namespace AnaTM{
 class METFilterFiller : public BaseFiller {
 public:
-	METFilterFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc);
+	METFilterFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, bool isRealData);
 	virtual ~METFilterFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void fill();
@@ -18,7 +18,7 @@ public:
 private:
 
 	size i_trigResult                = 0;
-
+	bool isRealData = false;
 	edm::EDGetTokenT<edm::TriggerResults>  token_trigBits;
 	edm::Handle<edm::TriggerResults> han_trigBits;
 	const edm::TriggerNames *              triggerNames =0;
@@ -34,8 +34,6 @@ private:
     edm::EDGetTokenT<edm::EDCollection<DetId>> token_hitsNotReplaced;
     edm::Handle<bool>                          han_dupECALClusters;
     edm::Handle<edm::EDCollection<DetId>>      han_hitsNotReplaced;
-
-	std::map<std::string, size> triggerIDs;
 };
 }
 

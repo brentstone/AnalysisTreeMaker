@@ -10,12 +10,56 @@ namespace FillerConstants{
 	template <class storage, class type>
 	bool doesPass(const storage passList, const type checkPassed ) {return  (1 << checkPassed) & passList;};
 
-	enum JetIDStatus { PUID, LOOSEID, TIGHTID};
-	ASTypes::size8 convToJetIDStatus(const bool puID, const bool looseID, const bool tightID);
+	enum JetIDStatus { JETID_PU, JETID_LOOSE, JETID_TIGHT};
 
 	enum ElectronID {ELID_CUT_VETO,ELID_CUT_LOOSE,ELID_CUT_MED,ELID_CUT_TIGHT,ELID_CUT_HEEP,
 					ELID_CUT_NOISO_VETO,ELID_CUT_NOISO_LOOSE,ELID_CUT_NOISO_MED,ELID_CUT_NOISO_TIGHT,ELID_CUT_NOISO_HEEP};
 	enum MuonID   {MUID_SOFT,MUID_LOOSE,MUID_MED,MUID_TIGHT,MUID_HIGHPT,MUID_MED16};
+
+
+	enum METFilters{
+		Flag_goodVertices                       ,
+		Flag_globalTightHalo2016Filter          ,
+		Flag_HBHENoiseFilter                    ,
+		Flag_HBHENoiseIsoFilter                 ,
+		Flag_EcalDeadCellTriggerPrimitiveFilter ,
+		Flag_eeBadScFilter                      ,//5
+		Flag_CSCTightHaloFilter                 ,
+		Flag_CSCTightHalo2015Filter             ,
+		Flag_trackingFailureFilter              ,
+		Flag_trkPOGFilters                      ,
+		Flag_ecalLaserCorrFilter                ,//10
+		Flag_hcalLaserEventFilter               ,
+		Flag_badMuons                           ,
+		Flag_duplicateMuons                     ,
+	    //Ones we add ourselves
+		//bad muon filters
+		AnaTM_badMuons                          ,
+	    AnaTM_badChargedHadrons                 ,//15
+	    //ECAL slew rate
+	    AnaTM_dupECALClusters                   , //true if duplicates are present..bad
+	    AnaTM_hitsNotReplaced                   , //true of not empty...bad
+	};
+	const std::vector<std::string> metFilterStrings = {
+			"Flag_goodVertices",
+			"Flag_globalTightHalo2016Filter",
+			"Flag_HBHENoiseFilter",
+			"Flag_HBHENoiseIsoFilter",
+			"Flag_EcalDeadCellTriggerPrimitiveFilter",
+			"Flag_eeBadScFilter",
+			"Flag_CSCTightHaloFilter",
+			"Flag_CSCTightHalo2015Filter",
+			"Flag_trackingFailureFilter",
+			"Flag_trkPOGFilters",
+			"Flag_ecalLaserCorrFilter",
+			"Flag_hcalLaserEventFilter",
+			"Flag_badMuons",
+			"Flag_duplicateMuons",
+			"AnaTM_badMuons",
+			"AnaTM_badChargedHadrons",
+			"AnaTM_dupECALClusters",
+			"AnaTM_hitsNotReplaced"
+	};
 
 
 

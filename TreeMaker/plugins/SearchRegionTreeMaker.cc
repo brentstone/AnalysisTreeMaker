@@ -17,7 +17,7 @@ public:
 	SearchRegionTreeMaker(const edm::ParameterSet &cfg) : AnalysisTreeMaker(cfg)
 {
 		const auto * eventFiller = initialize(new AnaTM::EventFiller(cfg,"EventFiller",consumesCollector(),isRealData()));
-		initialize(new AnaTM::METFilterFiller(cfg,"METFilterFiller",consumesCollector()));
+		initialize(new AnaTM::METFilterFiller(cfg,"METFilterFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::TriggerFiller(cfg,"TriggerFiller",consumesCollector()));
 		initialize(new AnaTM::JetFiller(cfg,"ak4JetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiJetFiller",consumesCollector(),isRealData()));

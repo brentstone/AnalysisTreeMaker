@@ -2,6 +2,7 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/JetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/FillerConstants.h"
 using ASTypes::size8;
+using ASTypes::int8;
 namespace AnaTM{
 
 JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, bool isRealData):
@@ -22,8 +23,8 @@ JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& p
 	i_csv            = data.addMulti<float>(branchName,"csv"                   , 0);
 	i_id             = data.addMulti<size8>(branchName,"id"                    , 0);
 	if(isRealData || !fillGenJets) return;
-	i_hadronFlavor   = data.addMulti<size8>(branchName,"hadronFlavor"          , 0);
-	i_partonFlavor   = data.addMulti<size8>(branchName,"partonFlavor"          , 0);
+	i_hadronFlavor   = data.addMulti<int8>(branchName,"hadronFlavor"          , 0);
+	i_partonFlavor   = data.addMulti<int8>(branchName,"partonFlavor"          , 0);
 	i_genIDX         = data.addMulti<size8>(branchName,"genIDX"                , 0);
 	i_gen_pt         = data.addMulti<float>(branchName,"gen_pt"                , 0);
 	i_gen_eta        = data.addMulti<float>(branchName,"gen_eta"               , 0);
@@ -135,14 +136,18 @@ void JetFiller::fill(){
 		data.fillMulti(i_mass    ,float(jet.mass()));
 		data.fillMulti(i_csv     ,
 				float(jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
+
+		size8 idStat = 0;
 		bool passPU = jet.hasUserFloat("pileupJetId:fullId") &&
 				(jet.userInt("pileupJetIdUpdated:fullId") & (1 << 2));
-		bool passLoose = passLooseID(jet);
-		bool passTight = passTightID(jet);
-		data.fillMulti(i_id ,FillerConstants::convToJetIDStatus(passPU,passLoose,passTight));
+		if(passPU) FillerConstants::addPass(idStat,FillerConstants::JETID_PU);
+		if(passLooseID(jet)) FillerConstants::addPass(idStat,FillerConstants::JETID_LOOSE);
+		if(passTightID(jet)) FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+		data.fillMulti(i_id ,idStat);
+
 		if(!isRealData && fillGenJets){
-			data.fillMulti(i_hadronFlavor ,ASTypes::convertTo<size8>(jet.hadronFlavour(),"JetFiller::hadronFlavor") );
-			data.fillMulti(i_partonFlavor ,ASTypes::convertTo<size8>(jet.partonFlavour(),"JetFiller::partonFlavor") );
+			data.fillMulti(i_hadronFlavor ,ASTypes::convertTo<int8>(jet.hadronFlavour(),"JetFiller::hadronFlavor") );
+			data.fillMulti(i_partonFlavor ,ASTypes::convertTo<int8>(jet.partonFlavour(),"JetFiller::partonFlavor") );
 			auto genRef = jet.genJetFwdRef().backRef();
 			data.fillMulti(i_genIDX , genRef.isNull() ? size8(255) : genIndicies[genRef.key()] );
 		}
