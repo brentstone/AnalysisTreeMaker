@@ -9,18 +9,18 @@ from AnalysisTreeMaker.TreeFillers.genParticleFiller_cff import *
 
 
 TreeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
-                        ,realData = cms.bool(False)
-                        ,globalTag = cms.string(""))
+                        ,globalTag = cms.string("")
+                        ,dataRun = cms.string("")
+                        ,sample = cms.string("")
+                        )
 
-def setupTreeMakerAndGlobalTag(process, analyzer, isRealData,datasetName):
-    if isRealData:
-        analyzer.realData = True
-        if 'Run2016H' in datasetName:
+def setupTreeMakerAndGlobalTag(process, analyzer, isRealData, dataRun = "NONE"):
+    if isRealData:    
+        if 'Run2016H' in dataRun:
             analyzer.globalTag = "80X_dataRun2_Prompt_v16"  #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
         else:
             analyzer.globalTag = "80X_dataRun2_2016SeptRepro_v7" #https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC#Jet_Energy_Corrections_in_Run2, https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
-    else :
-        analyzer.realData = False
+    else :        
         analyzer.globalTag = "80X_mcRun2_asymptotic_2016_TrancheIV_v8" #https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC#Jet_Energy_Corrections_in_Run2
     process.GlobalTag.globaltag = analyzer.globalTag
         

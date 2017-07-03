@@ -10,12 +10,18 @@ namespace FillerConstants{
 	template <class storage, class type>
 	bool doesPass(const storage passList, const type checkPassed ) {return  (1 << checkPassed) & passList;};
 
+
+	enum DataRun   {NODATARUN, RUN2016A,RUN2016B,RUN2016C,RUN2016D,RUN2016E,RUN2016F,RUN2016G,RUN2016H};
+	enum Dataset   {NODATASET, SINGLEE,SINGLEMU, JETHT,MET};
+	enum MCProcess {NOPROCESS, SIGNAL,TTBAR,WJETS,ZJETS,SINGLET,DIBOSON,TTX,QCD};
+
+
+
 	enum JetIDStatus { JETID_PU, JETID_LOOSE, JETID_TIGHT};
 
 	enum ElectronID {ELID_CUT_VETO,ELID_CUT_LOOSE,ELID_CUT_MED,ELID_CUT_TIGHT,ELID_CUT_HEEP,
 					ELID_CUT_NOISO_VETO,ELID_CUT_NOISO_LOOSE,ELID_CUT_NOISO_MED,ELID_CUT_NOISO_TIGHT,ELID_CUT_NOISO_HEEP};
 	enum MuonID   {MUID_SOFT,MUID_LOOSE,MUID_MED,MUID_TIGHT,MUID_HIGHPT,MUID_MED16};
-
 
 	enum METFilters{
 		Flag_goodVertices                       ,

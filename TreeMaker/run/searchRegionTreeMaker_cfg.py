@@ -14,11 +14,23 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
 
-options.register('crabDataset',
+options.register('isCrab',
                  None,
                  VarParsing.multiplicity.singleton,
+                 VarParsing.varType.bool,
+                 "Input isCrab")
+
+options.register('sample',
+                 "NONE",
+                 VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
-                 "Input crabDataset")
+                 "Input sample")
+
+options.register('dataRun',
+                 "NONE",
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.string,
+                 "Input dataRun")
 
 options.register('skipEvents',
                  0,
@@ -51,17 +63,16 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #==============================================================================================================================#
 #==============================================================================================================================#
 
-isCrab =  True if options.crabDataset else False
-datasetName = options.crabDataset if isCrab else options.inputFiles[0]
-print datasetName
-isRealData = ('/store/data' in datasetName) or (re.match(r'^/[a-zA-Z]+/Run[0-9]{4}[A-Z]', datasetName))
-
-
+isCrab  = options.isCrab
+dataRun = options.dataRun
+sample  = options.sample
+isRealData = (dataRun is not "NONE")
 
 from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
-                                 , realData = cms.bool(False)
                                  , globalTag = cms.string('')
+                                 , dataRun = cms.string(dataRun)
+                                 , sample = cms.string(sample)
                                  , EventFiller               = cms.PSet(EventFiller)
                                  , METFilterFiller           = cms.PSet(METFilterFiller)
                                  , TriggerFiller             = cms.PSet(TriggerFiller)
@@ -73,7 +84,7 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , MuonFiller                = cms.PSet(MuonFiller)  
                                  , GenParticleFiller         = cms.PSet(GenParticleFiller)                                 
                                  )
-setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,datasetName)
+setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,dataRun)
 
 #==============================================================================================================================#
 #==============================================================================================================================#
@@ -84,7 +95,7 @@ if isRealData and not isCrab:
 from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
 metCorrections(process,process.treeMaker.EventFiller.met,isRealData)
 from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
-defaultJetSequences(process,isRealData)
+defaultJetSequences(process,isRealData,dataRun)
 from AnalysisTreeMaker.TreeMaker.eleVIDProducer_cff import eleVIDProducer
 eleVIDProducer(process)
 

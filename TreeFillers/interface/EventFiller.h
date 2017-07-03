@@ -2,12 +2,14 @@
 #define ANALYSISTREEMAKER_TREEFILLERS_EVENTFILLER_H
 
 #include "AnalysisTreeMaker/TreeMaker/interface/BaseFiller.h"
+#include "AnalysisTreeMaker/TreeFillers/interface/FillerConstants.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 
 namespace AnaTM{
 
@@ -20,17 +22,20 @@ struct EventCoords {
 
 class EventFiller : public BaseFiller {
 public:
-	EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,  bool isRealData);
+	EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,
+			bool isRealData, FillerConstants::DataRun dataRun,FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess);
 	virtual ~EventFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void fill();
 
 	const reco::Vertex * getPrimVertex() const {return primaryVertex;}
-	bool  realData() const {return isRealData;}
 	float rho() const {return *han_rho;}
 
 private:
-    bool isRealData           = false;
+	const bool                         realData ;
+	const FillerConstants::DataRun     dataRun  ;
+	const FillerConstants::Dataset     dataset  ;
+	const FillerConstants::MCProcess   mcProcess;
 
 	size i_run                = 0;
 	size i_lumi               = 0;
@@ -47,6 +52,9 @@ private:
 	size i_met_raw_phi        = 0;
 	size i_nTruePUInts        = 0;
 	size i_weight             = 0;
+	size i_process            = 0;
+	size i_dataset            = 0;
+	size i_dataRun            = 0;
 
     edm::EDGetTokenT<reco::VertexCollection>          token_vtx     ;
     edm::EDGetTokenT<double>                          token_rho     ;

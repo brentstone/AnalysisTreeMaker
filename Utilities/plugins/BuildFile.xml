@@ -1,7 +1,7 @@
 <library   name="AnalysisTreeMakerUtilitiesPlugins" file="*.cc">
     <use   name="DataFormats/PatCandidates"/>
     <use   name="DataFormats/Common"/>
-    <use   name="AnalysisTreeMaker/IsolationVariables"/>
+    <use   name="AnalysisTreeMaker/Utilities"/>
     <use   name="DataFormats/VertexReco"/>
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>           

@@ -60,8 +60,8 @@ void MuonFiller::fill(){
 		data.fillMulti(i_phi    , float(lep->phi()));
 		data.fillMulti(i_q      , int8(lep->charge()));
 
-		data.fillMulti<float>(i_d0, lep->muonBestTrack()->dxy(vtx_pt));
-		data.fillMulti<float>(i_dz, lep->muonBestTrack()->dz(vtx_pt));
+		data.fillMulti<float>(i_d0, lep->innerTrack().isNonnull() ? -1.*lep->innerTrack()->dxy(vtx_pt):0);
+		data.fillMulti<float>(i_dz, lep->innerTrack().isNonnull() ? -1.*lep->innerTrack()->dz(vtx_pt):0);
 		float sip3d=std::fabs(lep->dB(pat::Muon::PV3D) / lep->edB(pat::Muon::PV3D));
 		data.fillMulti<float>(i_sip3D, sip3d);
 		float EA = Isolations::muonEA(lep->eta());

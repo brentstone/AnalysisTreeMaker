@@ -12,6 +12,9 @@ public:
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void fill();
 
+private:
+	virtual void reset();
+
     //typefs to setup how the association is stored, and helpers for that storage
     typedef std::map<size,size> CandMap;
     typedef ASTypes::size16 stor;

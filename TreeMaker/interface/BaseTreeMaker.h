@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "AnalysisTreeMaker/TreeFillers/interface/FillerConstants.h"
 #include<vector>
 
 class TreeWrapper;
@@ -29,6 +29,9 @@ public:
 	//---User helper functions
 	int numEvents() const {return nEvents;}
 	bool isRealData() const {return realData;}
+	FillerConstants::DataRun  getDataRun() const {return dataRun;}
+	FillerConstants::Dataset  getDataset() const {return dataset;}
+	FillerConstants::MCProcess  getMCProcess() const {return mcProcess;}
 	TreeWrapper * tree() { return treeWrapper;}
 	//---User helper functions
 
@@ -47,8 +50,17 @@ public:
 	//----End automatic functions
 
 private:
-	const bool        realData;
-	const std::string globalTag;
+	FillerConstants::DataRun   getDataRun  (const std::string& sample) const;
+	FillerConstants::Dataset   getDataset  (const std::string& sample) const;
+	FillerConstants::MCProcess getMCProcess(const std::string& sample) const;
+
+
+	std::string                  globalTag;
+	bool                         realData ;
+	FillerConstants::DataRun     dataRun  = FillerConstants::NODATARUN;
+	FillerConstants::Dataset     dataset  = FillerConstants::NODATASET;
+	FillerConstants::MCProcess   mcProcess= FillerConstants::NOPROCESS;
+
 
 	std::vector<BaseFiller*> initializedFillers;
 	TreeWrapper * treeWrapper = 0;

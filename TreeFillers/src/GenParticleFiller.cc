@@ -9,7 +9,7 @@ GenParticleFiller::GenParticleFiller(const edm::ParameterSet& fullParamSet, cons
 				BaseFiller(fullParamSet,psetName,"GenParticleFiller")
 {
 	if(ignore()) return;
-	fillAllParticles  =cfg.getParameter<bool>("fillAllParticles");
+	fillAllParticles         =cfg.getParameter<bool>("fillAllParticles");
 	token_genParticles       = cc.consumes<reco::GenParticleCollection>     (cfg.getParameter<edm::InputTag>("genParticles"));
 
 	i_pt             = data.addMulti<float >(branchName,"pt"                          , 0);
@@ -26,8 +26,17 @@ GenParticleFiller::GenParticleFiller(const edm::ParameterSet& fullParamSet, cons
 
 
 
+};
+void GenParticleFiller::reset() {
+	BaseFiller::reset();
+    storedGenParticles.clear();
+    candMap.clear();
+    assocList.clear();
+    nMoms    .clear();
+    firstMoms.clear();
+    nDaus    .clear();
+    firstDaus.clear();
 }
-;
 void GenParticleFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	reset();
 	iEvent.getByToken(token_genParticles     ,han_genParticles     );
@@ -129,8 +138,7 @@ void GenParticleFiller::fillMomVec(const reco::GenParticle * c, const CandMap& c
     auto momRef = c->motherRef(iM);
     CandMap::const_iterator momIt = candMap.find(momRef.key());
     if(momIt == candMap.end()){
-      if(momRef->numberOfMothers())
-        fillMomVec(&(*momRef),candMap,requireMoms,moms);
+      if(momRef->numberOfMothers()) fillMomVec(&(*momRef),candMap,requireMoms,moms);
       else if (requireMoms){
         ParticleInfo::printGenInfo((*han_genParticles),-1);
         throw cms::Exception( "GenParticleFiller::fillMomVec()",
@@ -146,8 +154,7 @@ void GenParticleFiller::fillDauVec(const reco::GenParticle * c, const CandMap& c
     auto dauRef = c->daughterRef(iD);
     CandMap::const_iterator dauIt = candMap.find(dauRef.key());
     if(dauIt == candMap.end()){
-      if(dauRef->numberOfDaughters())
-        fillDauVec(&(*dauRef),candMap,requireDaus,daus);
+      if(dauRef->numberOfDaughters()) fillDauVec(&(*dauRef),candMap,requireDaus,daus);
       else if (requireDaus){
         ParticleInfo::printGenInfo((*han_genParticles),-1);
         throw cms::Exception( "GenParticleFiller::fillDauVec()",

@@ -7,10 +7,18 @@ using ASTypes::size8 ;
 
 namespace AnaTM{
 
-EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,  bool isRealData) :
-		BaseFiller(fullParamSet,psetName,"EventFiller"),isRealData(isRealData)
+EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,
+		bool isRealData, FillerConstants::DataRun dataRun,FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess
+		) :
+		BaseFiller(fullParamSet,psetName,"EventFiller"),
+		realData (isRealData),
+		dataRun  (dataRun),
+		dataset  (dataset),
+		mcProcess(mcProcess)
+
 {
 	if(ignore()) return;
+
 
 	token_vtx            =cc.consumes<reco::VertexCollection>         (cfg.getParameter<edm::InputTag>("vertices"));
 	token_rho            =cc.consumes<double>                         (cfg.getParameter<edm::InputTag>("rho"));
@@ -36,9 +44,14 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	i_met_raw_phi        =  data.add<float>  (branchName,"met_raw_phi"             ,"F",0);
 
 
-	if(!isRealData){
+	if(isRealData){
+		i_dataset            =  data.add<size16>  (branchName,"dataset"                 ,"s",0);
+		i_dataRun            =  data.add<size16>  (branchName,"dataRun"                 ,"s",0);
+
+	} else {
 		i_nTruePUInts        =  data.add<float>  (branchName,"nTruePUInts"             ,"F",0);
 		i_weight             =  data.add<float>  (branchName,"weight"                  ,"F",0);
+		i_process            =  data.add<size16>  (branchName,"process"                ,"s",0);
 	}
 
 };
@@ -50,7 +63,7 @@ void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	iEvent.getByToken(token_met     ,han_met     );
 	iEvent.getByToken(token_rawMet  ,han_rawMet  );
 
-	if(!isRealData){
+	if(!realData){
 		iEvent.getByToken(token_puSum   ,han_puSum   );
 		iEvent.getByToken(token_genEvent,han_genEvent);
 	}
@@ -83,15 +96,22 @@ void EventFiller::fill(){
 	  data.fill(i_met_raw_pt       ,float(han_rawMet->front().uncorPt()));
 	  data.fill(i_met_raw_phi      ,float(han_rawMet->front().uncorPhi()));
 
-	  if(isRealData) return;
+	  if(realData){
+		  data.fill(i_dataset            ,static_cast<size16>(dataset)   );
+		  data.fill(i_dataRun            ,static_cast<size16>(dataRun)   );
 
-	  float   num_true_interactions = 0;
-	  for( const auto& psu : *han_puSum ) {
-		  if(psu.getBunchCrossing() == 0)
-			  num_true_interactions = psu.getTrueNumInteractions();
+	  } else {
+		  float   num_true_interactions = 0;
+		  for( const auto& psu : *han_puSum ) {
+			  if(psu.getBunchCrossing() == 0)
+				  num_true_interactions = psu.getTrueNumInteractions();
+		  }
+		  data.fill(i_nTruePUInts         ,num_true_interactions);
+		  data.fill(i_weight              ,float(han_genEvent	->weight()));
+		  data.fill(i_process             ,static_cast<size16>(mcProcess)   );
 	  }
-	  data.fill(i_nTruePUInts         ,num_true_interactions);
-	  data.fill(i_weight              ,float(han_genEvent	->weight()));
+
+
 
 
 

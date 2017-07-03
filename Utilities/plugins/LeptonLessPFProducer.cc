@@ -18,127 +18,214 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
-#include "AnalysisTreeMaker/IsolationVariables/interface/IsolationUtilities.h"
+#include "AnalysisTreeMaker/Utilities/interface/Isolations.h"
 
-class LeptonLessPFProducer : public edm::EDProducer {
+class LeptonLessPFProducer : public edm::stream::EDProducer<> {
 public:
 	LeptonLessPFProducer(const edm::ParameterSet& iConfig) :
-    vtxToken          (consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
-	rhoToken          (consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
-	pfcandidateToken(consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("inputPFParticles"))),
-	muonToken(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("inputMuons"))),
-	electronToken(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("inputElectrons"))),
-	vetoIdFullInfoMapToken_(consumes<edm::ValueMap<vid::CutFlowResult> >  (iConfig.getParameter<edm::InputTag>("electron_vetoId")))
+		token_vtx         (consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+		token_pfCand      (consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfParticles"))),
+		isData2016GH      (iConfig.getParameter<bool>("isData2016GH")),
+		token_muons       (consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+		token_mu_rho      (consumes<double>(iConfig.getParameter<edm::InputTag>("mu_rho"))),
+		mu_ISO            (iConfig.getParameter<double>("mu_iso")),
+		mu_ID             (iConfig.getParameter<std::string>("mu_id")),
+		mu_doMiniIso      (iConfig.getParameter<bool>("mu_doMiniIso")),
+		mu_dz             (iConfig.getParameter<double>("mu_dz")),
+		mu_d0             (iConfig.getParameter<double>("mu_d0")),
+		mu_pt             (iConfig.getParameter<double>("mu_pt")),
+		token_electrons   (consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+		token_e_rho       (consumes<double>(iConfig.getParameter<edm::InputTag>("e_rho"))),
+		token_e_ID        (consumes<edm::ValueMap<vid::CutFlowResult> >  (iConfig.getParameter<edm::InputTag>("e_id"))),
+		e_ISO             (iConfig.getParameter<double>("e_iso")),
+		e_doMiniIso       (iConfig.getParameter<bool>("e_doMiniIso")),
+		e_dz              (iConfig.getParameter<double>("e_dz")),
+		e_d0              (iConfig.getParameter<double>("e_d0")),
+		e_pt              (iConfig.getParameter<double>("e_pt")),
+		muonID            ( mu_ID == "medium" ? (isData2016GH ? &LeptonLessPFProducer::isMediumMuon : &LeptonLessPFProducer::isMediumMuon_23Sep2016) : 0)
+{
+		if(muonID == 0)
+			throw cms::Exception("LeptonLessPFProducer::LeptonLessPFProducer",
+					"You did not provide a muon ID that I understand!");
 
-	{
-		  produces< pat::PackedCandidateCollection             >(        );
+		produces< pat::PackedCandidateCollection             >(        );
+}
+	virtual ~LeptonLessPFProducer(){};
+	virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+		edm::Handle<reco::VertexCollection>             han_vtx        ;
+		edm::Handle<pat::PackedCandidateCollection>     han_pfCand     ;
+		edm::Handle<pat::MuonCollection>                han_muons      ;
+		edm::Handle<double>                             han_mu_rho     ;
+		edm::Handle<pat::ElectronCollection>            han_electrons  ;
+		edm::Handle<double>                             han_e_rho      ;
+		edm::Handle<edm::ValueMap<vid::CutFlowResult> > han_e_ID       ;
 
+		iEvent.getByToken(token_vtx      ,han_vtx      );
+		iEvent.getByToken(token_pfCand   ,han_pfCand   );
+		iEvent.getByToken(token_muons    ,han_muons    );
+		iEvent.getByToken(token_mu_rho   ,han_mu_rho   );
+		iEvent.getByToken(token_electrons,han_electrons);
+		iEvent.getByToken(token_e_rho    ,han_e_rho    );
+		iEvent.getByToken(token_e_ID     ,han_e_ID     );
+
+		auto vtx_pt =  han_vtx->size() > 0 ?  (*han_vtx)[0].position() : reco::Vertex::Point();
+		std::vector<unsigned int> filteredCandidateList;
+
+		for (unsigned int iE = 0; iE < han_muons->size(); ++iE){
+			const edm::Ptr<pat::Muon> lep(han_muons, iE);
+			if(lep->pt() < mu_pt) continue;
+			if (std::fabs(lep->eta()) >= 2.4) continue;
+
+			float d0 = std::fabs(lep->innerTrack().isNonnull() ? -1.*lep->innerTrack()->dxy(vtx_pt):0);
+			float dZ = std::fabs(lep->innerTrack().isNonnull() ? lep->innerTrack()->dz(vtx_pt):0);
+			if(d0 >= mu_d0) continue;
+			if(dZ >= mu_dz) continue;
+
+			if((this->*LeptonLessPFProducer::muonID) (*lep) == false ) continue;
+
+			double muISO = 0;
+			if(mu_doMiniIso){
+				float EA = Isolations::muonEA(lep->eta());
+				muISO = Isolations::getPFMiniIsolation(han_pfCand, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, EA, *han_mu_rho);
+			} else {
+				double sumChargedHadronPt = lep->pfIsolationR04().sumChargedHadronPt;
+				double sumNeutralHadronPt = lep->pfIsolationR04().sumNeutralHadronEt;
+				double sumPhotonPt        = lep->pfIsolationR04().sumPhotonEt;
+				double sumPUPt            = lep->pfIsolationR04().sumPUPt;
+				double pt                 = lep->pt();
+				muISO = (sumChargedHadronPt+TMath::Max(0.,sumNeutralHadronPt+sumPhotonPt-0.5*sumPUPt))/pt;
+			}
+			if(muISO >= mu_ISO) continue;
+
+			if(lep->originalObjectRef().isNull()){
+				std::cout << "NULL PF CAND REF!"<<"MU: " <<lep->originalObjectRef().key() <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<" -> "<< lep->isPFMuon()<<std::endl;
+				continue;
+			}
+
+			filteredCandidateList.push_back(lep->originalObjectRef().key());
+			//		  std::cout <<"MU: " <<mu.originalObjectRef().key() <<" -> "<< mu.pt()<<","<< mu.eta()<<","<< mu.phi()<<std::endl;
+
+		}
+
+		for (unsigned int iE = 0; iE < han_electrons->size(); ++iE){
+			const edm::Ptr<pat::Electron> lep(han_electrons, iE);
+			if(lep->pt() < e_pt) continue;
+			if (std::fabs(lep->eta()) >= 2.4) continue;
+
+			if( std::fabs(lep->gsfTrack()->dxy(vtx_pt) ) >= e_d0)continue;
+			if( std::fabs(lep->gsfTrack()->dz(vtx_pt)  ) >= e_dz)continue;
+
+			vid::CutFlowResult vetoIdIsoMasked = (*han_e_ID)[ lep ].getCutFlowResultMasking("GsfEleEffAreaPFIsoCut_0");
+			if(!vetoIdIsoMasked.cutFlowPassed()) continue;
+
+
+			float eISO = 0;
+			float eA = Isolations::electronEA(lep->eta());
+			if(e_doMiniIso){
+				eISO = Isolations::getPFMiniIsolation(han_pfCand, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, eA, *han_e_rho);
+			} else {
+				const auto& iso = lep->pfIsolationVariables();
+				eISO = ( iso.sumChargedHadronPt
+						+ std::max( 0.0, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*(*han_e_rho)) )
+											 / lep->pt() ;
+			}
+
+			if(eISO >= e_ISO) continue;
+
+
+			if(lep->originalObjectRef().isNull()){
+				std::cout << "NULL PF CAND REF!"<<"EL: " <<lep->originalObjectRef().key() <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<std::endl;
+				continue;
+			}
+			filteredCandidateList.push_back(lep->originalObjectRef().key());
+
+//
+//			int bestRef = -1;
+//			int bestRefPT = -1;
+//			for(unsigned int iC = 0;iC < lep->associatedPackedPFCandidates().size(); ++iC){
+//				if(lep->associatedPackedPFCandidates()[iC]->pdgId() != lep->pdgId()) continue;
+//				if(bestRef < 0 || std::fabs(lep->associatedPackedPFCandidates()[iC]->pt() - lep->pt()) <  std::fabs(bestRefPT - lep->pt())  ){
+//					bestRef = lep->associatedPackedPFCandidates()[iC].key();
+//					bestRefPT =lep->associatedPackedPFCandidates()[iC]->pt();
+//				}
+//			}
+//			if(bestRef >= 0){
+//				filteredCandidateList.push_back(bestRef);
+//
+//			} else {
+//				std::cout << "NULL PF CAND REF!"<<"EL: " << lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<std::endl;
+//				continue;
+//			}
+//
+//
+//				    		std::cout <<"EL: " <<bestRef  <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi();
+//				    		if(lep->originalObjectRef().isNonnull() && lep->originalObjectRef().isAvailable())
+//				    			std::cout <<" :: ("<< lep->originalObjectRef()->pt() <<","<<lep->originalObjectRef()->pt()<<","<<lep->originalObjectRef()->pt()<<")" << lep->originalObjectRef().key() <<" ";
+//				    		for(unsigned int iC = 0;iC < lep->associatedPackedPFCandidates().size(); ++iC){
+//				    			std::cout <<" "<< lep->associatedPackedPFCandidates()[iC]->pdgId() <<" :: "<< lep->associatedPackedPFCandidates()[iC].key()   << " ("
+//				    					<< lep->associatedPackedPFCandidates()[iC]->pt()<<","<< lep->associatedPackedPFCandidates()[iC]->eta()<<","<< lep->associatedPackedPFCandidates()[iC]->phi() <<") ";
+//				    		}
+//				    		std::cout<<std::endl;
+
+
+		}
+
+		std::auto_ptr<pat::PackedCandidateCollection> filteredCands  (new pat::PackedCandidateCollection);
+		filteredCands->reserve(han_pfCand->size());
+
+		for(unsigned int iP = 0; iP < han_pfCand->size(); ++iP){
+			bool found = false;
+			for(const auto& filtIdx : filteredCandidateList)
+				if (iP == filtIdx){ found = true; break;}
+			if(found){
+				//	    		std::cout <<"PFC: " <<iP <<" -> "<< pfcandidates->at(iP).pt()<<","<< pfcandidates->at(iP).eta()<<","<< pfcandidates->at(iP).phi()<<std::endl;
+				continue;
+			}
+			filteredCands->emplace_back(han_pfCand->at(iP));
+		}
+
+		iEvent.put(filteredCands);
 	}
-  virtual ~LeptonLessPFProducer(){};
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-      edm::Handle<reco::VertexCollection>         vertices    ;
-      edm::Handle<double>                         rho;
-	  edm::Handle<pat::PackedCandidateCollection> pfcandidates;
-	  edm::Handle<pat::MuonCollection>            muons       ;
-	  edm::Handle<pat::ElectronCollection>        electrons   ;
-      edm::Handle<edm::ValueMap<vid::CutFlowResult> > veto_id_cutflow_;
-
-	  iEvent.getByToken(vtxToken, vertices);
-	  iEvent.getByToken(rhoToken,rho);
-	  iEvent.getByToken(pfcandidateToken,pfcandidates);
-	  iEvent.getByToken(muonToken,muons);
-	  iEvent.getByToken(electronToken,electrons);
-	  iEvent.getByToken(vetoIdFullInfoMapToken_,veto_id_cutflow_);
-
-	  const reco::Vertex::Point primaryVertex = vertices->size() > 0 ?  (*vertices)[0].position() : reco::Vertex::Point();
-
-	  std::vector<unsigned int> filteredCandidateList;
-
-	  for (const pat::Muon &mu : *muons) {
-		  if (mu.pt() <= 5) continue;
-		  if (std::fabs(mu.eta()) >= 2.4) continue;
-
-		  float d0 = std::fabs(mu.innerTrack().isNonnull() ? -1.*mu.innerTrack()->dxy(primaryVertex):0);
-		  float dZ = std::fabs(mu.innerTrack().isNonnull() ? mu.innerTrack()->dz(primaryVertex):0);
-		  if(d0 >= .2) continue;
-		  if(dZ >= 0.5) continue;
-		  if(!mu.isLooseMuon()) continue;
-
-		  const auto& miniIsoRltEA = Isolation::miniPFIso(mu, *pfcandidates, Isolation::EA_CORR, *rho);
-		  float miniiso = miniIsoRltEA.miniIso;
-		  if(miniiso >= 0.2) continue;
-		  if(mu.originalObjectRef().isNull()){
-			  std::cout << "NULL PF CAND REF!"<<"MU: " <<mu.originalObjectRef().key() <<" -> "<< mu.pt()<<","<< mu.eta()<<","<< mu.phi() <<" -> "<< mu.isPFMuon()<<std::endl;
-			  continue;
-		  }
-
-		  filteredCandidateList.push_back(mu.originalObjectRef().key());
-//		  std::cout <<"MU: " <<mu.originalObjectRef().key() <<" -> "<< mu.pt()<<","<< mu.eta()<<","<< mu.phi()<<std::endl;
-
-	  }
-
-	  for (pat::ElectronCollection::const_iterator el = electrons->begin(); el != electrons->end(); el++) {
-		  if (el->pt() <= 5) continue;
-		  if (std::fabs(el->eta()) >= 2.4) continue;
-		    const edm::Ptr<pat::Electron> elPtr(electrons, el - electrons->begin() );
-
-		    vid::CutFlowResult vetoIdIsoMasked = (*veto_id_cutflow_)[ elPtr ].getCutFlowResultMasking("GsfEleEffAreaPFIsoCut_0");
-		    if(!vetoIdIsoMasked.cutFlowPassed()) continue;
-
-		    const auto& miniIsoRltEA = Isolation::miniPFIso(*elPtr, *pfcandidates, Isolation::EA_CORR, *rho);
-		    if(miniIsoRltEA.miniIso >= 0.1) continue;
 
 
-		  int bestRef = -1;
-		  int bestRefPT = -1;
-		  for(unsigned int iC = 0;iC < el->associatedPackedPFCandidates().size(); ++iC){
-			  if(el->associatedPackedPFCandidates()[iC]->pdgId() != el->pdgId()) continue;
-			  if(bestRef < 0 || std::fabs(el->associatedPackedPFCandidates()[iC]->pt() - el->pt()) <  std::fabs(bestRefPT - el->pt())  ){
-				  bestRef = el->associatedPackedPFCandidates()[iC].key();
-				  bestRefPT =el->associatedPackedPFCandidates()[iC]->pt();
-			  }
-		  }
-		  if(bestRef >= 0){
-			  filteredCandidateList.push_back(bestRef);
+	bool isLooseMuon (const pat::Muon& muon) const { return muon.isMediumMuon();}
+	bool isMediumMuon(const pat::Muon& muon) const { return muon.isMediumMuon();}
+	bool isMediumMuon_23Sep2016(const pat::Muon & recoMu) const  {
+		//https://github.com/cmsb2g/B2GAnaFW/blob/v8.0.x_v3.2/src/MuonUserData.cc
+		bool goodGlob = recoMu.isGlobalMuon() &&
+				recoMu.globalTrack()->normalizedChi2() < 3 &&
+				recoMu.combinedQuality().chi2LocalPosition < 12 &&
+				recoMu.combinedQuality().trkKink < 20;
+		bool isMedium = muon::isLooseMuon(recoMu) &&
+				recoMu.innerTrack()->validFraction() > 0.49 &&
+				muon::segmentCompatibility(recoMu) > (goodGlob ? 0.303 : 0.451);
+		return isMedium;
+	}
 
-		  } else {
-			  std::cout << "NULL PF CAND REF!"<<"EL: " << el->pt()<<","<< el->eta()<<","<< el->phi() <<std::endl;
-			  continue;
-		  }
-
-//	    		std::cout <<"EL: " <<bestRef <<" -> "<< el->pt()<<","<< el->eta()<<","<< el->phi();
-//	    		for(unsigned int iC = 0;iC < el->associatedPackedPFCandidates().size(); ++iC){
-//	    			std::cout <<" "<< el->associatedPackedPFCandidates()[iC]->pdgId() <<" :: "<< el->associatedPackedPFCandidates()[iC].key()   << " ("
-//	    					<< el->associatedPackedPFCandidates()[iC]->pt()<<","<< el->associatedPackedPFCandidates()[iC]->eta()<<","<< el->associatedPackedPFCandidates()[iC]->phi() <<") ";
-//	    		}
-//	    		std::cout<<std::endl;
-
-
-	  }
-
-	    std::auto_ptr<pat::PackedCandidateCollection> filteredCands  (new pat::PackedCandidateCollection);
-	    filteredCands->reserve(pfcandidates->size());
-
-	    for(unsigned int iP = 0; iP < pfcandidates->size(); ++iP){
-	    	bool found = false;
-	    	for(const auto& filtIdx : filteredCandidateList)
-	    		if (iP == filtIdx){ found = true; break;}
-	    	if(found){
-//	    		std::cout <<"PFC: " <<iP <<" -> "<< pfcandidates->at(iP).pt()<<","<< pfcandidates->at(iP).eta()<<","<< pfcandidates->at(iP).phi()<<std::endl;
-	    		continue;
-	    	}
-	    	filteredCands->emplace_back(pfcandidates->at(iP));
-	    }
-
-	    iEvent.put(filteredCands);
-  }
 protected:
-  edm::EDGetTokenT<reco::VertexCollection>           vtxToken;
-  edm::EDGetTokenT<double>                         rhoToken;
-  edm::EDGetTokenT<pat::PackedCandidateCollection>   pfcandidateToken;
-  edm::EDGetTokenT<pat::MuonCollection>              muonToken;
-  edm::EDGetTokenT<pat::ElectronCollection>          electronToken;
-  edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > vetoIdFullInfoMapToken_;
+	const edm::EDGetTokenT<reco::VertexCollection>             token_vtx        ;
+	const edm::EDGetTokenT<pat::PackedCandidateCollection>     token_pfCand     ;
+	const bool                                                 isData2016GH     ;
+	const edm::EDGetTokenT<pat::MuonCollection>                token_muons      ;
+	const edm::EDGetTokenT<double>                             token_mu_rho     ;
+	const double                                               mu_ISO           ;
+	const std::string                                          mu_ID            ;
+	const bool                                                 mu_doMiniIso     ;
+	const double                                               mu_dz            ;
+	const double                                               mu_d0            ;
+	const double                                               mu_pt            ;
+	const edm::EDGetTokenT<pat::ElectronCollection>            token_electrons  ;
+	const edm::EDGetTokenT<double>                             token_e_rho      ;
+	const edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_e_ID       ;
+	const double                                               e_ISO            ;
+	const bool                                                 e_doMiniIso      ;
+	const double                                               e_dz             ;
+	const double                                               e_d0             ;
+	const double                                               e_pt             ;
+	typedef bool (LeptonLessPFProducer::*muonIDFunc)(const pat::Muon& muon) const;
+	const muonIDFunc muonID;
+
+
 
 };
 
