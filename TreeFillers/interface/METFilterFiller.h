@@ -17,7 +17,7 @@ public:
 
 private:
 
-	size i_trigResult                = 0;
+	size i_metFilters                = 0;
 	bool isRealData = false;
 	edm::EDGetTokenT<edm::TriggerResults>  token_trigBits;
 	edm::Handle<edm::TriggerResults> han_trigBits;

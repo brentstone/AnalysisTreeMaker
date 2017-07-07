@@ -30,18 +30,18 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	token_miniiso_rho  =cc.consumes<double>(cfg.getParameter<edm::InputTag>("miniiso_rho"));
 
 
-	i_pt              = data.addMulti<float>(branchName,"pt"                    , 0);
-	i_eta             = data.addMulti<float>(branchName,"eta"                   , 0);
-	i_phi             = data.addMulti<float>(branchName,"phi"                   , 0);
-	i_q               = data.addMulti<int8> (branchName,"q"                     , 0);
-	i_scEta           = data.addMulti<float>(branchName,"scEta"                 , 0);
-	i_d0              = data.addMulti<float>(branchName,"d0"                    , 0);
-	i_dz              = data.addMulti<float>(branchName,"dz"                    , 0);
-	i_sip3D           = data.addMulti<float>(branchName,"sip3D"                 , 0);
-	i_mvaID           = data.addMulti<float>(branchName,"mvaID"                 , 0);
-	i_mvaID_cat       = data.addMulti<size8>(branchName,"mvaID_cat"             , 0);
-	i_miniIso         = data.addMulti<float>(branchName,"miniIso"               , 0);
-	i_eaRelISO        = data.addMulti<float>(branchName,"eaRelISO"              , 0);
+	i_pt              = data.addMulti<float> (branchName,"pt"                    , 0);
+	i_eta             = data.addMulti<float> (branchName,"eta"                   , 0);
+	i_phi             = data.addMulti<float> (branchName,"phi"                   , 0);
+	i_q               = data.addMulti<int8  >(branchName,"q"                     , 0);
+	i_scEta           = data.addMulti<float >(branchName,"scEta"                 , 0);
+	i_d0              = data.addMulti<float >(branchName,"d0"                    , 0);
+	i_dz              = data.addMulti<float >(branchName,"dz"                    , 0);
+	i_sip3D           = data.addMulti<float >(branchName,"sip3D"                 , 0);
+	i_mvaID           = data.addMulti<float >(branchName,"mvaID"                 , 0);
+	i_mvaID_cat       = data.addMulti<size8 >(branchName,"mvaID_cat"             , 0);
+	i_miniIso         = data.addMulti<float >(branchName,"miniIso"               , 0);
+	i_eaRelISO        = data.addMulti<float >(branchName,"eaRelISO"              , 0);
 	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
 }
 ;
@@ -98,6 +98,8 @@ void ElectronFiller::fill(){
 		setID(han_cut_loose,FillerConstants::ELID_CUT_LOOSE,FillerConstants::ELID_CUT_NOISO_LOOSE);
 		setID(han_cut_med  ,FillerConstants::ELID_CUT_MED  ,FillerConstants::ELID_CUT_NOISO_MED  );
 		setID(han_cut_tight,FillerConstants::ELID_CUT_TIGHT,FillerConstants::ELID_CUT_NOISO_TIGHT);
+
+        if ((*han_cut_heep)[ lep ].cutFlowPassed()) FillerConstants::addPass(idResult,FillerConstants::ELID_CUT_HEEP);
 
 		auto maskedCutFlowData = (*han_cut_heep)[ lep ].getCutFlowResultMasking("GsfEleValueMapIsoRhoCut_0");
 		maskedCutFlowData = maskedCutFlowData.getCutFlowResultMasking("GsfEleEmHadD1IsoRhoCut_0");

@@ -13,8 +13,8 @@ TriggerFiller::TriggerFiller(const edm::ParameterSet& fullParamSet, const std::s
 	token_trigBits       = cc.consumes<edm::TriggerResults>                 (cfg.getParameter<edm::InputTag>("trigBits"));
 	token_trigPrescales  = cc.consumes<pat::PackedTriggerPrescales>         (cfg.getParameter<edm::InputTag>("trigPrescales"));
 
-	i_trigPass    =  data.add<size64> (branchName,"triggerAccepts"                   ,"l",0);
-	i_trigPrescale=  data.add<size64> (branchName,"triggerPrescales"                 ,"l",0);
+	i_triggerAccepts    =  data.add<size64> (branchName,"triggerAccepts"                   ,"l",0);
+	i_triggerPrescales=  data.add<size64> (branchName,"triggerPrescales"                 ,"l",0);
 
 }
 ;
@@ -47,8 +47,8 @@ void TriggerFiller::fill(){
 		}
 	}
 
-	  data.fill(i_trigPass    ,trigResults);
-	  data.fill(i_trigPrescale,trigPrescales);
+	  data.fill(i_triggerAccepts    ,trigResults);
+	  data.fill(i_triggerPrescales,trigPrescales);
 
 };
 

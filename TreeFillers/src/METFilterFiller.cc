@@ -17,7 +17,7 @@ METFilterFiller::METFilterFiller(const edm::ParameterSet& fullParamSet, const st
 			token_hitsNotReplaced  =cc.consumes<edm::EDCollection<DetId>>(cfg.getParameter<edm::InputTag>("hitsNotReplaced"));
 		}
 
-	    i_trigResult =  data.add<size>   (branchName,"metFilters"                     ,"i",0);
+	    i_metFilters =  data.add<size>   (branchName,"metFilters"                     ,"i",0);
 };
 void METFilterFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	reset();
@@ -55,7 +55,7 @@ void METFilterFiller::fill(){
 	  }
 
 
-	  data.fill(i_trigResult,trigPass);
+	  data.fill(i_metFilters,trigPass);
 
 };
 

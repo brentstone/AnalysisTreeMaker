@@ -82,20 +82,23 @@ void GenParticleFiller::addHardInteraction(reco::GenParticleRefVector& outPartic
     const int status = part->status();
     const int pdgId  = part->pdgId();
 
-    //Add all status 23 particles or final version of all status 22 particles
     bool addable = false;
-    if(ParticleInfo::isDocOutgoing(status)) addable = true;
-    else if(ParticleInfo::isDocIntermediate(status)) addable = true;
+    //Add all doc particles
+    if((ParticleInfo::isDocOutgoing(status) || ParticleInfo::isDocIntermediate(status))) addable = true;
     //Add all BSM particles in status==1 (to include e.g., LSP)
     else if(ParticleInfo::isBSM(pdgId) && ParticleInfo::isFinal(status)) addable = true;
-    //Add all EWK bosons [ (1) need status=1 photons (2) need converted photon for decay history ]
-    else if(ParticleInfo::isEWKBoson(pdgId)) addable = true;
-    //also add all direct decay products of EWK bosons
-    else{
-      for(unsigned int iM = 0; iM < part->numberOfMothers(); ++iM)
-            if(ParticleInfo::isEWKBoson(part->motherRef(iM)->pdgId()))
-              addable = true;
+//    //add any additional W/Z/H
+//    else if(ParticleUtilities::isFirstInChain(part) && (pdgId > ParticleInfo::p_gamma && pdgId <= ParticleInfo::p_Hplus)  ) addable = true;
+//    //and any direct decay products of EWK bosons
+    else {
+      for(unsigned int iM = 0; iM < part->numberOfMothers(); ++iM){
+          const int mID = std::abs(part->motherRef(iM)->pdgId());
+          const int mStatus = part->motherRef(iM)->status();
+          if(ParticleInfo::isDoc(mStatus) && ParticleInfo::isEWKBoson(mID) &&
+                  ParticleInfo::isLastInChain(&*part->motherRef(iM)))addable = true;
+      }
     }
+
     if(!addable) continue;
 
     reco::GenParticleRef genRef = reco::GenParticleRef(han_genParticles, iP);

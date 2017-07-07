@@ -14,8 +14,8 @@ public:
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void fill();
 
-	size i_trigPass;
-	size i_trigPrescale;
+	size i_triggerAccepts;
+	size i_triggerPrescales;
 
 private:
 	edm::EDGetTokenT<edm::TriggerResults>                    token_trigBits      ;
