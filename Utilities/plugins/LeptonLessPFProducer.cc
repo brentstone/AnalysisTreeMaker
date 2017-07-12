@@ -70,7 +70,8 @@ public:
 
 		auto vtx_pt =  han_vtx->size() > 0 ?  (*han_vtx)[0].position() : reco::Vertex::Point();
 		std::vector<unsigned int> filteredCandidateList;
-
+//		bool doPrint = false;
+//		std::vector<unsigned int> printKeys;
 		for (unsigned int iE = 0; iE < han_muons->size(); ++iE){
 			const edm::Ptr<pat::Muon> lep(han_muons, iE);
 			if(lep->pt() < mu_pt) continue;
@@ -103,7 +104,8 @@ public:
 			}
 
 			filteredCandidateList.push_back(lep->originalObjectRef().key());
-			//		  std::cout <<"MU: " <<mu.originalObjectRef().key() <<" -> "<< mu.pt()<<","<< mu.eta()<<","<< mu.phi()<<std::endl;
+//					  std::cout <<"MU: " <<lep->originalObjectRef().key() <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi()<<std::endl;
+//					  printKeys.push_back(lep->originalObjectRef().key());
 
 		}
 
@@ -131,59 +133,46 @@ public:
 			}
 
 			if(eISO >= e_ISO) continue;
-
-
-			if(lep->originalObjectRef().isNull()){
-				std::cout << "NULL PF CAND REF!"<<"EL: " <<lep->originalObjectRef().key() <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<std::endl;
-				continue;
+			for(unsigned int iC = 0;iC < lep->associatedPackedPFCandidates().size(); ++iC){
+	            int pdg = std::abs(lep->associatedPackedPFCandidates()[iC]->pdgId());
+	            if(pdg == 11 || pdg == 211 || pdg ==22)
+	                filteredCandidateList.push_back(lep->associatedPackedPFCandidates()[iC].key());
 			}
-			filteredCandidateList.push_back(lep->originalObjectRef().key());
-
-//
-//			int bestRef = -1;
-//			int bestRefPT = -1;
+//	        if(lep->originalObjectRef().isNull()){
+//	                std::cout <<" ERROR! ";
+//	        }
+//			std::cout << "EL: "<<  lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<" -> "<< lep->originalObjectRef().key() <<" ";
+////			printKeys.push_back(lep->originalObjectRef().key());
 //			for(unsigned int iC = 0;iC < lep->associatedPackedPFCandidates().size(); ++iC){
-//				if(lep->associatedPackedPFCandidates()[iC]->pdgId() != lep->pdgId()) continue;
-//				if(bestRef < 0 || std::fabs(lep->associatedPackedPFCandidates()[iC]->pt() - lep->pt()) <  std::fabs(bestRefPT - lep->pt())  ){
-//					bestRef = lep->associatedPackedPFCandidates()[iC].key();
-//					bestRefPT =lep->associatedPackedPFCandidates()[iC]->pt();
-//				}
+//			    std::cout << "( "<<  lep->associatedPackedPFCandidates()[iC].key();
+//			    printKeys.push_back(lep->associatedPackedPFCandidates()[iC].key());
+////			    if(!lep->associatedPackedPFCandidates()[iC].isNull()) std::cout <<  lep->associatedPackedPFCandidates()[iC]->pdgId()<<" :: "<< lep->associatedPackedPFCandidates()[iC]->pt() <<","<< lep->associatedPackedPFCandidates()[iC]->eta()<<"," << lep->associatedPackedPFCandidates()[iC]->phi() <<") ";
+////			    else
+//			        std::cout <<") ";
 //			}
-//			if(bestRef >= 0){
-//				filteredCandidateList.push_back(bestRef);
-//
-//			} else {
-//				std::cout << "NULL PF CAND REF!"<<"EL: " << lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<std::endl;
-//				continue;
-//			}
-//
-//
-//				    		std::cout <<"EL: " <<bestRef  <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi();
-//				    		if(lep->originalObjectRef().isNonnull() && lep->originalObjectRef().isAvailable())
-//				    			std::cout <<" :: ("<< lep->originalObjectRef()->pt() <<","<<lep->originalObjectRef()->pt()<<","<<lep->originalObjectRef()->pt()<<")" << lep->originalObjectRef().key() <<" ";
-//				    		for(unsigned int iC = 0;iC < lep->associatedPackedPFCandidates().size(); ++iC){
-//				    			std::cout <<" "<< lep->associatedPackedPFCandidates()[iC]->pdgId() <<" :: "<< lep->associatedPackedPFCandidates()[iC].key()   << " ("
-//				    					<< lep->associatedPackedPFCandidates()[iC]->pt()<<","<< lep->associatedPackedPFCandidates()[iC]->eta()<<","<< lep->associatedPackedPFCandidates()[iC]->phi() <<") ";
-//				    		}
-//				    		std::cout<<std::endl;
-
-
+//			 std::cout <<std::endl;
 		}
 
 		std::auto_ptr<pat::PackedCandidateCollection> filteredCands  (new pat::PackedCandidateCollection);
 		filteredCands->reserve(han_pfCand->size());
-
+//        math::XYZTLorentzVector tot;
 		for(unsigned int iP = 0; iP < han_pfCand->size(); ++iP){
+//            if(doPrint)
+//		     std::cout <<"PFC: " <<iP <<" -> "<< han_pfCand->at(iP).pdgId() <<" :: "<< han_pfCand->at(iP).pt()<<","<< han_pfCand->at(iP).eta()<<","<< han_pfCand->at(iP).phi()<<std::endl;
+//		    for(const auto& filtIdx : printKeys){
+//                if(iP == filtIdx ){
+//                    tot += han_pfCand->at(iP).p4();
+//                    std::cout <<"PFC: " <<iP <<" -> "<< han_pfCand->at(iP).pdgId() <<" :: "<< han_pfCand->at(iP).pt()<<","<< han_pfCand->at(iP).eta()<<","<< han_pfCand->at(iP).phi()<<std::endl;
+//                }
+//            }
+
 			bool found = false;
 			for(const auto& filtIdx : filteredCandidateList)
 				if (iP == filtIdx){ found = true; break;}
-			if(found){
-				//	    		std::cout <<"PFC: " <<iP <<" -> "<< pfcandidates->at(iP).pt()<<","<< pfcandidates->at(iP).eta()<<","<< pfcandidates->at(iP).phi()<<std::endl;
-				continue;
-			}
+			if(found){continue;}
 			filteredCands->emplace_back(han_pfCand->at(iP));
 		}
-
+//		std::cout << "TOT: "<< tot.pt() <<","<<tot.eta()<<","<< tot.phi()<<std::endl;
 		iEvent.put(filteredCands);
 	}
 

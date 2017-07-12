@@ -4,7 +4,7 @@ ak4JetFiller = cms.PSet(
     ignore                          = cms.bool(False),
     branchName                      = cms.string("ak4Jet"),
     fillGenJets                     = cms.bool(True),
-    minJetPT                        = cms.double(10),
+    minJetPT                        = cms.double(20),
     jets                            = cms.InputTag('selectedUpdatedPatJetsAK4PFCHS'),
     genjets                         = cms.InputTag('slimmedGenJets'),      
 )

@@ -66,7 +66,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 isCrab  = options.isCrab
 dataRun = options.dataRun
 sample  = options.sample
-isRealData = (dataRun is not "NONE")
+
+isRealData = (dataRun != "NONE")
 
 from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
