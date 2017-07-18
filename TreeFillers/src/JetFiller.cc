@@ -27,8 +27,6 @@ JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& p
         i_hadronFlavor   = data.addMulti<int8>(branchName,"hadronFlavor"          , 0);
         i_partonFlavor   = data.addMulti<int8>(branchName,"partonFlavor"          , 0);
         if(fillGenJets){
-            i_hadronFlavor   = data.addMulti<int8>(branchName,"hadronFlavor"          , 0);
-            i_partonFlavor   = data.addMulti<int8>(branchName,"partonFlavor"          , 0);
             i_genIDX         = data.addMulti<size8>(branchName,"genIDX"                , 0);
             i_gen_pt         = data.addMulti<float>(branchName,"gen_pt"                , 0);
             i_gen_eta        = data.addMulti<float>(branchName,"gen_eta"               , 0);
