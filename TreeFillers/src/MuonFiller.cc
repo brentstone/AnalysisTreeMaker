@@ -67,12 +67,12 @@ void MuonFiller::fill(){
 		float EA = Isolations::muonEA(lep->eta());
 	    float miniIso = Isolations::getPFMiniIsolation(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, EA, *han_miniiso_rho);
 	    data.fillMulti(i_miniIso     , miniIso);
-	    double sumChargedHadronPt = lep->pfIsolationR04().sumChargedHadronPt;
-	    double sumNeutralHadronPt = lep->pfIsolationR04().sumNeutralHadronEt;
-	    double sumPhotonPt        = lep->pfIsolationR04().sumPhotonEt;
-	    double sumPUPt            = lep->pfIsolationR04().sumPUPt;
-	    double pt                 = lep->pt();
-	    double iso04 = (sumChargedHadronPt+TMath::Max(0.,sumNeutralHadronPt+sumPhotonPt-0.5*sumPUPt))/pt;
+	    float sumChargedHadronPt = lep->pfIsolationR04().sumChargedHadronPt;
+	    float sumNeutralHadronPt = lep->pfIsolationR04().sumNeutralHadronEt;
+	    float sumPhotonPt        = lep->pfIsolationR04().sumPhotonEt;
+	    float sumPUPt            = lep->pfIsolationR04().sumPUPt;
+	    float pt                 = lep->pt();
+	    float iso04 = (sumChargedHadronPt+TMath::Max(0.,sumNeutralHadronPt+sumPhotonPt-0.5*sumPUPt))/pt;
 	    data.fillMulti(i_dBRelISO     , iso04);
 		size16 idResult = 0;
 		if(lep->isSoftMuon(vtx ? *vtx : reco::Vertex()))    FillerConstants::addPass(idResult,FillerConstants::MUID_SOFT);

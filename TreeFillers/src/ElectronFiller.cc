@@ -115,7 +115,7 @@ void ElectronFiller::fill(){
 		data.fillMulti(i_eaRelISO     , eAIso);
 
 		//https://github.com/cmsb2g/B2GAnaFW/blob/v8.0.x_v3.2/src/ElectronUserData.cc
-	    double miniIso = Isolations::getPFMiniIsolation(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, eA, *han_miniiso_rho);
+	    float miniIso = Isolations::getPFMiniIsolation(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, eA, *han_miniiso_rho);
 	    data.fillMulti(i_miniIso     , miniIso);
 
 	    float gp_mva_val  = (*han_mva)[ lep ];
