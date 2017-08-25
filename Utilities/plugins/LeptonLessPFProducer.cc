@@ -33,6 +33,7 @@ public:
 		mu_doMiniIso      (iConfig.getParameter<bool>("mu_doMiniIso")),
 		mu_dz             (iConfig.getParameter<double>("mu_dz")),
 		mu_d0             (iConfig.getParameter<double>("mu_d0")),
+		mu_sip3D          (iConfig.getParameter<double>("mu_sip3D")),
 		mu_pt             (iConfig.getParameter<double>("mu_pt")),
 		token_electrons   (consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
 		token_e_rho       (consumes<double>(iConfig.getParameter<edm::InputTag>("e_rho"))),
@@ -41,6 +42,7 @@ public:
 		e_doMiniIso       (iConfig.getParameter<bool>("e_doMiniIso")),
 		e_dz              (iConfig.getParameter<double>("e_dz")),
 		e_d0              (iConfig.getParameter<double>("e_d0")),
+		e_sip3D           (iConfig.getParameter<double>("e_sip3D")),
 		e_pt              (iConfig.getParameter<double>("e_pt")),
 		muonID            ( mu_ID == "medium" ? (isData2016GH ? &LeptonLessPFProducer::isMediumMuon : &LeptonLessPFProducer::isMediumMuon_23Sep2016) : 0)
 {
@@ -77,10 +79,13 @@ public:
 			if(lep->pt() < mu_pt) continue;
 			if (std::fabs(lep->eta()) >= 2.4) continue;
 
-			float d0 = std::fabs(lep->innerTrack().isNonnull() ? -1.*lep->innerTrack()->dxy(vtx_pt):0);
-			float dZ = std::fabs(lep->innerTrack().isNonnull() ? lep->innerTrack()->dz(vtx_pt):0);
-			if(d0 >= mu_d0) continue;
-			if(dZ >= mu_dz) continue;
+			const float d0 = std::fabs(lep->innerTrack().isNonnull() ? -1.*lep->innerTrack()->dxy(vtx_pt):0);
+			const float dZ = std::fabs(lep->innerTrack().isNonnull() ? lep->innerTrack()->dz(vtx_pt):0);
+	        const float sip3d=std::fabs(lep->dB(pat::Muon::PV3D) / lep->edB(pat::Muon::PV3D));
+
+			if(mu_d0 > 0 && d0 >= mu_d0) continue;
+			if(mu_dz > 0 && dZ >= mu_dz) continue;
+			if(mu_sip3D > 0 && sip3d >= mu_sip3D) continue;
 
 			if((this->*LeptonLessPFProducer::muonID) (*lep) == false ) continue;
 
@@ -96,17 +101,21 @@ public:
 				double pt                 = lep->pt();
 				muISO = (sumChargedHadronPt+TMath::Max(0.,sumNeutralHadronPt+sumPhotonPt-0.5*sumPUPt))/pt;
 			}
-			if(muISO >= mu_ISO) continue;
+			if(mu_ISO > 0 && muISO >= mu_ISO) continue;
 
 			if(lep->originalObjectRef().isNull()){
 				std::cout << "NULL PF CAND REF!"<<"MU: " <<lep->originalObjectRef().key() <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<" -> "<< lep->isPFMuon()<<std::endl;
 				continue;
 			}
+			//If it belongs to a seperate candidate collection, skip it
+			if(lep->originalObjectRef().id() != han_pfCand.id()){
+                std::cout << "Other Handle!"<<"MU: " <<lep->originalObjectRef().key() <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<" -> "<< lep->isPFMuon()<<std::endl;
+			    continue;
+			}
 
 			filteredCandidateList.push_back(lep->originalObjectRef().key());
 //					  std::cout <<"MU: " <<lep->originalObjectRef().key() <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi()<<std::endl;
 //					  printKeys.push_back(lep->originalObjectRef().key());
-
 		}
 
 		for (unsigned int iE = 0; iE < han_electrons->size(); ++iE){
@@ -114,8 +123,10 @@ public:
 			if(lep->pt() < e_pt) continue;
 			if (std::fabs(lep->eta()) >= 2.4) continue;
 
-			if( std::fabs(lep->gsfTrack()->dxy(vtx_pt) ) >= e_d0)continue;
-			if( std::fabs(lep->gsfTrack()->dz(vtx_pt)  ) >= e_dz)continue;
+			const float sip3d=std::fabs(lep->dB(pat::Electron::PV3D) / lep->edB(pat::Electron::PV3D));
+			if( e_d0 > 0 && std::fabs(lep->gsfTrack()->dxy(vtx_pt) ) >= e_d0)continue;
+			if( e_dz > 0 && std::fabs(lep->gsfTrack()->dz(vtx_pt)  ) >= e_dz)continue;
+			if( e_sip3D > 0 && sip3d >= e_sip3D) continue;
 
 			vid::CutFlowResult vetoIdIsoMasked = (*han_e_ID)[ lep ].getCutFlowResultMasking("GsfEleEffAreaPFIsoCut_0");
 			if(!vetoIdIsoMasked.cutFlowPassed()) continue;
@@ -132,7 +143,7 @@ public:
 											 / lep->pt() ;
 			}
 
-			if(eISO >= e_ISO) continue;
+			if(e_ISO > 0 && eISO >= e_ISO) continue;
 			for(unsigned int iC = 0;iC < lep->associatedPackedPFCandidates().size(); ++iC){
 	            int pdg = std::abs(lep->associatedPackedPFCandidates()[iC]->pdgId());
 	            if(pdg == 11 || pdg == 211 || pdg ==22)
@@ -153,12 +164,14 @@ public:
 //			 std::cout <<std::endl;
 		}
 
-		std::auto_ptr<pat::PackedCandidateCollection> filteredCands  (new pat::PackedCandidateCollection);
+		std::auto_ptr<pat::PackedCandidateCollection> filteredCands;
+		filteredCands.reset( new pat::PackedCandidateCollection );
 		filteredCands->reserve(han_pfCand->size());
 //        math::XYZTLorentzVector tot;
 		for(unsigned int iP = 0; iP < han_pfCand->size(); ++iP){
+		        const pat::PackedCandidate *cand = &han_pfCand->at(iP);
+		        std::unique_ptr<pat::PackedCandidate> pCand(new pat::PackedCandidate(*cand));
 //            if(doPrint)
-//		     std::cout <<"PFC: " <<iP <<" -> "<< han_pfCand->at(iP).pdgId() <<" :: "<< han_pfCand->at(iP).pt()<<","<< han_pfCand->at(iP).eta()<<","<< han_pfCand->at(iP).phi()<<std::endl;
 //		    for(const auto& filtIdx : printKeys){
 //                if(iP == filtIdx ){
 //                    tot += han_pfCand->at(iP).p4();
@@ -169,11 +182,11 @@ public:
 			bool found = false;
 			for(const auto& filtIdx : filteredCandidateList)
 				if (iP == filtIdx){ found = true; break;}
-			if(found){continue;}
-			filteredCands->emplace_back(han_pfCand->at(iP));
+			if(found){			    continue;}
+			filteredCands->push_back(*pCand);
 		}
-//		std::cout << "TOT: "<< tot.pt() <<","<<tot.eta()<<","<< tot.phi()<<std::endl;
-		iEvent.put(filteredCands);
+
+        iEvent.put(filteredCands);
 	}
 
 
@@ -202,6 +215,7 @@ protected:
 	const bool                                                 mu_doMiniIso     ;
 	const double                                               mu_dz            ;
 	const double                                               mu_d0            ;
+	const double                                               mu_sip3D         ;
 	const double                                               mu_pt            ;
 	const edm::EDGetTokenT<pat::ElectronCollection>            token_electrons  ;
 	const edm::EDGetTokenT<double>                             token_e_rho      ;
@@ -210,6 +224,7 @@ protected:
 	const bool                                                 e_doMiniIso      ;
 	const double                                               e_dz             ;
 	const double                                               e_d0             ;
+	const double                                               e_sip3D          ;
 	const double                                               e_pt             ;
 	typedef bool (LeptonLessPFProducer::*muonIDFunc)(const pat::Muon& muon) const;
 	const muonIDFunc muonID;
