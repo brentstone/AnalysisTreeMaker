@@ -50,6 +50,8 @@ void TriggerFiller::fill(){
 	  data.fill(i_triggerAccepts    ,trigResults);
 	  data.fill(i_triggerPrescales,trigPrescales);
 
+	  doesPassATrigger_ = (trigResults != static_cast<size64>(0));
+
 };
 
 }

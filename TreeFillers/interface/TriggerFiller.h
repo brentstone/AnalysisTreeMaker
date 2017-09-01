@@ -14,6 +14,10 @@ public:
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void fill();
 
+	//For filtering
+	bool doesPassATrigger() const {return doesPassATrigger_;};
+
+
 	size i_triggerAccepts;
 	size i_triggerPrescales;
 
@@ -25,6 +29,9 @@ private:
 	edm::Handle<pat::PackedTriggerPrescales>                 han_trigPrescales   ;
 
     const edm::TriggerNames * triggerNames = 0;
+
+    //For filtering
+    bool doesPassATrigger_ = false;
 
 };
 }
