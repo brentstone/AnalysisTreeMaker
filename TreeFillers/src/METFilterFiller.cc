@@ -41,7 +41,7 @@ void METFilterFiller::fill(){
 		  const auto trigNam = triggerNames->triggerName(i);
 		  for(unsigned int iS = 0; iS < nMF; ++iS){
 			  if(FillerConstants::metFilterStrings[iS] !=  trigNam) continue;
-			  if(han_trigBits->accept(i))FillerConstants::addPass(trigPass,static_cast<FillerConstants::METFilters>(iS));
+			  if(han_trigBits->accept(i))FillerConstants::addPass(trigPass,static_cast<FillerConstants::METFilters>(1 << iS));
 			  break;
 		  }
 	  }

@@ -40,7 +40,7 @@ void TriggerFiller::fill(){
 			reg.Index(trigname,&indx);
 			if(reg.Index(trigname,&indx) == kNPOS) continue;
 
-			const auto trigEnum	= static_cast<FillerConstants::Triggers>(iN);
+			const auto trigEnum	= static_cast<FillerConstants::Triggers>(size64(1) << iN);
 			if(han_trigBits->accept(iT)) addPass(trigResults,trigEnum);
 			if(han_trigPrescales->getPrescaleForIndex(iT) > 1) addPass(trigPrescales,trigEnum);
 			break;
