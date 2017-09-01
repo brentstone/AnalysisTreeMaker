@@ -16,6 +16,7 @@ git clone git@github.com:cms-data/RecoEgamma-ElectronIdentification ../external/
 git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_80X_V3
 git clone git@github.com:{USERNAME}/AnalysisTreeMaker.git 
 git clone git@github.com:CSCUCLA/AnalysisSupport.git
+cp AnalysisTreeMaker/patch/PackedCandidate.h DataFormats/PatCandidates/interface/PackedCandidate.h
 scram b -j24
 ```
 For met recipe: https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMiniAOD03Feb2017Notes  
@@ -23,3 +24,4 @@ For met recipe (80X_part2): https://twiki.cern.ch/twiki/bin/view/CMSPublic/ReMin
 For b-tagging: https://twiki.cern.ch/twiki/bin/view/CMS/Hbbtagging#V4_training
 For E-gamma: https://twiki.cern.ch/twiki/bin/view/CMS/HEEPElectronIdentificationRun2      
 For jet toolbox: https://twiki.cern.ch/twiki/bin/view/CMS/JetToolbox#New_PF_Collection  
+For the PackedCandidate.h patch, it refreshes the embedded track when changing the particle p4....it will need to be remade whenever the DataFormats/PatCandidates/interface/PackedCandidate.h file changes
