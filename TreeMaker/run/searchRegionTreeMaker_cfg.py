@@ -114,4 +114,9 @@ process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
 process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
 process.BadChargedCandidateFilter.taggingMode = cms.bool(True)
 
-process.p = cms.Path(process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
+#filter out events that dont pass a chosen trigger in data
+if isRealData :
+    process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
+    process.p = cms.Path(process.triggerFilter *process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
+else :
+    process.p = cms.Path(process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
