@@ -45,13 +45,13 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 
 
 	if(isRealData){
-		i_dataset            =  data.add<size16>  (branchName,"dataset"                 ,"s",0);
-		i_dataRun            =  data.add<size16>  (branchName,"dataRun"                 ,"s",0);
+		i_dataset            =  data.add<size8>  (branchName,"dataset"                 ,"b",0);
+		i_dataRun            =  data.add<size8>  (branchName,"dataRun"                 ,"b",0);
 
 	} else {
 		i_nTruePUInts        =  data.add<float>  (branchName,"nTruePUInts"             ,"F",0);
 		i_weight             =  data.add<float>  (branchName,"weight"                  ,"F",0);
-		i_process            =  data.add<size16>  (branchName,"process"                ,"s",0);
+		i_process            =  data.add<size8>  (branchName,"process"                ,"b",0);
 	}
 
 };
@@ -97,8 +97,8 @@ void EventFiller::fill(){
 	  data.fill(i_met_raw_phi      ,float(han_rawMet->front().uncorPhi()));
 
 	  if(realData){
-		  data.fill(i_dataset            ,static_cast<size16>(dataset)   );
-		  data.fill(i_dataRun            ,static_cast<size16>(dataRun)   );
+		  data.fill(i_dataset            ,static_cast<size8>(dataset)   );
+		  data.fill(i_dataRun            ,static_cast<size8>(dataRun)   );
 
 	  } else {
 		  float   num_true_interactions = 0;
@@ -108,7 +108,7 @@ void EventFiller::fill(){
 		  }
 		  data.fill(i_nTruePUInts         ,num_true_interactions);
 		  data.fill(i_weight              ,float(han_genEvent	->weight()));
-		  data.fill(i_process             ,static_cast<size16>(mcProcess)   );
+		  data.fill(i_process             ,static_cast<size8>(mcProcess)   );
 	  }
 
 
