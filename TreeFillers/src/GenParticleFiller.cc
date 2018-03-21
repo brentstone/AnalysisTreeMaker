@@ -51,7 +51,6 @@ void GenParticleFiller::load(const edm::Event& iEvent, const edm::EventSetup& iS
 
 	//fill the association between the stored guys
 	fillAssoc(storedGenParticles,candMap,false,false, assocList,nMoms,firstMoms,nDaus,firstDaus);
-
 	loadedStatus = true;
 };
 void GenParticleFiller::fill()
@@ -87,6 +86,8 @@ void GenParticleFiller::addHardInteraction(reco::GenParticleRefVector& outPartic
     if((ParticleInfo::isDocOutgoing(status) || ParticleInfo::isDocIntermediate(status))) addable = true;
     //Add all BSM particles in status==1 (to include e.g., LSP)
     else if(ParticleInfo::isBSM(pdgId) && ParticleInfo::isFinal(status)) addable = true;
+    else if(ParticleInfo::isDoc(status) &&  ParticleInfo::isEWKBoson(pdgId) &&  ParticleInfo::isLastInChain(part)) addable = true;
+
 //    //add any additional W/Z/H
 //    else if(ParticleUtilities::isFirstInChain(part) && (pdgId > ParticleInfo::p_gamma && pdgId <= ParticleInfo::p_Hplus)  ) addable = true;
 //    //and any direct decay products of EWK bosons
