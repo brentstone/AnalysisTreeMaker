@@ -107,7 +107,7 @@ void ElectronFiller::fill(){
 
 		data.fillMulti(i_id     , idResult);
 
-		float eA = Isolations::electronEA(lep->eta());
+		float eA = Isolations::electronEA(lep->superCluster()->eta());
 		const auto& iso = lep->pfIsolationVariables();
 		float eAIso = ( iso.sumChargedHadronPt
 				+ std::max( 0.0f, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*event->rho()) )  // EA uses fixedGridRhoFastjetAll, which is what eventFiller stores (https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolationRun2)

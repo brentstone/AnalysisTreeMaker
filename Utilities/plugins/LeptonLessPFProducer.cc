@@ -19,6 +19,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 #include "AnalysisTreeMaker/Utilities/interface/Isolations.h"
+#include <TVector2.h>
 
 class LeptonLessPFProducer : public edm::stream::EDProducer<> {
 public:
@@ -44,7 +45,8 @@ public:
 		e_d0              (iConfig.getParameter<double>("e_d0")),
 		e_sip3D           (iConfig.getParameter<double>("e_sip3D")),
 		e_pt              (iConfig.getParameter<double>("e_pt")),
-		muonID            ( mu_ID == "medium" ? (isData2016GH ? &LeptonLessPFProducer::isMediumMuon : &LeptonLessPFProducer::isMediumMuon_23Sep2016) : 0)
+		muonID            ( mu_ID == "medium" ? &LeptonLessPFProducer::isMediumMuon :  (mu_ID == "medium2016" ? &LeptonLessPFProducer::isMediumMuon_23Sep2016 : 0))
+
 {
 		if(muonID == 0)
 			throw cms::Exception("LeptonLessPFProducer::LeptonLessPFProducer",
@@ -121,7 +123,7 @@ public:
 		for (unsigned int iE = 0; iE < han_electrons->size(); ++iE){
 			const edm::Ptr<pat::Electron> lep(han_electrons, iE);
 			if(lep->pt() < e_pt) continue;
-			if (std::fabs(lep->eta()) >= 2.4) continue;
+			if (std::fabs(lep->superCluster()->eta()) >= 2.5) continue;
 
 			const float sip3d=std::fabs(lep->dB(pat::Electron::PV3D) / lep->edB(pat::Electron::PV3D));
 			if( e_d0 > 0 && std::fabs(lep->gsfTrack()->dxy(vtx_pt) ) >= e_d0)continue;
@@ -133,7 +135,7 @@ public:
 
 
 			float eISO = 0;
-			float eA = Isolations::electronEA(lep->eta());
+			float eA = Isolations::electronEA(lep->superCluster()->eta());
 			if(e_doMiniIso){
 				eISO = Isolations::getPFMiniIsolation(han_pfCand, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, eA, *han_e_rho);
 			} else {
