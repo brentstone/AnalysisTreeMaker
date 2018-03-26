@@ -25,6 +25,7 @@ public:
 		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiJetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiNoLepJetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiNoLepFatJetFiller",consumesCollector(),isRealData()));
+		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiFatJetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::ElectronFiller(cfg,"ElectronFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
 		initialize(new AnaTM::MuonFiller(cfg,"MuonFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
 		if(!isRealData())
