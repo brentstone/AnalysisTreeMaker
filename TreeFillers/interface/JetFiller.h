@@ -29,6 +29,7 @@ protected:
 	size i_phi                = 0;
 	size i_mass               = 0;
 	size i_toRawFact          = 0;
+    size i_chef               = 0;
 	size i_metUnc_rawPx       = 0;
 	size i_metUnc_rawPy       = 0;
 	size i_csv                = 0;

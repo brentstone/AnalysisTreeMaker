@@ -23,10 +23,12 @@ JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& p
     i_phi            = data.addMulti<float>(branchName,"phi"                   , 0);
     i_mass           = data.addMulti<float>(branchName,"mass"                  , 0);
     i_toRawFact      = data.addMulti<float>(branchName,"toRawFact"             , 0);
+    i_chef           = data.addMulti<float>(branchName,"chef"                  , 0);
     i_metUnc_rawPx   = data.addMulti<float>(branchName,"metUnc_rawPx"          , 0);
     i_metUnc_rawPy   = data.addMulti<float>(branchName,"metUnc_rawPy"          , 0);
     i_csv            = data.addMulti<float>(branchName,"csv"                   , 0);
     i_id             = data.addMulti<size8>(branchName,"id"                    , 0);
+
 
     if(!isRealData){
         i_hadronFlavor   = data.addMulti<int8>(branchName,"hadronFlavor"          , 0);
@@ -153,8 +155,9 @@ void JetFiller::fill(){
         const float rawFactor = jet.jecFactor("Uncorrected");
         data.fillMulti(i_toRawFact    ,rawFactor);
 
-
         reco::LeafCandidate::LorentzVector raw_p4 = jet.p4() * rawFactor;
+        data.fillMulti(i_chef    ,float(jet.chargedHadronEnergy()/raw_p4.E()));
+
         const float emf = ( jet.neutralEmEnergy() + jet.chargedEmEnergy() )/raw_p4.E();
         if(emf >0.9){
             data.fillMulti(i_metUnc_rawPx    ,0.0);
@@ -174,6 +177,7 @@ void JetFiller::fill(){
 
         data.fillMulti(i_csv     ,
                 float(jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
+
 
         size8 idStat = 0;
         bool passPU = jet.hasUserFloat("pileupJetId:fullId") &&
