@@ -82,7 +82,7 @@ void FatJetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 std::vector<size8> FatJetFiller::processGenJets(){
     std::vector<size8> fillGJ(han_genJets->size(),0);
     for(const auto& jet : (*han_jets)){
-        if(jet.pt() < minJetPT) continue;
+//        if(jet.pt() < minJetPT) continue;
         auto genRef = jet.genJetFwdRef().backRef();
         if(!genRef.isNull()) fillGJ[genRef.key()] = true;
     }
