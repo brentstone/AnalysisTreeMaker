@@ -46,8 +46,8 @@ private:
 	size i_met_pt             = 0;
 	size i_met_phi            = 0;
 	size i_met_sig            = 0;
-	size i_met_unclUp         = 0;
-	size i_met_unclDown       = 0;
+	size i_met_unclUp_pt      = 0;
+	size i_met_unclUp_phi     = 0;
 	size i_met_raw_pt         = 0;
 	size i_met_raw_phi        = 0;
 	size i_nTruePUInts        = 0;
