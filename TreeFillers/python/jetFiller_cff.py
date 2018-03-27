@@ -7,14 +7,17 @@ ak4JetFiller = cms.PSet(
     minJetPT                        = cms.double(10),
     jets                            = cms.InputTag('selectedUpdatedPatJetsAK4PFCHS'),
     genjets                         = cms.InputTag('slimmedGenJets'),      
+    jetType                         = cms.string('AK4PFchs'),
 )
 ak4PuppiJetFiller = ak4JetFiller.clone(
     branchName                      = cms.string("ak4PuppiJet"),
     fillGenJets                     = cms.bool(False),
     jets                            = cms.InputTag('selectedUpdatedPatJetsAK4PFPuppi'),
+    jetType                         = cms.string('AK4PFPuppi'),
 )
 ak4PuppiNoLepJetFiller = ak4JetFiller.clone(
     branchName                      = cms.string("ak4PuppiNoLepJet"),
     fillGenJets                     = cms.bool(False),
     jets                            = cms.InputTag('selectedPatJetsAK4PFPuppiNoLep'),
+    jetType                         = cms.string('AK4PFPuppi'),
 )

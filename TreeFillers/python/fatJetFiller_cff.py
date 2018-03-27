@@ -9,6 +9,8 @@ ak8PuppiNoLepFatJetFiller = cms.PSet(
     genjets                         = cms.InputTag('ak8GenJetsNoNu'),     
     jetDef                          = cms.string('AK8PuppiNoLep'),  
     subjetDef                       = cms.string('SoftDrop'),  
+    jetType                         = cms.string('AK8PFPuppi'),
+    subjetType                      = cms.string('AK4PFPuppi'),  
 )
 ak8PuppiFatJetFiller = cms.PSet(
     ignore                          = cms.bool(False),
@@ -19,4 +21,6 @@ ak8PuppiFatJetFiller = cms.PSet(
     genjets                         = cms.InputTag('ak8GenJetsNoNu'),     
     jetDef                          = cms.string('AK8Puppi'),  
     subjetDef                       = cms.string('SoftDrop'),  
+    jetType                         = cms.string('AK8PFPuppi'),
+    subjetType                      = cms.string('AK4PFPuppi'),
 )

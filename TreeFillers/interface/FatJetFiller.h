@@ -23,10 +23,12 @@ private:
 	size i_eta                = 0;
 	size i_phi                = 0;
 	size i_mass               = 0;
+    size i_toRawFact          = 0;
 	size i_csv                = 0;
 	size i_id                 = 0;
 	size i_hadronFlavor       = 0;
 	size i_partonFlavor       = 0;
+    size i_JECUnc             = 0;
 	size i_genIDX             = 0;
 	size i_gen_pt             = 0;
 	size i_gen_eta            = 0;
@@ -45,6 +47,7 @@ private:
     size i_sj1_raw_pt         = 0;
     size i_sj1_raw_mass       = 0;
     size i_sj1_csv            = 0;
+    size i_sj1_JECUnc         = 0;
     size i_sj1_hadronFlavor   = 0;
     size i_sj1_partonFlavor   = 0;
 
@@ -54,12 +57,16 @@ private:
     size i_sj2_mass           = 0;
     size i_sj2_raw_pt         = 0;
     size i_sj2_raw_mass       = 0;
+    size i_sj2_JECUnc         = 0;
     size i_sj2_csv            = 0;
     size i_sj2_hadronFlavor   = 0;
     size i_sj2_partonFlavor   = 0;
 
     bool isRealData           = false;
     bool fillGenJets          = false;
+    std::string jetType           = "";
+    std::string subjetType           = "";
+
 	std::string jetDef   ;
 	std::string subjetDef;
     edm::EDGetTokenT<std::vector<pat::Jet> >          token_jets;
@@ -68,6 +75,12 @@ private:
 
     edm::Handle<std::vector<pat::Jet> >          han_jets;
     edm::Handle<reco::GenJetCollection>          han_genJets;
+
+    edm::ESHandle<JetCorrectorParametersCollection> jetCorParameters;
+    std::unique_ptr<JetCorrectionUncertainty> jetCorUnc;
+
+    edm::ESHandle<JetCorrectorParametersCollection> subjetCorParameters;
+    std::unique_ptr<JetCorrectionUncertainty> subjetCorUnc;
 };
 }
 

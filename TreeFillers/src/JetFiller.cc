@@ -1,6 +1,7 @@
 
 #include "AnalysisTreeMaker/TreeFillers/interface/JetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/FillerConstants.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 using ASTypes::size8;
 using ASTypes::int8;
 namespace AnaTM{
@@ -10,6 +11,7 @@ JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& p
 ,isRealData(isRealData)
 {
     if(ignore()) return;
+    jetType      =cfg.getParameter<std::string>("jetType");
     fillGenJets  =cfg.getParameter<bool>("fillGenJets");
     token_jets   =cc.consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"));
     minJetPT     = cfg.getParameter<double>("minJetPT");
@@ -20,12 +22,16 @@ JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& p
     i_eta            = data.addMulti<float>(branchName,"eta"                   , 0);
     i_phi            = data.addMulti<float>(branchName,"phi"                   , 0);
     i_mass           = data.addMulti<float>(branchName,"mass"                  , 0);
+    i_toRawFact      = data.addMulti<float>(branchName,"toRawFact"             , 0);
+    i_metUnc_rawPx   = data.addMulti<float>(branchName,"metUnc_rawPx"          , 0);
+    i_metUnc_rawPy   = data.addMulti<float>(branchName,"metUnc_rawPy"          , 0);
     i_csv            = data.addMulti<float>(branchName,"csv"                   , 0);
     i_id             = data.addMulti<size8>(branchName,"id"                    , 0);
 
     if(!isRealData){
         i_hadronFlavor   = data.addMulti<int8>(branchName,"hadronFlavor"          , 0);
         i_partonFlavor   = data.addMulti<int8>(branchName,"partonFlavor"          , 0);
+        i_JECUnc         = data.addMulti<float>(branchName,"JECUnc"                , 0);
         if(fillGenJets){
             i_genIDX         = data.addMulti<size8>(branchName,"genIDX"                , 0);
             i_gen_pt         = data.addMulti<float>(branchName,"gen_pt"                , 0);
@@ -42,6 +48,12 @@ void JetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(token_jets     ,han_jets     );
     if(!isRealData && fillGenJets)
         iEvent.getByToken(token_genJets  ,han_genJets     );
+
+    if(!isRealData){
+        iSetup.get<JetCorrectionsRecord>().get(jetType.c_str(),jetCorParameters);
+        JetCorrectorParameters const & JetCorPar = (*jetCorParameters)["Uncertainty"];
+        jetCorUnc.reset(new JetCorrectionUncertainty(JetCorPar));
+    }
 
     loadedStatus = true;
 };
@@ -138,6 +150,28 @@ void JetFiller::fill(){
         data.fillMulti(i_eta     ,float(jet.eta() ));
         data.fillMulti(i_phi     ,float(jet.phi() ));
         data.fillMulti(i_mass    ,float(jet.mass()));
+        const float rawFactor = jet.jecFactor("Uncorrected");
+        data.fillMulti(i_toRawFact    ,rawFactor);
+
+
+        reco::LeafCandidate::LorentzVector raw_p4 = jet.p4() * rawFactor;
+        const float emf = ( jet.neutralEmEnergy() + jet.chargedEmEnergy() )/raw_p4.E();
+        if(emf >0.9){
+            data.fillMulti(i_metUnc_rawPx    ,0.0);
+            data.fillMulti(i_metUnc_rawPy    ,0.0);
+        } else {
+            for ( unsigned int idau = 0; idau < jet.numberOfDaughters(); ++idau) {
+                const auto * pfcand = jet.daughter(idau);
+                  if(pfcand->isGlobalMuon() || pfcand->isStandAloneMuon()){
+                      raw_p4 -= pfcand->p4();
+                  }
+            }
+            data.fillMulti(i_metUnc_rawPx    ,float(raw_p4.px()));
+            data.fillMulti(i_metUnc_rawPy    ,float(raw_p4.py()));
+        }
+
+
+
         data.fillMulti(i_csv     ,
                 float(jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
 
@@ -152,6 +186,11 @@ void JetFiller::fill(){
         if(!isRealData){
             data.fillMulti(i_hadronFlavor ,ASTypes::convertTo<int8>(jet.hadronFlavour(),"JetFiller::hadronFlavor") );
             data.fillMulti(i_partonFlavor ,ASTypes::convertTo<int8>(jet.partonFlavour(),"JetFiller::partonFlavor") );
+
+            jetCorUnc->setJetEta(jet.eta());
+            jetCorUnc->setJetPt(jet.pt()); // here you must use the CORRECTED jet pt
+            data.fillMulti(i_JECUnc    ,float(jetCorUnc->getUncertainty(true)));
+
             if(fillGenJets){
                 auto genRef = jet.genJetFwdRef().backRef();
                 data.fillMulti(i_genIDX , genRef.isNull() ? size8(255) : genIndicies[genRef.key()] );
