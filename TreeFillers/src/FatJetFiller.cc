@@ -55,8 +55,7 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
     i_sj1_eta            = data.addMulti<float>(branchName,"sj1_eta"                             , 0);
     i_sj1_phi            = data.addMulti<float>(branchName,"sj1_phi"                             , 0);
     i_sj1_mass           = data.addMulti<float>(branchName,"sj1_mass"                            , 0);
-    i_sj1_raw_pt         = data.addMulti<float>(branchName,"sj1_raw_pt"                          , 0);
-    i_sj1_raw_mass       = data.addMulti<float>(branchName,"sj1_raw_mass"                        , 0);
+    i_sj1_toRawFact      = data.addMulti<float>(branchName,"sj1_toRawFact"                       , 0);
     i_sj1_csv            = data.addMulti<float>(branchName,"sj1_csv"                             , 0);
     if(!isRealData){
         i_sj1_JECUnc         = data.addMulti<float>(branchName,"sj1_JECUnc"               , 0);
@@ -67,8 +66,7 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
     i_sj2_eta            = data.addMulti<float>(branchName,"sj2_eta"                             , 0);
     i_sj2_phi            = data.addMulti<float>(branchName,"sj2_phi"                             , 0);
     i_sj2_mass           = data.addMulti<float>(branchName,"sj2_mass"                            , 0);
-    i_sj2_raw_pt         = data.addMulti<float>(branchName,"sj2_raw_pt"                          , 0);
-    i_sj2_raw_mass       = data.addMulti<float>(branchName,"sj2_raw_mass"                        , 0);
+    i_sj2_toRawFact      = data.addMulti<float>(branchName,"sj2_toRawFact"                       , 0);
     i_sj2_csv            = data.addMulti<float>(branchName,"sj2_csv"                             , 0);
     if(!isRealData){
         i_sj2_JECUnc         = data.addMulti<float>(branchName,"sj2_JECUnc"               , 0);
@@ -165,8 +163,7 @@ void FatJetFiller::fill(){
             data.fillMulti(i_sj1_eta         ,float(subjets[0]->eta()                ));
             data.fillMulti(i_sj1_phi         ,float(subjets[0]->phi()                ));
             data.fillMulti(i_sj1_mass        ,float(subjets[0]->mass()               ));
-            data.fillMulti(i_sj1_raw_pt      ,float(subjets[0]->correctedP4(0).pt()  ));//https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging
-            data.fillMulti(i_sj1_raw_mass    ,float(subjets[0]->correctedP4(0).mass()));
+            data.fillMulti(i_sj1_toRawFact   ,float( subjets[0]->pt()  > 0 ? subjets[0]->correctedP4(0).pt()/subjets[0]->pt() : 0));//https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging
             data.fillMulti(i_sj1_csv         ,float(subjets[0]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
             if(!isRealData){
                 data.fillMulti(i_sj1_hadronFlavor,ASTypes::convertTo<int8>(subjets[0]->hadronFlavour(),"FatJetFiller::hadronFlavor"));
@@ -180,8 +177,7 @@ void FatJetFiller::fill(){
             data.fillMulti(i_sj1_eta         ,float(0));
             data.fillMulti(i_sj1_phi         ,float(0));
             data.fillMulti(i_sj1_mass        ,float(0));
-            data.fillMulti(i_sj1_raw_pt      ,float(0));
-            data.fillMulti(i_sj1_raw_mass    ,float(0));
+            data.fillMulti(i_sj1_toRawFact   ,float(0));
             data.fillMulti(i_sj1_csv         ,float(0));
             if(!isRealData){
                 data.fillMulti(i_sj1_hadronFlavor,size8(0));
@@ -195,8 +191,7 @@ void FatJetFiller::fill(){
             data.fillMulti(i_sj2_eta         ,float(subjets[1]->eta()                ));
             data.fillMulti(i_sj2_phi         ,float(subjets[1]->phi()                ));
             data.fillMulti(i_sj2_mass        ,float(subjets[1]->mass()               ));
-            data.fillMulti(i_sj2_raw_pt      ,float(subjets[1]->correctedP4(0).pt()  ));//https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging
-            data.fillMulti(i_sj2_raw_mass    ,float(subjets[1]->correctedP4(0).mass()));
+            data.fillMulti(i_sj2_toRawFact   ,float( subjets[1]->pt()  > 0 ? subjets[1]->correctedP4(0).pt()/subjets[1]->pt() : 0));//https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging            data.fillMulti(i_sj2_raw_mass    ,float(subjets[1]->correctedP4(0).mass()));
             data.fillMulti(i_sj2_csv         ,float(subjets[1]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
             if(!isRealData){
                 data.fillMulti(i_sj2_hadronFlavor,ASTypes::convertTo<int8>(subjets[1]->hadronFlavour(),"FatJetFiller::hadronFlavor"));
@@ -210,8 +205,7 @@ void FatJetFiller::fill(){
             data.fillMulti(i_sj2_eta         ,float(0));
             data.fillMulti(i_sj2_phi         ,float(0));
             data.fillMulti(i_sj2_mass        ,float(0));
-            data.fillMulti(i_sj2_raw_pt      ,float(0));
-            data.fillMulti(i_sj2_raw_mass    ,float(0));
+            data.fillMulti(i_sj2_toRawFact   ,float(0));
             data.fillMulti(i_sj2_csv         ,float(0));
             if(!isRealData){
                 data.fillMulti(i_sj2_hadronFlavor,size8(0));
