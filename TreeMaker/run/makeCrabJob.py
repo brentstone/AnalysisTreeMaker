@@ -10,7 +10,7 @@ parser.add_argument("-c", "--config", dest="config", default="runTestAnalyzer.py
 parser.add_argument("-i", "--inputData", dest="inputData", default="datasets.conf", help="Input dataset. [Default: datasets.conf]")
 parser.add_argument("-j", "--jobdir", dest="jobdir", default="jobs", help="Directory for job files. [Default: jobs]")
 parser.add_argument("-o", "--outdir", dest="outdir", default="/eos/uscms/store/user/${USER}/13TeV/processed", help="Output directory for ntuples. [Default: \"/eos/uscms/store/user/${USER}/13TeV/ntuples\"]")
-parser.add_argument("-t", "--crabTemp", dest="crabTemp", default="template_makeCrabJob.py", help="crab template file. [Default: \"template_makeCrabJob.py\"]")
+parser.add_argument("-t", "--crabTemp", dest="crabTemp", default="run/template_runCrab.py", help="crab template file. [Default: \"run/template_runCrab.py\"]")
 args = parser.parse_args()
 
 
