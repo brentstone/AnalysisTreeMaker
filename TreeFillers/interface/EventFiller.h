@@ -9,6 +9,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 
 namespace AnaTM{
@@ -36,6 +37,7 @@ private:
 	const FillerConstants::DataRun     dataRun  ;
 	const FillerConstants::Dataset     dataset  ;
 	const FillerConstants::MCProcess   mcProcess;
+	const bool  addPDFWeights;
 
 	size i_run                = 0;
 	size i_lumi               = 0;
@@ -55,6 +57,7 @@ private:
 	size i_process            = 0;
 	size i_dataset            = 0;
 	size i_dataRun            = 0;
+	size i_genWeights         = 0;
 
     edm::EDGetTokenT<reco::VertexCollection>          token_vtx     ;
     edm::EDGetTokenT<double>                          token_rho     ;
@@ -62,6 +65,8 @@ private:
     edm::EDGetTokenT<pat::METCollection>              token_rawMet  ;
     edm::EDGetTokenT<std::vector<PileupSummaryInfo> > token_puSum   ;
     edm::EDGetTokenT<GenEventInfoProduct>             token_genEvent;
+    edm::EDGetTokenT<LHEEventProduct>                 token_lheEventInfo  ;
+
 
     edm::Handle<reco::VertexCollection>          han_vtx     ;
     edm::Handle<double>                          han_rho     ;
@@ -69,11 +74,13 @@ private:
     edm::Handle<pat::METCollection>              han_met     ;
     edm::Handle<pat::METCollection>              han_rawMet  ;
     edm::Handle<GenEventInfoProduct>             han_genEvent;
-
+    edm::Handle<LHEEventProduct>                 han_lheEventInfo;
 
     const reco::Vertex * primaryVertex =0;
     EventCoords evtCoord;
     bool hassGoodVertex = false;
+
+
 
 
 

@@ -101,6 +101,9 @@ defaultJetSequences(process,isRealData,dataRun)
 from AnalysisTreeMaker.TreeMaker.eleVIDProducer_cff import eleVIDProducer
 eleVIDProducer(process)
 
+if 'signal' in sample:
+    process.treeMaker.EventFiller.addPDFWeights = True;
+
 
 #==============================================================================================================================#
 #==============================================================================================================================#

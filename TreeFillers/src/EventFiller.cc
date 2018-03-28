@@ -14,11 +14,10 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 		realData (isRealData),
 		dataRun  (dataRun),
 		dataset  (dataset),
-		mcProcess(mcProcess)
-
+		mcProcess(mcProcess),
+		addPDFWeights(cfg.getParameter<bool>("addPDFWeights"))
 {
 	if(ignore()) return;
-
 
 	token_vtx            =cc.consumes<reco::VertexCollection>         (cfg.getParameter<edm::InputTag>("vertices"));
 	token_rho            =cc.consumes<double>                         (cfg.getParameter<edm::InputTag>("rho"));
@@ -27,6 +26,8 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	if(!isRealData){
 		token_puSum          =cc.consumes<std::vector<PileupSummaryInfo> >(cfg.getParameter<edm::InputTag>("puSummaryInfo"));
 		token_genEvent       =cc.consumes<GenEventInfoProduct>            (cfg.getParameter<edm::InputTag>("genEvent"));
+	    if(addPDFWeights)
+	        token_lheEventInfo            =cc.consumes<LHEEventProduct>       (cfg.getParameter<edm::InputTag>("lheEvent"));
 	}
 
 	i_run                =  data.add<size>   (branchName,"run"                     ,"i",0);
@@ -52,6 +53,8 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 		i_nTruePUInts        =  data.add<float>  (branchName,"nTruePUInts"             ,"F",0);
 		i_weight             =  data.add<float>  (branchName,"weight"                  ,"F",0);
 		i_process            =  data.add<size8>  (branchName,"process"                ,"b",0);
+		i_genWeights         =  data.addMulti<float> (branchName,"genWeights",0);
+
 	}
 
 };
@@ -66,6 +69,8 @@ void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	if(!realData){
 		iEvent.getByToken(token_puSum   ,han_puSum   );
 		iEvent.getByToken(token_genEvent,han_genEvent);
+		if(addPDFWeights)
+		    iEvent.getByToken(token_lheEventInfo     ,han_lheEventInfo     );
 	}
 
 	evtCoord.run   = iEvent.run();
@@ -109,6 +114,13 @@ void EventFiller::fill(){
 		  data.fill(i_nTruePUInts         ,num_true_interactions);
 		  data.fill(i_weight              ,float(han_genEvent	->weight()));
 		  data.fill(i_process             ,static_cast<size8>(mcProcess)   );
+
+		    if(addPDFWeights){
+		      const auto& pdfWeights = han_lheEventInfo->weights();
+		      for(const auto& w: pdfWeights){
+		          data.fillMulti(i_genWeights,float(w.wgt)   );
+		      }
+		    }
 	  }
 
 
