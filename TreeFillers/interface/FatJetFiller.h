@@ -13,7 +13,7 @@ public:
 	virtual void fill();
 
 private:
-	std::vector<ASTypes::size8> processGenJets();
+	void processGenJets();
 
 
 private:

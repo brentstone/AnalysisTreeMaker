@@ -21,7 +21,7 @@ public:
 	static bool passTightID(const pat::Jet& jet);
 
 protected:
-	std::vector<ASTypes::size8> processGenJets();
+	void processGenJets();
 
 protected:
 	size i_pt                 = 0;

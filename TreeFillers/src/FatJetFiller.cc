@@ -96,31 +96,18 @@ void FatJetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     loadedStatus = true;
 };
-std::vector<size8> FatJetFiller::processGenJets(){
-    std::vector<size8> fillGJ(han_genJets->size(),0);
-    for(const auto& jet : (*han_jets)){
-        if(jet.pt() < minJetPT) continue;
-        auto genRef = jet.genJetFwdRef().backRef();
-//        if(!genRef.isNull()) fillGJ[genRef.key()] = true;
-    }
-    std::vector<size8> genInTreeIDX(han_genJets->size(),255);
-    size8 curIDX = 0;
-    const size8 maxIDX = 255;
+void FatJetFiller::processGenJets(){
     for(unsigned int iG = 0; iG < han_genJets->size(); ++iG){
         const auto& jet = han_genJets->at(iG);
-//        if(jet.pt() < minJetPT && !fillGJ[iG]) continue;
-        genInTreeIDX[iG] = std::min(curIDX,maxIDX);
-        curIDX++;
         data.fillMulti(i_gen_pt      ,float(jet.pt()  ));
         data.fillMulti(i_gen_eta     ,float(jet.eta() ));
         data.fillMulti(i_gen_phi     ,float(jet.phi() ));
         data.fillMulti(i_gen_mass    ,float(jet.mass()));
     }
-    return genInTreeIDX;
 }
 void FatJetFiller::fill(){
-    std::vector<size8> genIndicies;
-    if(!isRealData && fillGenJets) genIndicies = processGenJets();
+    if(!isRealData && fillGenJets)
+        processGenJets();
     for(const auto& jet : (*han_jets)){
         if(jet.pt() < minJetPT) continue;
         data.fillMulti(i_pt      ,float(jet.pt()  ));
@@ -147,7 +134,8 @@ void FatJetFiller::fill(){
 
             if(fillGenJets){
                 auto genRef = jet.genJetFwdRef().backRef();
-                data.fillMulti(i_genIDX , genRef.isNull() ? size8(255) : genIndicies[genRef.key()] );
+                size key = genRef.isNull() ? 255 :genRef.key();
+                data.fillMulti(i_genIDX , size8(std::min(key,size(255)) ));
             }
         }
 

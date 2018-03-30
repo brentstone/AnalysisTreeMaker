@@ -120,31 +120,17 @@ bool JetFiller::passTightID(const pat::Jet& jet)  {
     return true;
 }
 
-std::vector<size8> JetFiller::processGenJets(){
-    std::vector<size8> fillGJ(han_genJets->size(),0);
-    for(const auto& jet : (*han_jets)){
-        if(jet.pt() < minJetPT) continue;
-        auto genRef = jet.genJetFwdRef().backRef();
-//        if(!genRef.isNull()) fillGJ[genRef.key()] = true;
-    }
-    std::vector<size8> genInTreeIDX(han_genJets->size(),255);
-    size8 curIDX = 0;
-    const size8 maxIDX = 255;
+void JetFiller::processGenJets(){
     for(unsigned int iG = 0; iG < han_genJets->size(); ++iG){
         const auto& jet = han_genJets->at(iG);
-//        if(jet.pt() < minJetPT && !fillGJ[iG]) continue;
-        genInTreeIDX[iG] = std::min(curIDX,maxIDX);
-        curIDX++;
         data.fillMulti(i_gen_pt      ,float(jet.pt()  ));
         data.fillMulti(i_gen_eta     ,float(jet.eta() ));
         data.fillMulti(i_gen_phi     ,float(jet.phi() ));
         data.fillMulti(i_gen_mass    ,float(jet.mass()));
     }
-    return genInTreeIDX;
 }
 void JetFiller::fill(){
-    std::vector<size8> genIndicies;
-    if(!isRealData && fillGenJets) genIndicies = processGenJets();
+    if(!isRealData && fillGenJets)processGenJets();
 
     for(const auto& jet : (*han_jets)){
         if(jet.pt() < minJetPT) continue;
@@ -160,8 +146,8 @@ void JetFiller::fill(){
 
         const float emf = ( jet.neutralEmEnergy() + jet.chargedEmEnergy() )/raw_p4.E();
         if(emf >0.9){
-            data.fillMulti(i_metUnc_rawPx    ,0.0);
-            data.fillMulti(i_metUnc_rawPy    ,0.0);
+            data.fillMulti(i_metUnc_rawPx    ,float(0.0));
+            data.fillMulti(i_metUnc_rawPy    ,float(0.0));
         } else {
             for ( unsigned int idau = 0; idau < jet.numberOfDaughters(); ++idau) {
                 const auto * pfcand = jet.daughter(idau);
@@ -197,7 +183,8 @@ void JetFiller::fill(){
 
             if(fillGenJets){
                 auto genRef = jet.genJetFwdRef().backRef();
-                data.fillMulti(i_genIDX , genRef.isNull() ? size8(255) : genIndicies[genRef.key()] );
+                size key = genRef.isNull() ? 255 :genRef.key();
+                data.fillMulti(i_genIDX , size8(std::min(key,size(255)) ));
             }
         }
     }
