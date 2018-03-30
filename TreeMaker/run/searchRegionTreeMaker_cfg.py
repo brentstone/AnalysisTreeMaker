@@ -5,8 +5,15 @@ process = cms.Process('run')
 
 process.options = cms.untracked.PSet(
     allowUnscheduled=cms.untracked.bool(True),
-    wantSummary=cms.untracked.bool(True)
+#     wantSummary=cms.untracked.bool(True)
 )
+
+# process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
+#                                     ignoreTotal=cms.untracked.int32(-1),
+#                                       oncePerEventMode=cms.untracked.bool(True),
+#                                       moduleMemorySummary=cms.untracked.bool(True),
+#                                       )
+# process.Timing=cms.Service("Timing")
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
