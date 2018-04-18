@@ -198,7 +198,7 @@ void FatJetFiller::fill(){
             if(!isRealData){
                 data.fillMulti(i_sj2_hadronFlavor,size8(0));
                 data.fillMulti(i_sj2_partonFlavor,size8(0));
-                data.fillMulti(i_sj1_JECUnc    ,float(0));
+                data.fillMulti(i_sj2_JECUnc    ,float(0));
             }
         }
 
