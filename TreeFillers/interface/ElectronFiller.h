@@ -31,6 +31,9 @@ private:
 	size i_eaRelISO       ;
 	size i_id             ;
 
+	size i_dRnorm         ;
+	size i_PtRatioLepAct  ;
+
     float minPT                = 0;
 
     edm::EDGetTokenT<pat::ElectronCollection>            token_electrons;

@@ -3,6 +3,8 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/ElectronFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/EventFiller.h"
 #include "AnalysisTreeMaker/Utilities/interface/Isolations.h"
+#include "AnalysisTreeMaker/Utilities/interface/TnPJetActVars.h"
+
 using ASTypes::int8;
 using ASTypes::size8;
 using ASTypes::size16;
@@ -43,6 +45,9 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	i_miniIso         = data.addMulti<float >(branchName,"miniIso"               , 0);
 	i_eaRelISO        = data.addMulti<float >(branchName,"eaRelISO"              , 0);
 	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
+
+	i_dRnorm          = data.addMulti<size16>(branchName,"dRnorm"                   , 0);
+	i_PtRatioLepAct   = data.addMulti<size16>(branchName,"PtRatioLepAct"                   , 0);
 }
 ;
 void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -117,6 +122,12 @@ void ElectronFiller::fill(){
 		//https://github.com/cmsb2g/B2GAnaFW/blob/v8.0.x_v3.2/src/ElectronUserData.cc
 	    float miniIso = Isolations::getPFMiniIsolation(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, eA, *han_miniiso_rho);
 	    data.fillMulti(i_miniIso     , miniIso);
+
+	    std::vector<float> JetActvars = TnPJetActVars::getPFJetActVars(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., eA, *han_miniiso_rho);
+	    float dRnorm = JetActvars[0];
+	    float PtRatioLepAct = JetActvars[1];
+	    data.fillMulti(i_dRnorm, dRnorm);
+	    data.fillMulti(i_PtRatioLepAct, PtRatioLepAct);
 
 	    float gp_mva_val  = (*han_mva)[ lep ];
 	    int   gp_mva_cat  = (*han_mvaCat)[ lep ];

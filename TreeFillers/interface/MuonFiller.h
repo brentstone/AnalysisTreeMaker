@@ -26,8 +26,9 @@ private:
 	size i_sip3D          ;
 	size i_miniIso        ;
 	size i_dBRelISO       ;
-	size i_id             ;
-
+	size i_id   		  ;
+	size i_dRnorm         ;
+	size i_PtRatioLepAct  ;
     float minPT                = 0;
 
     edm::EDGetTokenT<pat::MuonCollection>                token_muons  ;
