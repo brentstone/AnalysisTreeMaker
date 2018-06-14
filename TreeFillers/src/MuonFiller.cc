@@ -3,6 +3,7 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/MuonFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/EventFiller.h"
 #include "AnalysisTreeMaker/Utilities/interface/Isolations.h"
+#include "AnalysisTreeMaker/Utilities/interface/TnPJetActVars.h"
 using ASTypes::int8;
 using ASTypes::size8;
 using ASTypes::size16;
@@ -32,6 +33,8 @@ MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string&
 	i_dBRelISO        = data.addMulti<float>(branchName,"dBRelISO"              , 0);
 	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
 
+	i_dRnorm          = data.addMulti<float>(branchName,"dRnorm"                   , 0);
+	i_PtRatioLepAct   = data.addMulti<float>(branchName,"PtRatioLepAct"                   , 0);
 }
 ;
 void MuonFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -67,6 +70,15 @@ void MuonFiller::fill(){
 		float EA = Isolations::muonEA(lep->eta());
 	    float miniIso = Isolations::getPFMiniIsolation(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, EA, *han_miniiso_rho);
 	    data.fillMulti(i_miniIso     , miniIso);
+
+	    std::vector<float> JetActvars = TnPJetActVars::getPFJetActVars(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., EA, *han_miniiso_rho);
+	    float dRnorm = JetActvars[0];
+	    float PtRatioLepAct = JetActvars[1];
+	    printf("\n dRnorm = %.2f and PtRatioLepAct = %.2f and miniIso = %.6f \n \n", dRnorm, PtRatioLepAct, miniIso);
+	    data.fillMulti(i_dRnorm, dRnorm);
+	    data.fillMulti(i_PtRatioLepAct, PtRatioLepAct);
+
+
 	    float sumChargedHadronPt = lep->pfIsolationR04().sumChargedHadronPt;
 	    float sumNeutralHadronPt = lep->pfIsolationR04().sumNeutralHadronEt;
 	    float sumPhotonPt        = lep->pfIsolationR04().sumPhotonEt;
