@@ -72,12 +72,8 @@ void MuonFiller::fill(){
 	    data.fillMulti(i_miniIso     , miniIso);
 
 	    std::vector<float> JetActvars = TnPJetActVars::getPFJetActVars(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., EA, *han_miniiso_rho);
-	    float dRnorm = JetActvars[0];
-	    float PtRatioLepAct = JetActvars[1];
-	    printf("\n dRnorm = %.2f and PtRatioLepAct = %.2f and miniIso = %.6f \n \n", dRnorm, PtRatioLepAct, miniIso);
-	    data.fillMulti(i_dRnorm, dRnorm);
-	    data.fillMulti(i_PtRatioLepAct, PtRatioLepAct);
-
+	    data.fillMulti(i_dRnorm, JetActvars[0]);
+	    data.fillMulti(i_PtRatioLepAct, JetActvars[1]);
 
 	    float sumChargedHadronPt = lep->pfIsolationR04().sumChargedHadronPt;
 	    float sumNeutralHadronPt = lep->pfIsolationR04().sumNeutralHadronEt;

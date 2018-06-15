@@ -46,8 +46,8 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	i_eaRelISO        = data.addMulti<float >(branchName,"eaRelISO"              , 0);
 	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
 
-	i_dRnorm          = data.addMulti<size16>(branchName,"dRnorm"                   , 0);
-	i_PtRatioLepAct   = data.addMulti<size16>(branchName,"PtRatioLepAct"                   , 0);
+	i_dRnorm          = data.addMulti<float>(branchName,"dRnorm"                   , 0);
+	i_PtRatioLepAct   = data.addMulti<float>(branchName,"PtRatioLepAct"                   , 0);
 }
 ;
 void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -124,10 +124,8 @@ void ElectronFiller::fill(){
 	    data.fillMulti(i_miniIso     , miniIso);
 
 	    std::vector<float> JetActvars = TnPJetActVars::getPFJetActVars(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., eA, *han_miniiso_rho);
-	    float dRnorm = JetActvars[0];
-	    float PtRatioLepAct = JetActvars[1];
-	    data.fillMulti(i_dRnorm, dRnorm);
-	    data.fillMulti(i_PtRatioLepAct, PtRatioLepAct);
+	    data.fillMulti(i_dRnorm, JetActvars[0]);
+	    data.fillMulti(i_PtRatioLepAct, JetActvars[1]);
 
 	    float gp_mva_val  = (*han_mva)[ lep ];
 	    int   gp_mva_cat  = (*han_mvaCat)[ lep ];

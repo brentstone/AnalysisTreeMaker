@@ -68,7 +68,7 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
 	vars.push_back(dR_lepactNORM);
 	vars.push_back(PtRatio_lepact);
 
-	std::cout<<std::endl;
+/*	std::cout<<std::endl;
 	printf("r_miso = %.6f \n", r_miso);
 	printf("lepton pt = %.6f \n", ptcl->pt());
 	printf("Lepton 4-mom = {%.2f, %.2f, %.2f, %.2f} \n", ptcl->px(), ptcl->py(), ptcl->pz(), ptcl->energy());
@@ -82,7 +82,7 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
 	printf("PtRatio_lepact = %.6f \n", PtRatio_lepact);
 	std::cout<<std::endl;
 	std::cout<<std::endl;
-
+*/
 	return vars;
 }
 
