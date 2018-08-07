@@ -49,7 +49,7 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 
 	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
 	i_dRnorm          = data.addMulti<float>(branchName,"dRnorm"                   , 0);
-	i_PtRatioLepAct   = data.addMulti<float>(branchName,"PtRatioLepAct"                   , 0);
+	i_lepAct_o_pt     = data.addMulti<float>(branchName,"lepAct_o_pt"                   , 0);
     i_sc_act_o_pt    = data.addMulti<float>(branchName,"sc_act_o_pt"             , 0);
     i_sc_dr_act      = data.addMulti<float>(branchName,"sc_dr_act"               , 0);          
 }
@@ -116,7 +116,7 @@ void ElectronFiller::fill(){
 
 		data.fillMulti(i_id     , idResult);
 
-		float eA = Isolations::electronEA(lep->superCluster()->eta());
+		const float eA = Isolations::electronEA(lep->superCluster()->eta());
 		const auto& iso = lep->pfIsolationVariables();
 		float eAIso = ( iso.sumChargedHadronPt
 				+ std::max( 0.0f, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*event->rho()) )  // EA uses fixedGridRhoFastjetAll, which is what eventFiller stores (https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolationRun2)
@@ -129,7 +129,7 @@ void ElectronFiller::fill(){
 
 	    std::vector<float> JetActvars = TnPJetActVars::getPFJetActVars(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., eA, *han_miniiso_rho);
 	    data.fillMulti(i_dRnorm, JetActvars[0]);
-	    data.fillMulti(i_PtRatioLepAct, JetActvars[1]);
+	    data.fillMulti(i_lepAct_o_pt, JetActvars[1]);
 
 	    float gp_mva_val  = (*han_mva)[ lep ];
 	    int   gp_mva_cat  = (*han_mvaCat)[ lep ];
@@ -138,15 +138,15 @@ void ElectronFiller::fill(){
 
 
 	    float sc_act_o_pt, sc_dr_act;
-	    getSCActivity(&*lep,vtx_pt,sc_act_o_pt,sc_dr_act);
+	    getSCActivity(&*lep,vtx_pt,eA,sc_act_o_pt,sc_dr_act);
         data.fillMulti(i_sc_act_o_pt       , sc_act_o_pt);
         data.fillMulti(i_sc_dr_act         , sc_dr_act);
 	}
 }
 
-void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, float& act_o_pt, float& actDR) const {
+void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, const float eA, float& act_o_pt, float& actDR) const {
 
-    const float eaCorr = event->rho()*0.4*0.4/(0.3*0.3)*Isolations::electronEA(ele->superCluster()->eta());
+    const float eaCorr = event->rho()*0.4*0.4/(0.3*0.3)*eA;
     const auto& pos = ele->superCluster()->position();
     GlobalVector mom(pos.x()-vtx.x(),pos.y()-vtx.y(),pos.z()-vtx.z());
     ASTypes::CylLorentzVectorF pIso;
