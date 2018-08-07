@@ -34,6 +34,9 @@ private:
 	size i_eaRelISO       ;
 	size i_id             ;
 
+
+	size i_dRnorm         ;
+	size i_PtRatioLepAct  ;
 	size i_sc_act_o_pt    ;
 	size i_sc_dr_act      ;
 
