@@ -3,7 +3,9 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/ElectronFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/EventFiller.h"
 #include "AnalysisTreeMaker/Utilities/interface/Isolations.h"
+
 #include "AnalysisTreeMaker/Utilities/interface/TnPJetActVars.h"
+#include "AnalysisSupport/Utilities/interface/PhysicsUtilities.h"
 
 using ASTypes::int8;
 using ASTypes::size8;
@@ -44,10 +46,12 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	i_mvaID_cat       = data.addMulti<size8 >(branchName,"mvaID_cat"             , 0);
 	i_miniIso         = data.addMulti<float >(branchName,"miniIso"               , 0);
 	i_eaRelISO        = data.addMulti<float >(branchName,"eaRelISO"              , 0);
-	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
 
+	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
 	i_dRnorm          = data.addMulti<float>(branchName,"dRnorm"                   , 0);
 	i_PtRatioLepAct   = data.addMulti<float>(branchName,"PtRatioLepAct"                   , 0);
+    i_sc_act_o_pt    = data.addMulti<float>(branchName,"sc_act_o_pt"             , 0);
+    i_sc_dr_act      = data.addMulti<float>(branchName,"sc_dr_act"               , 0);          
 }
 ;
 void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -131,7 +135,37 @@ void ElectronFiller::fill(){
 	    int   gp_mva_cat  = (*han_mvaCat)[ lep ];
 	    data.fillMulti(i_mvaID         , gp_mva_val);
 	    data.fillMulti(i_mvaID_cat     , ASTypes::convertTo<size8>(gp_mva_cat,"ElectronFiller::mvaID_cat"));
+
+
+	    float sc_act_o_pt, sc_dr_act;
+	    getSCActivity(&*lep,vtx_pt,sc_act_o_pt,sc_dr_act);
+        data.fillMulti(i_sc_act_o_pt       , sc_act_o_pt);
+        data.fillMulti(i_sc_dr_act         , sc_dr_act);
 	}
-};
+}
+
+void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, float& act_o_pt, float& actDR) const {
+
+    const float eaCorr = event->rho()*0.4*0.4/(0.3*0.3)*Isolations::electronEA(ele->superCluster()->eta());
+    const auto& pos = ele->superCluster()->position();
+    GlobalVector mom(pos.x()-vtx.x(),pos.y()-vtx.y(),pos.z()-vtx.z());
+    ASTypes::CylLorentzVectorF pIso;
+    float iso_charged=0;
+    float iso_neutral=0;
+    for(const auto& can : *han_pfCands){
+        float dr2 = PhysicsUtilities::deltaR2(can,mom);
+        if(dr2 > 0.4*0.4) continue;
+        if (can.charge()!=0 && can.fromPV()>1){
+            iso_charged += can.pt();
+            pIso += can.p4();
+        } else if(can.charge() == 0){
+            pIso += can.p4();
+            iso_neutral += can.pt();
+        }
+    }
+    const float scpt = ele->superCluster()->energy()*std::sin(ele->superCluster()->position().theta());
+    act_o_pt = (iso_charged + std::max(0.0f, iso_neutral - eaCorr))/scpt;
+    actDR = PhysicsUtilities::deltaR(mom,pIso);
+}
 
 }
