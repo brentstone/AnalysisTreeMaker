@@ -26,17 +26,16 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
 
 	TLorentzVector Mom_ch, Mom_nh, Mom_ph;
 	// loop on all pf cands
-//	int num_PF = 0;
 	for (const pat::PackedCandidate &pfc : *pfcands) {
 
 		if (abs(pfc.pdgId())<7) continue;
-		if (pfc.pt() < ptThresh) continue;
 
 		double dr = reco::deltaR(pfc, *ptcl);
 		if (dr > r_SAcone) continue;
 
 		// Collect the total 4-momentum of charged hadrons, neutral hadrons, and photons within the appropriate cone
 		if (pfc.charge()==0) {
+			if (pfc.pt() < ptThresh) continue;
 			if (abs(pfc.pdgId())==22) {
 				if (dr < deadcone_ph) continue;
 				TLorentzVector mom(pfc.px(), pfc.py(), pfc.pz(), pfc.energy());
@@ -53,8 +52,6 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
 				Mom_ch += mom;
 			}
 		} else {}
-//		num_PF++;
-//		if (pfc.p() > 50) printf("High momentum PFcand --> %d\n", pfc.pdgId());
 	}
 	// Now the 4-momentum of the necessary summed PF cands is calculated. Calculate the variables wrt the lepton
 	TLorentzVector PFactMom = Mom_ch + Mom_nh + Mom_ph;
