@@ -17,6 +17,9 @@ public:
 	virtual void fill();
 
 private:
+	void getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, float& act_o_pt, float& actDR) const;
+
+
 	size i_pt             ;
 	size i_eta            ;
 	size i_phi            ;
@@ -31,8 +34,11 @@ private:
 	size i_eaRelISO       ;
 	size i_id             ;
 
+
 	size i_dRnorm         ;
 	size i_PtRatioLepAct  ;
+	size i_sc_act_o_pt    ;
+	size i_sc_dr_act      ;
 
     float minPT                = 0;
 
