@@ -29,13 +29,13 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
 	for (const pat::PackedCandidate &pfc : *pfcands) {
 
 		if (abs(pfc.pdgId())<7) continue;
+		if (pfc.pt() < ptThresh) continue;
 
 		double dr = reco::deltaR(pfc, *ptcl);
 		if (dr > r_SAcone) continue;
 
 		// Collect the total 4-momentum of charged hadrons, neutral hadrons, and photons within the appropriate cone
 		if (pfc.charge()==0) {
-			if (pfc.pt() < ptThresh) continue;
 			if (abs(pfc.pdgId())==22) {
 				if (dr < deadcone_ph) continue;
 				TLorentzVector mom(pfc.px(), pfc.py(), pfc.pz(), pfc.energy());
