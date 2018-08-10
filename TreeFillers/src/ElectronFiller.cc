@@ -7,6 +7,8 @@
 #include "AnalysisTreeMaker/Utilities/interface/TnPJetActVars.h"
 #include "AnalysisSupport/Utilities/interface/PhysicsUtilities.h"
 
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
 using ASTypes::int8;
 using ASTypes::size8;
 using ASTypes::size16;
@@ -20,6 +22,7 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	if(eventFiller == 0) throw cms::Exception("ElectronFiller::ElectronFiller()", "You need to provide an EventFiller when you construct the ElectronFiller!");
 	event = eventFiller;
 	minPT       = cfg.getParameter<double>("minPT");
+	storeSC     = cfg.getParameter<bool>("storeSC");
 	token_electrons   =cc.consumes<pat::ElectronCollection >(cfg.getParameter<edm::InputTag>("electrons"));
 
 	token_cut_veto     =cc.consumes<edm::ValueMap<vid::CutFlowResult>>(cfg.getParameter<edm::InputTag>("cut_veto" ));
@@ -32,6 +35,9 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 
 	token_pfCands =cc.consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfCandidates"));
 	token_miniiso_rho  =cc.consumes<double>(cfg.getParameter<edm::InputTag>("miniiso_rho"));
+
+	if(storeSC)
+	    token_scs  =cc.consumes<reco::SuperClusterCollection >(cfg.getParameter<edm::InputTag>("superclusters"));
 
 
 	i_pt              = data.addMulti<float> (branchName,"pt"                    , 0);
@@ -52,6 +58,13 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	i_lepAct_o_pt     = data.addMulti<float>(branchName,"lepAct_o_pt"                   , 0);
     i_sc_act_o_pt    = data.addMulti<float>(branchName,"sc_act_o_pt"             , 0);
     i_sc_dr_act      = data.addMulti<float>(branchName,"sc_dr_act"               , 0);          
+
+    if(storeSC){
+        i_sccol_et   = data.addMulti<float >(branchName,"sccol_et"               , 0);
+        i_sccol_eta  = data.addMulti<float >(branchName,"sccol_eta"               , 0);
+        i_sccol_phi  = data.addMulti<float >(branchName,"sccol_phi"               , 0);
+    }
+
 }
 ;
 void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -67,6 +80,9 @@ void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	iEvent.getByToken(token_mvaCat        ,han_mvaCat        );
 	iEvent.getByToken(token_pfCands       ,han_pfCands     );
 	iEvent.getByToken(token_miniiso_rho   ,han_miniiso_rho     );
+	if(storeSC){
+	    iEvent.getByToken(token_scs   ,han_scs     );
+	}
 
 	loadedStatus = true;
 };
@@ -142,6 +158,21 @@ void ElectronFiller::fill(){
         data.fillMulti(i_sc_act_o_pt       , sc_act_o_pt);
         data.fillMulti(i_sc_dr_act         , sc_dr_act);
 	}
+
+	if(!storeSC) return;
+    for (size iE = 0; iE < han_scs->size(); ++iE){
+        const auto& lep = (*han_scs)[iE];
+        const auto& pos =  lep.position();
+        const float et = lep.energy()*std::sin(pos.theta());
+        const float eta = pos.eta();
+        if(et <= 5) continue;
+        if(std::fabs(eta) >= 2.5 ) continue;
+        data.fillMulti(i_sccol_et     , et);
+        data.fillMulti(i_sccol_eta    , eta);
+        data.fillMulti(i_sccol_phi    , float(pos.phi()));
+
+    }
+
 }
 
 void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, const float eA, float& act_o_pt, float& actDR) const {

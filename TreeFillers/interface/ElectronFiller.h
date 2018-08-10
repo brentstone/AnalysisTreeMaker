@@ -38,7 +38,12 @@ private:
 	size i_sc_act_o_pt    ;
 	size i_sc_dr_act      ;
 
+	size i_sccol_et       ;
+	size i_sccol_eta      ;
+	size i_sccol_phi      ;
+
     float minPT                = 0;
+    bool  storeSC              = 0;
 
     edm::EDGetTokenT<pat::ElectronCollection>            token_electrons;
     edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_veto ;
@@ -48,8 +53,9 @@ private:
     edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_heep;
     edm::EDGetTokenT<edm::ValueMap<float              >> token_mva  ;
     edm::EDGetTokenT<edm::ValueMap<int                >> token_mvaCat;
-    edm::EDGetTokenT<pat::PackedCandidateCollection>	    token_pfCands;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>     token_pfCands;
     edm::EDGetTokenT<double>                             token_miniiso_rho;
+    edm::EDGetTokenT<reco::SuperClusterCollection>       token_scs;
 
     edm::Handle<pat::ElectronCollection>                 han_electrons;
     edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_veto ;
@@ -59,8 +65,10 @@ private:
     edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_heep ;
     edm::Handle<edm::ValueMap<float              >>      han_mva  ;
     edm::Handle<edm::ValueMap<int                >>      han_mvaCat;
-    edm::Handle<pat::PackedCandidateCollection>			han_pfCands;
+    edm::Handle<pat::PackedCandidateCollection>			 han_pfCands;
     edm::Handle<double>                                  han_miniiso_rho;
+    edm::Handle<reco::SuperClusterCollection>            han_scs;
+
 
     const EventFiller * event;
 
