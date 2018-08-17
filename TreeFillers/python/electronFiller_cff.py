@@ -5,6 +5,7 @@ ElectronFiller = cms.PSet(
     branchName                      = cms.string("electron"),
     minPT                           = cms.double(5),
     storeSC                         = cms.bool(False),
+    storeReco                       = cms.bool(False),
     electrons                       = cms.InputTag('slimmedElectrons'),    
     superclusters                   = cms.InputTag('reducedEgamma:reducedSuperClusters'),    
     cut_veto  = cms.InputTag('egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto'  ),

@@ -23,6 +23,7 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	event = eventFiller;
 	minPT       = cfg.getParameter<double>("minPT");
 	storeSC     = cfg.getParameter<bool>("storeSC");
+	storeReco   = cfg.getParameter<bool>("storeReco");
 	token_electrons   =cc.consumes<pat::ElectronCollection >(cfg.getParameter<edm::InputTag>("electrons"));
 
 	token_cut_veto     =cc.consumes<edm::ValueMap<vid::CutFlowResult>>(cfg.getParameter<edm::InputTag>("cut_veto" ));
@@ -53,16 +54,21 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	i_miniIso         = data.addMulti<float >(branchName,"miniIso"               , 0);
 	i_eaRelISO        = data.addMulti<float >(branchName,"eaRelISO"              , 0);
 
-	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
-	i_dRnorm          = data.addMulti<float>(branchName,"dRnorm"                   , 0);
-	i_lepAct_o_pt     = data.addMulti<float>(branchName,"lepAct_o_pt"                   , 0);
-    i_sc_act_o_pt    = data.addMulti<float>(branchName,"sc_act_o_pt"             , 0);
-    i_sc_dr_act      = data.addMulti<float>(branchName,"sc_dr_act"               , 0);          
+	i_id              = data.addMulti<size16>(branchName,"id"                    , 0);
+	i_dRnorm          = data.addMulti<float>(branchName ,"dRnorm"                , 0);
+	i_lepAct_o_pt     = data.addMulti<float>(branchName ,"lepAct_o_pt"           , 0);
+    i_sc_act_o_pt    = data.addMulti<float>(branchName  ,"sc_act_o_pt"           , 0);
+    i_sc_dr_act      = data.addMulti<float>(branchName  ,"sc_dr_act"             , 0);
 
     if(storeSC){
         i_sccol_et   = data.addMulti<float >(branchName,"sccol_et"               , 0);
-        i_sccol_eta  = data.addMulti<float >(branchName,"sccol_eta"               , 0);
-        i_sccol_phi  = data.addMulti<float >(branchName,"sccol_phi"               , 0);
+        i_sccol_eta  = data.addMulti<float >(branchName,"sccol_eta"              , 0);
+        i_sccol_phi  = data.addMulti<float >(branchName,"sccol_phi"              , 0);
+    }
+
+    if(storeReco){
+        i_reco_flag              = data.addMulti<size8>(branchName,"reco_flag"                    , 0);
+
     }
 
 }
@@ -157,6 +163,13 @@ void ElectronFiller::fill(){
 	    getSCActivity(&*lep,vtx_pt,eA,sc_act_o_pt,sc_dr_act);
         data.fillMulti(i_sc_act_o_pt       , sc_act_o_pt);
         data.fillMulti(i_sc_dr_act         , sc_dr_act);
+
+        if(storeReco){
+            size8 recoFlg = 0;
+            if(lep->trackerDrivenSeed()) FillerConstants::addPass(recoFlg,FillerConstants::ELRECO_TrckDrv);
+            if(lep->ecalDriven()) FillerConstants::addPass(recoFlg,FillerConstants::ELRECO_ECALDrv);
+            data.fillMulti(i_reco_flag     , recoFlg);
+        }
 	}
 
 	if(!storeSC) return;

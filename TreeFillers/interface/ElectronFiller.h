@@ -42,8 +42,11 @@ private:
 	size i_sccol_eta      ;
 	size i_sccol_phi      ;
 
+	size i_reco_flag      ;
+
     float minPT                = 0;
     bool  storeSC              = 0;
+    bool  storeReco            = 0;
 
     edm::EDGetTokenT<pat::ElectronCollection>            token_electrons;
     edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_veto ;
