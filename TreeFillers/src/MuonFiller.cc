@@ -34,7 +34,7 @@ MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string&
 	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
 
 	i_dRnorm          = data.addMulti<float>(branchName,"dRnorm"                   , 0);
-	i_PtRatioLepAct   = data.addMulti<float>(branchName,"PtRatioLepAct"                   , 0);
+	i_lepAct_o_pt     = data.addMulti<float>(branchName,"lepAct_o_pt"                   , 0);
 }
 ;
 void MuonFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -73,7 +73,7 @@ void MuonFiller::fill(){
 
 	    std::vector<float> JetActvars = TnPJetActVars::getPFJetActVars(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., EA, *han_miniiso_rho);
 	    data.fillMulti(i_dRnorm, JetActvars[0]);
-	    data.fillMulti(i_PtRatioLepAct, JetActvars[1]);
+	    data.fillMulti(i_lepAct_o_pt, JetActvars[1]);
 
 	    float sumChargedHadronPt = lep->pfIsolationR04().sumChargedHadronPt;
 	    float sumNeutralHadronPt = lep->pfIsolationR04().sumNeutralHadronEt;

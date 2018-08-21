@@ -91,7 +91,8 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                 , ak8PuppiFatJetFiller      = cms.PSet(ak8PuppiFatJetFiller)
                                  , ElectronFiller            = cms.PSet(ElectronFiller)
                                  , MuonFiller                = cms.PSet(MuonFiller)  
-                                 , GenParticleFiller         = cms.PSet(GenParticleFiller)                                 
+#                                 , PhotonFiller                = cms.PSet(PhotonFiller)  
+                                 , GenParticleFiller         = cms.PSet(GenParticleFiller)
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,dataRun)
 

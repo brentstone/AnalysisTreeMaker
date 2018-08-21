@@ -8,6 +8,7 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/FatJetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/ElectronFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/MuonFiller.h"
+#include "AnalysisTreeMaker/TreeFillers/interface/PhotonFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/GenParticleFiller.h"
 
 
@@ -27,6 +28,7 @@ public:
 		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiNoLepFatJetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiFatJetFiller",consumesCollector(),isRealData()));
 		initialize(new AnaTM::ElectronFiller(cfg,"ElectronFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
+		initialize(new AnaTM::PhotonFiller(cfg,"PhotonFiller",consumesCollector()));
 		initialize(new AnaTM::MuonFiller(cfg,"MuonFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
 		if(!isRealData())
 			initialize(new AnaTM::GenParticleFiller(cfg,"GenParticleFiller",consumesCollector()));

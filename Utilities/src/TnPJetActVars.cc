@@ -1,6 +1,7 @@
 #include "../interface/TnPJetActVars.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "TLorentzVector.h"
+#include <cmath>
 
 // Compute the pt ratio of jet activity to lepton activity and the normalized deltaR (dR_lepAct / dR_miniIsoCone)
 
@@ -27,6 +28,8 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
 	TLorentzVector Mom_ch, Mom_nh, Mom_ph;
 	// loop on all pf cands
 	for (const pat::PackedCandidate &pfc : *pfcands) {
+	    if(std::isinf(pfc.pt() )) continue;
+	    if(std::isfinite(pfc.pt() )) continue;
 
 		if (abs(pfc.pdgId())<7) continue;
 		if (pfc.pt() < ptThresh) continue;

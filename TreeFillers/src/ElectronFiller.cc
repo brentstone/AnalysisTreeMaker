@@ -7,6 +7,8 @@
 #include "AnalysisTreeMaker/Utilities/interface/TnPJetActVars.h"
 #include "AnalysisSupport/Utilities/interface/PhysicsUtilities.h"
 
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
 using ASTypes::int8;
 using ASTypes::size8;
 using ASTypes::size16;
@@ -20,6 +22,8 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	if(eventFiller == 0) throw cms::Exception("ElectronFiller::ElectronFiller()", "You need to provide an EventFiller when you construct the ElectronFiller!");
 	event = eventFiller;
 	minPT       = cfg.getParameter<double>("minPT");
+	storeSC     = cfg.getParameter<bool>("storeSC");
+	storeReco   = cfg.getParameter<bool>("storeReco");
 	token_electrons   =cc.consumes<pat::ElectronCollection >(cfg.getParameter<edm::InputTag>("electrons"));
 
 	token_cut_veto     =cc.consumes<edm::ValueMap<vid::CutFlowResult>>(cfg.getParameter<edm::InputTag>("cut_veto" ));
@@ -32,6 +36,9 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 
 	token_pfCands =cc.consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfCandidates"));
 	token_miniiso_rho  =cc.consumes<double>(cfg.getParameter<edm::InputTag>("miniiso_rho"));
+
+	if(storeSC)
+	    token_scs  =cc.consumes<reco::SuperClusterCollection >(cfg.getParameter<edm::InputTag>("superclusters"));
 
 
 	i_pt              = data.addMulti<float> (branchName,"pt"                    , 0);
@@ -47,11 +54,23 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	i_miniIso         = data.addMulti<float >(branchName,"miniIso"               , 0);
 	i_eaRelISO        = data.addMulti<float >(branchName,"eaRelISO"              , 0);
 
-	i_id              = data.addMulti<size16>(branchName,"id"                   , 0);
-	i_dRnorm          = data.addMulti<float>(branchName,"dRnorm"                   , 0);
-	i_PtRatioLepAct   = data.addMulti<float>(branchName,"PtRatioLepAct"                   , 0);
-    i_sc_act_o_pt    = data.addMulti<float>(branchName,"sc_act_o_pt"             , 0);
-    i_sc_dr_act      = data.addMulti<float>(branchName,"sc_dr_act"               , 0);          
+	i_id              = data.addMulti<size16>(branchName,"id"                    , 0);
+	i_dRnorm          = data.addMulti<float>(branchName ,"dRnorm"                , 0);
+	i_lepAct_o_pt     = data.addMulti<float>(branchName ,"lepAct_o_pt"           , 0);
+    i_sc_act_o_pt    = data.addMulti<float>(branchName  ,"sc_act_o_pt"           , 0);
+    i_sc_dr_act      = data.addMulti<float>(branchName  ,"sc_dr_act"             , 0);
+
+    if(storeSC){
+        i_sccol_et   = data.addMulti<float >(branchName,"sccol_et"               , 0);
+        i_sccol_eta  = data.addMulti<float >(branchName,"sccol_eta"              , 0);
+        i_sccol_phi  = data.addMulti<float >(branchName,"sccol_phi"              , 0);
+    }
+
+    if(storeReco){
+        i_reco_flag              = data.addMulti<size8>(branchName,"reco_flag"                    , 0);
+
+    }
+
 }
 ;
 void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -67,6 +86,9 @@ void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	iEvent.getByToken(token_mvaCat        ,han_mvaCat        );
 	iEvent.getByToken(token_pfCands       ,han_pfCands     );
 	iEvent.getByToken(token_miniiso_rho   ,han_miniiso_rho     );
+	if(storeSC){
+	    iEvent.getByToken(token_scs   ,han_scs     );
+	}
 
 	loadedStatus = true;
 };
@@ -116,7 +138,7 @@ void ElectronFiller::fill(){
 
 		data.fillMulti(i_id     , idResult);
 
-		float eA = Isolations::electronEA(lep->superCluster()->eta());
+		const float eA = Isolations::electronEA(lep->superCluster()->eta());
 		const auto& iso = lep->pfIsolationVariables();
 		float eAIso = ( iso.sumChargedHadronPt
 				+ std::max( 0.0f, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*event->rho()) )  // EA uses fixedGridRhoFastjetAll, which is what eventFiller stores (https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolationRun2)
@@ -129,7 +151,7 @@ void ElectronFiller::fill(){
 
 	    std::vector<float> JetActvars = TnPJetActVars::getPFJetActVars(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., eA, *han_miniiso_rho);
 	    data.fillMulti(i_dRnorm, JetActvars[0]);
-	    data.fillMulti(i_PtRatioLepAct, JetActvars[1]);
+	    data.fillMulti(i_lepAct_o_pt, JetActvars[1]);
 
 	    float gp_mva_val  = (*han_mva)[ lep ];
 	    int   gp_mva_cat  = (*han_mvaCat)[ lep ];
@@ -138,15 +160,37 @@ void ElectronFiller::fill(){
 
 
 	    float sc_act_o_pt, sc_dr_act;
-	    getSCActivity(&*lep,vtx_pt,sc_act_o_pt,sc_dr_act);
+	    getSCActivity(&*lep,vtx_pt,eA,sc_act_o_pt,sc_dr_act);
         data.fillMulti(i_sc_act_o_pt       , sc_act_o_pt);
         data.fillMulti(i_sc_dr_act         , sc_dr_act);
+
+        if(storeReco){
+            size8 recoFlg = 0;
+            if(lep->trackerDrivenSeed()) FillerConstants::addPass(recoFlg,FillerConstants::ELRECO_TrckDrv);
+            if(lep->ecalDriven()) FillerConstants::addPass(recoFlg,FillerConstants::ELRECO_ECALDrv);
+            data.fillMulti(i_reco_flag     , recoFlg);
+        }
 	}
+
+	if(!storeSC) return;
+    for (size iE = 0; iE < han_scs->size(); ++iE){
+        const auto& lep = (*han_scs)[iE];
+        const auto& pos =  lep.position();
+        const float et = lep.energy()*std::sin(pos.theta());
+        const float eta = pos.eta();
+        if(et <= 5) continue;
+        if(std::fabs(eta) >= 2.5 ) continue;
+        data.fillMulti(i_sccol_et     , et);
+        data.fillMulti(i_sccol_eta    , eta);
+        data.fillMulti(i_sccol_phi    , float(pos.phi()));
+
+    }
+
 }
 
-void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, float& act_o_pt, float& actDR) const {
+void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, const float eA, float& act_o_pt, float& actDR) const {
 
-    const float eaCorr = event->rho()*0.4*0.4/(0.3*0.3)*Isolations::electronEA(ele->superCluster()->eta());
+    const float eaCorr = event->rho()*0.4*0.4/(0.3*0.3)*eA;
     const auto& pos = ele->superCluster()->position();
     GlobalVector mom(pos.x()-vtx.x(),pos.y()-vtx.y(),pos.z()-vtx.z());
     ASTypes::CylLorentzVectorF pIso;

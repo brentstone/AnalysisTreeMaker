@@ -5,6 +5,7 @@ from AnalysisTreeMaker.TreeFillers.jetFiller_cff import *
 from AnalysisTreeMaker.TreeFillers.fatJetFiller_cff import *
 from AnalysisTreeMaker.TreeFillers.electronFiller_cff import *
 from AnalysisTreeMaker.TreeFillers.muonFiller_cff import *
+from AnalysisTreeMaker.TreeFillers.photonFiller_cff import *
 from AnalysisTreeMaker.TreeFillers.genParticleFiller_cff import *
 
 

@@ -17,7 +17,7 @@ public:
 	virtual void fill();
 
 private:
-	void getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, float& act_o_pt, float& actDR) const;
+	void getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, const float eA,float& act_o_pt, float& actDR) const;
 
 
 	size i_pt             ;
@@ -33,14 +33,20 @@ private:
 	size i_miniIso        ;
 	size i_eaRelISO       ;
 	size i_id             ;
-
-
 	size i_dRnorm         ;
-	size i_PtRatioLepAct  ;
+	size i_lepAct_o_pt    ;
 	size i_sc_act_o_pt    ;
 	size i_sc_dr_act      ;
 
+	size i_sccol_et       ;
+	size i_sccol_eta      ;
+	size i_sccol_phi      ;
+
+	size i_reco_flag      ;
+
     float minPT                = 0;
+    bool  storeSC              = 0;
+    bool  storeReco            = 0;
 
     edm::EDGetTokenT<pat::ElectronCollection>            token_electrons;
     edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_veto ;
@@ -50,8 +56,9 @@ private:
     edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_heep;
     edm::EDGetTokenT<edm::ValueMap<float              >> token_mva  ;
     edm::EDGetTokenT<edm::ValueMap<int                >> token_mvaCat;
-    edm::EDGetTokenT<pat::PackedCandidateCollection>	    token_pfCands;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>     token_pfCands;
     edm::EDGetTokenT<double>                             token_miniiso_rho;
+    edm::EDGetTokenT<reco::SuperClusterCollection>       token_scs;
 
     edm::Handle<pat::ElectronCollection>                 han_electrons;
     edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_veto ;
@@ -61,8 +68,10 @@ private:
     edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_heep ;
     edm::Handle<edm::ValueMap<float              >>      han_mva  ;
     edm::Handle<edm::ValueMap<int                >>      han_mvaCat;
-    edm::Handle<pat::PackedCandidateCollection>			han_pfCands;
+    edm::Handle<pat::PackedCandidateCollection>			 han_pfCands;
     edm::Handle<double>                                  han_miniiso_rho;
+    edm::Handle<reco::SuperClusterCollection>            han_scs;
+
 
     const EventFiller * event;
 

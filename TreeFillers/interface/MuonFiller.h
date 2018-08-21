@@ -28,7 +28,7 @@ private:
 	size i_dBRelISO       ;
 	size i_id   		  ;
 	size i_dRnorm         ;
-	size i_PtRatioLepAct  ;
+	size i_lepAct_o_pt    ;
     float minPT                = 0;
 
     edm::EDGetTokenT<pat::MuonCollection>                token_muons  ;
