@@ -113,6 +113,7 @@ FillerConstants::MCProcess AnalysisTreeMaker::getMCProcess(const std::string& sa
 	else if(sample == "diboson") return FillerConstants::DIBOSON   ;
 	else if(sample == "ttx")     return FillerConstants::TTX       ;
 	else if(sample == "qcd")     return FillerConstants::QCD       ;
+	else if(sample == "hx")      return FillerConstants::HX        ;
 	else if(sample == "NONE")    return FillerConstants::NOPROCESS ;
 
 	std::string errorStr = "Could not interpret MCProcess: ("
