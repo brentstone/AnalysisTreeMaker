@@ -27,7 +27,6 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
 
 	TLorentzVector Mom_ch, Mom_nh, Mom_ph;
 	// loop on all pf cands
-//	int num_PF = 0;
 	for (const pat::PackedCandidate &pfc : *pfcands) {
 	    if(std::isinf(pfc.pt() )) continue;
 	    if(std::isfinite(pfc.pt() )) continue;
@@ -56,8 +55,6 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
 				Mom_ch += mom;
 			}
 		} else {}
-//		num_PF++;
-//		if (pfc.p() > 50) printf("High momentum PFcand --> %d\n", pfc.pdgId());
 	}
 	// Now the 4-momentum of the necessary summed PF cands is calculated. Calculate the variables wrt the lepton
 	TLorentzVector PFactMom = Mom_ch + Mom_nh + Mom_ph;
