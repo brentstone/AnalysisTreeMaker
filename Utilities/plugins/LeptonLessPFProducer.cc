@@ -166,13 +166,13 @@ public:
 //			 std::cout <<std::endl;
 		}
 
-		std::auto_ptr<pat::PackedCandidateCollection> filteredCands;
+		std::unique_ptr<pat::PackedCandidateCollection> filteredCands;
 		filteredCands.reset( new pat::PackedCandidateCollection );
 		filteredCands->reserve(han_pfCand->size());
 //        math::XYZTLorentzVector tot;
 		for(unsigned int iP = 0; iP < han_pfCand->size(); ++iP){
 		        const pat::PackedCandidate *cand = &han_pfCand->at(iP);
-		        std::unique_ptr<pat::PackedCandidate> pCand(new pat::PackedCandidate(*cand));
+//		        std::unique_ptr<pat::PackedCandidate> pCand(new pat::PackedCandidate(*cand));
 //            if(doPrint)
 //		    for(const auto& filtIdx : printKeys){
 //                if(iP == filtIdx ){
@@ -185,10 +185,10 @@ public:
 			for(const auto& filtIdx : filteredCandidateList)
 				if (iP == filtIdx){ found = true; break;}
 			if(found){			    continue;}
-			filteredCands->push_back(*pCand);
+			filteredCands->push_back(*cand);
 		}
 
-        iEvent.put(filteredCands);
+        iEvent.put(std::move(filteredCands));
 	}
 
 
