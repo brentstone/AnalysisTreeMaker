@@ -12,14 +12,14 @@ public:
 	TriggerFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc);
 	virtual ~TriggerFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void fill();
+	virtual void setValues();
 
 	//For filtering
 	bool doesPassATrigger() const {return doesPassATrigger_;};
 
 
-	size i_triggerAccepts;
-	size i_triggerPrescales;
+	size64 triggerAccepts  =0;
+	size64 triggerPrescales=0;
 
 private:
 	edm::EDGetTokenT<edm::TriggerResults>                    token_trigBits      ;

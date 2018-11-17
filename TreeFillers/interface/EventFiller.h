@@ -27,37 +27,39 @@ public:
 			bool isRealData, FillerConstants::DataRun dataRun,FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess);
 	virtual ~EventFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void fill();
+	virtual void setValues();
 
 	const reco::Vertex * getPrimVertex() const {return primaryVertex;}
-	float rho() const {return *han_rho;}
+	float getRho() const {return *han_rho;}
 
 private:
 	const bool                         realData ;
-	const FillerConstants::DataRun     dataRun  ;
-	const FillerConstants::Dataset     dataset  ;
+	const FillerConstants::DataRun     dataRun_input  ;
+	const FillerConstants::Dataset     dataset_input  ;
 	const FillerConstants::MCProcess   mcProcess;
 	const bool  addPDFWeights;
 
-	size i_run                = 0;
-	size i_lumi               = 0;
-	size i_event              = 0;
-	size i_goodVtx            = 0;
-	size i_npv                = 0;
-	size i_rho                = 0;
-	size i_met_pt             = 0;
-	size i_met_phi            = 0;
-	size i_met_sig            = 0;
-	size i_met_unclUp_pt      = 0;
-	size i_met_unclUp_phi     = 0;
-	size i_met_raw_pt         = 0;
-	size i_met_raw_phi        = 0;
-	size i_nTruePUInts        = 0;
-	size i_weight             = 0;
-	size i_process            = 0;
-	size i_dataset            = 0;
-	size i_dataRun            = 0;
-	size i_genWeights         = 0;
+	// Start Tree content
+    size     run            =0;
+    size     lumi           =0;
+    size64   event          =0;
+    size8    goodVtx        =0;
+    size16   npv            =0;
+    float    rho            =0;
+    float    met_pt         =0;
+    float    met_phi        =0;
+    float    met_sig        =0;
+    float    met_unclUp_pt  =0;
+    float    met_unclUp_phi =0;
+    float    met_raw_pt     =0;
+    float    met_raw_phi    =0;
+    float    nTruePUInts    =0;
+    float    weight         =0;
+    size8    process        =0;
+    size8    dataset        =0;
+    size8    dataRun        =0;
+    spvfloat genWeights     =make_spvfloat();
+    // End Tree content
 
     edm::EDGetTokenT<reco::VertexCollection>          token_vtx     ;
     edm::EDGetTokenT<double>                          token_rho     ;
@@ -79,12 +81,6 @@ private:
     const reco::Vertex * primaryVertex =0;
     EventCoords evtCoord;
     bool hassGoodVertex = false;
-
-
-
-
-
-
 };
 }
 

@@ -13,23 +13,16 @@ TriggerFiller::TriggerFiller(const edm::ParameterSet& fullParamSet, const std::s
 	token_trigBits       = cc.consumes<edm::TriggerResults>                 (cfg.getParameter<edm::InputTag>("trigBits"));
 	token_trigPrescales  = cc.consumes<pat::PackedTriggerPrescales>         (cfg.getParameter<edm::InputTag>("trigPrescales"));
 
-	i_triggerAccepts    =  data.add<size64> (branchName,"triggerAccepts"                   ,"l",0);
-	i_triggerPrescales=  data.add<size64> (branchName,"triggerPrescales"                 ,"l",0);
-
+    data.addSingle(triggerAccepts  ,branchName,"triggerAccepts"           );
+    data.addSingle(triggerPrescales,branchName,"triggerPrescales"           );
 }
 ;
 void TriggerFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-	reset();
 	iEvent.getByToken(token_trigBits, han_trigBits);
 	iEvent.getByToken(token_trigPrescales, han_trigPrescales);
 	triggerNames = &iEvent.triggerNames(*han_trigBits);
-
-	loadedStatus = true;
-
 };
-void TriggerFiller::fill(){
-	size64 trigResults=0;
-	size64 trigPrescales=0;
+void TriggerFiller::setValues(){
 
 	for(unsigned int iT = 0; iT < han_trigBits->size(); ++iT) {
 		const auto &trigname = triggerNames->triggerName(iT);
@@ -41,16 +34,13 @@ void TriggerFiller::fill(){
 			if(reg.Index(trigname,&indx) == kNPOS) continue;
 
 			const auto trigEnum	= static_cast<FillerConstants::Triggers>(size64(1) << iN);
-			if(han_trigBits->accept(iT)) addPass(trigResults,trigEnum);
-			if(han_trigPrescales->getPrescaleForIndex(iT) > 1) addPass(trigPrescales,trigEnum);
+			if(han_trigBits->accept(iT)) addPass(triggerAccepts,trigEnum);
+			if(han_trigPrescales->getPrescaleForIndex(iT) > 1) addPass(triggerPrescales,trigEnum);
 			break;
 		}
 	}
 
-	  data.fill(i_triggerAccepts    ,trigResults);
-	  data.fill(i_triggerPrescales,trigPrescales);
-
-	  doesPassATrigger_ = (trigResults != static_cast<size64>(0));
+	  doesPassATrigger_ = (triggerAccepts != static_cast<size64>(0));
 
 };
 

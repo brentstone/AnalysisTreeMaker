@@ -8,7 +8,7 @@
 
 #include "AnalysisSupport/TreeInterface/interface/TreeWriterData.h"
 #include "AnalysisSupport/Utilities/interface/Types.h"
-using ASTypes::size;
+using namespace ASTypes;
 
 namespace AnaTM{
 class BaseFiller {
@@ -17,15 +17,19 @@ public:
 	virtual ~BaseFiller() {};
 	virtual void book(TreeWrapper * wrapper) {data.book(wrapper);}
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup) = 0; //load data
-	virtual void fill() =0;	   //do actual filling
+	void   setLoaded() {loadedStatus=true;}
+	virtual void setValues() =0;	   //do actual setting of variables
+	virtual void processForTree() {data.processForTree();} //process variables so tree can be filled
+	virtual void reset() {loadedStatus = false; data.reset();} //reset all data
+
 
     bool isLoaded() const {return loadedStatus;}
+
     bool ignore()   const {return shouldIgnore;}
 
 
 
 protected:
-	virtual void reset() {loadedStatus = false; data.reset();}
 	const edm::ParameterSet cfg            ;
 	const bool shouldIgnore                ;
 	const std::string branchName           ;

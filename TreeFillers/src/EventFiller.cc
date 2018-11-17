@@ -1,19 +1,16 @@
 
 #include "AnalysisTreeMaker/TreeFillers/interface/EventFiller.h"
 
-using ASTypes::size64;
-using ASTypes::size16;
-using ASTypes::size8 ;
 
 namespace AnaTM{
 
 EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,
-		bool isRealData, FillerConstants::DataRun dataRun,FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess
+		bool isRealData, FillerConstants::DataRun dataRun_input,FillerConstants::Dataset dataset_input,FillerConstants::MCProcess mcProcess
 		) :
 		BaseFiller(fullParamSet,psetName,"EventFiller"),
 		realData (isRealData),
-		dataRun  (dataRun),
-		dataset  (dataset),
+		dataRun_input  (dataRun_input),
+		dataset_input  (dataset_input),
 		mcProcess(mcProcess),
 		addPDFWeights(cfg.getParameter<bool>("addPDFWeights"))
 {
@@ -30,37 +27,32 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	        token_lheEventInfo            =cc.consumes<LHEEventProduct>       (cfg.getParameter<edm::InputTag>("lheEvent"));
 	}
 
-	i_run                =  data.add<size>   (branchName,"run"                     ,"i",0);
-	i_lumi               =  data.add<size>   (branchName,"lumi"                    ,"i",0);
-	i_event              =  data.add<size64> (branchName,"event"                   ,"l",0);
-	i_goodVtx            =  data.add<size8>  (branchName,"goodVtx"                 ,"b",0);
-	i_npv                =  data.add<size16> (branchName,"npv"                     ,"s",0);
-	i_rho                =  data.add<float>  (branchName,"rho"                     ,"F",0);
-	i_met_pt             =  data.add<float>  (branchName,"met_pt"                  ,"F",0);
-	i_met_phi            =  data.add<float>  (branchName,"met_phi"                 ,"F",0);
-	i_met_sig            =  data.add<float>  (branchName,"met_sig"                 ,"F",0);
-	i_met_unclUp_pt      =  data.add<float>  (branchName,"met_unclUp_pt"           ,"F",0);
-	i_met_unclUp_phi     =  data.add<float>  (branchName,"met_unclUp_phi"          ,"F",0);
-	i_met_raw_pt         =  data.add<float>  (branchName,"met_raw_pt"              ,"F",0);
-	i_met_raw_phi        =  data.add<float>  (branchName,"met_raw_phi"             ,"F",0);
-
+	data.addSingle(run           ,branchName,"run"           );
+	data.addSingle(lumi          ,branchName,"lumi"          );
+	data.addSingle(event         ,branchName,"event"         );
+	data.addSingle(goodVtx       ,branchName,"goodVtx"       );
+	data.addSingle(npv           ,branchName,"npv"           );
+	data.addSingle(rho           ,branchName,"rho"           ,10);
+	data.addSingle(met_pt        ,branchName,"met_pt"        );
+	data.addSingle(met_phi       ,branchName,"met_phi"       );
+	data.addSingle(met_sig       ,branchName,"met_sig"       ,10);
+	data.addSingle(met_unclUp_pt ,branchName,"met_unclUp_pt" ,10);
+	data.addSingle(met_unclUp_phi,branchName,"met_unclUp_phi",10);
+	data.addSingle(met_raw_pt    ,branchName,"met_raw_pt"    ,10);
+	data.addSingle(met_raw_phi   ,branchName,"met_raw_phi"   ,10);
 
 	if(isRealData){
-		i_dataset            =  data.add<size8>  (branchName,"dataset"                 ,"b",0);
-		i_dataRun            =  data.add<size8>  (branchName,"dataRun"                 ,"b",0);
-
+	    data.addSingle(dataset       ,branchName,"dataset"       );
+	    data.addSingle(dataRun       ,branchName,"dataRun"       );
 	} else {
-		i_nTruePUInts        =  data.add<float>  (branchName,"nTruePUInts"             ,"F",0);
-		i_weight             =  data.add<float>  (branchName,"weight"                  ,"F",0);
-		i_process            =  data.add<size8>  (branchName,"process"                ,"b",0);
-		i_genWeights         =  data.addMulti<float> (branchName,"genWeights",0);
-
+	    data.addSingle(nTruePUInts   ,branchName,"nTruePUInts"   ,10);
+	    data.addSingle(weight        ,branchName,"weight"        ,10);
+	    data.addSingle(process       ,branchName,"process"       );
+	    data.addVector(genWeights    ,branchName,"genWeights_N","genWeights",10);
 	}
 
 };
 void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-	reset();
-
 	iEvent.getByToken(token_vtx     ,han_vtx     );
 	iEvent.getByToken(token_rho     ,han_rho     );
 	iEvent.getByToken(token_met     ,han_met     );
@@ -78,32 +70,30 @@ void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	evtCoord.event = iEvent.id().event();
 
 	primaryVertex = han_vtx->size() ? &han_vtx->front() : (const reco::Vertex*)(0);
-
-	loadedStatus = true;
 };
-void EventFiller::fill(){
+void EventFiller::setValues(){
 	  bool hasgoodvtx =  primaryVertex &&
 			  ( !primaryVertex->isFake() && primaryVertex->ndof() > 4.0
 					  && primaryVertex->position().Rho() <= 2.0
 					  && std::fabs(primaryVertex->position().Z()) <= 24.0
 					  );
-	  data.fill(i_run              ,evtCoord.run   );
-	  data.fill(i_lumi             ,evtCoord.lumi  );
-	  data.fill(i_event            ,evtCoord.event );
-	  data.fill(i_goodVtx          ,size8(hasgoodvtx));
-	  data.fill(i_npv              ,ASTypes::convertTo<size16>(han_vtx->size(),"EventFiller::npv" ));
-	  data.fill(i_rho              ,float(*han_rho));
-	  data.fill(i_met_pt           ,float(han_met->front().pt()));
-	  data.fill(i_met_phi          ,float(han_met->front().phi()));
-	  data.fill(i_met_sig          ,float(han_met->front().significance()));
-	  data.fill(i_met_unclUp_pt    ,float(han_met->front().shiftedPt(pat::MET::UnclusteredEnUp)));
-	  data.fill(i_met_unclUp_phi   ,float(han_met->front().shiftedPhi(pat::MET::UnclusteredEnUp)));
-	  data.fill(i_met_raw_pt       ,float(han_rawMet->front().uncorPt()));
-	  data.fill(i_met_raw_phi      ,float(han_rawMet->front().uncorPhi()));
+	  run              = evtCoord.run   ;
+	  lumi             = evtCoord.lumi  ;
+	  event            = evtCoord.event ;
+	  goodVtx          = hasgoodvtx;
+	  npv              = ASTypes::convertTo<size16>(han_vtx->size(),"EventFiller::npv" );
+	  rho              = *han_rho;
+	  met_pt           = han_met->front().pt();
+	  met_phi          = han_met->front().phi();
+	  met_sig          = han_met->front().metSignificance();
+	  met_unclUp_pt    = han_met->front().shiftedPt(pat::MET::UnclusteredEnUp);
+	  met_unclUp_phi   = han_met->front().shiftedPhi(pat::MET::UnclusteredEnUp);
+	  met_raw_pt       = han_rawMet->front().uncorPt();
+	  met_raw_phi      = han_rawMet->front().uncorPhi();
 
 	  if(realData){
-		  data.fill(i_dataset            ,static_cast<size8>(dataset)   );
-		  data.fill(i_dataRun            ,static_cast<size8>(dataRun)   );
+		  dataset            =static_cast<size8>(dataset_input);
+		  dataRun            =static_cast<size8>(dataRun_input);
 
 	  } else {
 		  float   num_true_interactions = 0;
@@ -111,21 +101,17 @@ void EventFiller::fill(){
 			  if(psu.getBunchCrossing() == 0)
 				  num_true_interactions = psu.getTrueNumInteractions();
 		  }
-		  data.fill(i_nTruePUInts         ,num_true_interactions);
-		  data.fill(i_weight              ,float(han_genEvent	->weight()));
-		  data.fill(i_process             ,static_cast<size8>(mcProcess)   );
+		  nTruePUInts         =num_true_interactions;
+		  weight              =han_genEvent	->weight();
+		  process             =static_cast<size8>(mcProcess);
 
 		    if(addPDFWeights){
 		      const auto& pdfWeights = han_lheEventInfo->weights();
 		      for(const auto& w: pdfWeights){
-		          data.fillMulti(i_genWeights,float(w.wgt)   );
+		          genWeights->push_back(w.wgt);
 		      }
 		    }
 	  }
-
-
-
-
 
 };
 

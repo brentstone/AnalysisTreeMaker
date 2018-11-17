@@ -18,7 +18,7 @@ public:
 	virtual ~TriggerFilter(){};
 	virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
 	    trigFiller->load(iEvent,iSetup);
-	    trigFiller->fill();
+	    trigFiller->setValues();
 	    return trigFiller->doesPassATrigger();
 	}
 protected:
