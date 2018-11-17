@@ -50,13 +50,16 @@ public:
 	//----End automatic functions
 
 private:
+	FillerConstants::DataEra   getDataEra  (const std::string& sample) const;
 	FillerConstants::DataRun   getDataRun  (const std::string& sample) const;
 	FillerConstants::Dataset   getDataset  (const std::string& sample) const;
 	FillerConstants::MCProcess getMCProcess(const std::string& sample) const;
+	void setupMaps();
 
 
 	std::string                  globalTag;
 	bool                         realData ;
+	FillerConstants::DataEra     dataEra  = FillerConstants::NOERA;
 	FillerConstants::DataRun     dataRun  = FillerConstants::NODATARUN;
 	FillerConstants::Dataset     dataset  = FillerConstants::NODATASET;
 	FillerConstants::MCProcess   mcProcess= FillerConstants::NOPROCESS;
@@ -65,6 +68,12 @@ private:
 	std::vector<BaseFiller*> initializedFillers;
 	TreeWrapper * treeWrapper = 0;
 	int nEvents = 0;
+
+	//maps used to link to enums
+	std::map<std::string,FillerConstants::DataEra>   dataEraMap;
+	std::map<std::string,FillerConstants::DataRun>   dataRunMap;
+	std::map<std::string,FillerConstants::Dataset>   datasetMap;
+	std::map<std::string,FillerConstants::MCProcess> mcProcessMap;
 
 };
 

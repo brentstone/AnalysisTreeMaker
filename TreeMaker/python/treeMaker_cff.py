@@ -15,21 +15,38 @@ TreeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                         ,sample = cms.string("")
                         )
 
-def setupTreeMakerAndGlobalTag(process, analyzer, isRealData, dataRun = "NONE"):
-    if isRealData:    
-        if 'Run2016H' in dataRun:
-            analyzer.globalTag = "80X_dataRun2_Prompt_v16"  #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
+def setupTreeMakerAndGlobalTag(process, analyzer, isRealData, dataEra, dataRun = "NONE"):
+    
+    if '2016' in dataEra:
+        if isRealData:
+            analyzer.globalTag = "94X_dataRun2_v10" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
         else:
-            analyzer.globalTag = "80X_dataRun2_2016SeptRepro_v7" #https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC#Jet_Energy_Corrections_in_Run2, https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
-    else :        
-        analyzer.globalTag = "80X_mcRun2_asymptotic_2016_TrancheIV_v8" #https://twiki.cern.ch/twiki/bin/view/CMS/JECDataMC#Jet_Energy_Corrections_in_Run2
+            analyzer.globalTag = "94X_mcRun2_asymptotic_v3" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
+    
+    if '2017' in dataEra:
+        if isRealData:
+            analyzer.globalTag = "94X_dataRun2_v6" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
+        else:
+            analyzer.globalTag = "94X_mc2017_realistic_v14" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
+    
+    if '2018' in dataEra:
+        if isRealData:
+            analyzer.globalTag = "102X_dataRun2_Prompt_v6" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+        else:
+            analyzer.globalTag = "102X_upgrade2018_realistict_v12" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+    
     process.GlobalTag.globaltag = analyzer.globalTag
         
 #Not to be used with crab
 #https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideGoodLumiSectionsJSONFile
-def setupJSONFiltering(process):
+def setupJSONFiltering(process, dataEra):
     import FWCore.PythonUtilities.LumiList as LumiList
     import os
-    jsonFile = os.path.expandvars("$CMSSW_BASE/src/data/JSON/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt") #https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2016Analysis
+    if '2016' in dataEra:
+        jsonFile = os.path.expandvars("$CMSSW_BASE/src/data/JSON/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt") #https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2016Analysis *NEEDS TO BE UPDATED*
+    if '2017' in dataEra:
+        jsonFile = os.path.expandvars("$CMSSW_BASE/src/data/JSON/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt") #https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
+    if '2018' in dataEra:
+        jsonFile = os.path.expandvars("$CMSSW_BASE/src/data/JSON/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt") #https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2018Analysis
     process.source.lumisToProcess = LumiList.LumiList(filename=jsonFile).getVLuminosityBlockRange()
     

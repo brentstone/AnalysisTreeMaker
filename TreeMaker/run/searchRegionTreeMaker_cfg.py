@@ -27,6 +27,12 @@ options.register('isCrab',
                  VarParsing.varType.bool,
                  "Input isCrab")
 
+options.register('dataEra',
+                 "NONE",
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.string,
+                 "Input data era (applies to MC too)")
+
 options.register('sample',
                  "NONE",
                  VarParsing.multiplicity.singleton,
@@ -73,12 +79,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 isCrab  = options.isCrab
 dataRun = options.dataRun
 sample  = options.sample
+era     = options.dataEra
 
 isRealData = (dataRun != "NONE")
 
 from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , globalTag = cms.string('')
+                                 , dataEra = cms.string(era)
                                  , dataRun = cms.string(dataRun)
                                  , sample = cms.string(sample)
                                  , EventFiller               = cms.PSet(EventFiller)
@@ -94,13 +102,13 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
 #                                 , PhotonFiller                = cms.PSet(PhotonFiller)  
                                  , GenParticleFiller         = cms.PSet(GenParticleFiller)
                                  )
-setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,dataRun)
+setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,era,dataRun)
 
 #==============================================================================================================================#
 #==============================================================================================================================#
 
 if isRealData and not isCrab:
-    setupJSONFiltering(process)
+    setupJSONFiltering(process,era)
 
 from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
 metCorrections(process,process.treeMaker.EventFiller.met,isRealData)

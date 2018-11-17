@@ -13,10 +13,17 @@ void removePass(storage& passList, const type passed ) { passList &= ~passed;}
 template <class storage, class type>
 bool doesPass(const storage passList, const type checkPassed ) {return  checkPassed & passList;};
 
-
-enum DataRun   {NODATARUN, RUN2016A,RUN2016B,RUN2016C,RUN2016D,RUN2016E,RUN2016F,RUN2016G,RUN2016H};
+enum DataEra   {NOERA, ERA_2016,ERA_2017,ERA_2018};
+const std::vector<std::string> DataEraNames = { "none","2016","2017","2018"};
+enum DataRun   {NODATARUN, RUN2016A,RUN2016B,RUN2016C,RUN2016D,RUN2016E,RUN2016F,RUN2016G,RUN2016H,
+                           RUN2017A,RUN2017B,RUN2017C,RUN2017D,RUN2017E,RUN2017F,RUN2017G,RUN2017H,
+                           RUN2018A,RUN2018B,RUN2018C,RUN2018D,RUN2018E};
+const std::vector<std::string> DataRunNames =
+    {"none"," Run2016A","Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H",
+        "Run2017A","Run2017B","Run2017C","Run2017D","Run2017E","Run2017F","Run2017G","Run2017H",
+        "Run2018A","Run2018B","Run2018C","Run2018D","Run2018E"};
 enum Dataset   {NODATASET, SINGLEE,SINGLEMU, JETHT,MET};
-const std::vector<std::string> DatasetNames = { "none","singlee","singlemu","jetht","met"};
+const std::vector<std::string> DatasetNames = { "none","data_e","data_mu","data_jetht","data_met"};
 enum MCProcess {NOPROCESS, SIGNAL,TTBAR,WJETS,ZJETS,SINGLET,DIBOSON,TTX,QCD,HX};
 const std::vector<std::string> MCProcessNames = { "none","signal","ttbar","wjets","zjets","singlet","diboson","ttX","qcd","hx"};
 
