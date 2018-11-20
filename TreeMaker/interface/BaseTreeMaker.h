@@ -29,6 +29,7 @@ public:
 	//---User helper functions
 	int numEvents() const {return nEvents;}
 	bool isRealData() const {return realData;}
+	FillerConstants::DataEra  getDataEra() const {return dataEra;}
 	FillerConstants::DataRun  getDataRun() const {return dataRun;}
 	FillerConstants::Dataset  getDataset() const {return dataset;}
 	FillerConstants::MCProcess  getMCProcess() const {return mcProcess;}
