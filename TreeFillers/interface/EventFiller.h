@@ -24,7 +24,7 @@ struct EventCoords {
 class EventFiller : public BaseFiller {
 public:
 	EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,
-			bool isRealData, FillerConstants::DataRun dataRun,FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess);
+			bool isRealData,FillerConstants::DataEra dataEra, FillerConstants::DataRun dataRun,FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess);
 	virtual ~EventFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
@@ -34,6 +34,7 @@ public:
 
 private:
 	const bool                         realData ;
+	const FillerConstants::DataEra     dataEra_input  ;
 	const FillerConstants::DataRun     dataRun_input  ;
 	const FillerConstants::Dataset     dataset_input  ;
 	const FillerConstants::MCProcess   mcProcess;
@@ -54,8 +55,9 @@ private:
     float    met_raw_pt     =0;
     float    met_raw_phi    =0;
     float    nTruePUInts    =0;
-    float    weight         =0;
+    float    genWeight      =0;
     size8    process        =0;
+    size8    dataEra        =0;
     size8    dataset        =0;
     size8    dataRun        =0;
     spvfloat genWeights     =make_spvfloat();

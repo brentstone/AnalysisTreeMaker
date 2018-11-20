@@ -5,10 +5,11 @@
 namespace AnaTM{
 
 EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,
-		bool isRealData, FillerConstants::DataRun dataRun_input,FillerConstants::Dataset dataset_input,FillerConstants::MCProcess mcProcess
+		bool isRealData, FillerConstants::DataEra dataEra_input, FillerConstants::DataRun dataRun_input,FillerConstants::Dataset dataset_input,FillerConstants::MCProcess mcProcess
 		) :
 		BaseFiller(fullParamSet,psetName,"EventFiller"),
 		realData (isRealData),
+		dataEra_input  (dataEra_input),
 		dataRun_input  (dataRun_input),
 		dataset_input  (dataset_input),
 		mcProcess(mcProcess),
@@ -40,13 +41,13 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	data.addSingle(met_unclUp_phi,branchName,"met_unclUp_phi",10);
 	data.addSingle(met_raw_pt    ,branchName,"met_raw_pt"    ,10);
 	data.addSingle(met_raw_phi   ,branchName,"met_raw_phi"   ,10);
-
+	data.addSingle(dataEra       ,branchName,"dataEra"           );
 	if(isRealData){
 	    data.addSingle(dataset       ,branchName,"dataset"       );
 	    data.addSingle(dataRun       ,branchName,"dataRun"       );
 	} else {
 	    data.addSingle(nTruePUInts   ,branchName,"nTruePUInts"   ,10);
-	    data.addSingle(weight        ,branchName,"weight"        ,10);
+	    data.addSingle(genWeight     ,branchName,"genWeight"        ,10);
 	    data.addSingle(process       ,branchName,"process"       );
 	    data.addVector(genWeights    ,branchName,"genWeights_N","genWeights",10);
 	}
@@ -90,7 +91,7 @@ void EventFiller::setValues(){
 	  met_unclUp_phi   = han_met->front().shiftedPhi(pat::MET::UnclusteredEnUp);
 	  met_raw_pt       = han_rawMet->front().uncorPt();
 	  met_raw_phi      = han_rawMet->front().uncorPhi();
-
+	  dataEra            =static_cast<size8>(dataEra_input);
 	  if(realData){
 		  dataset            =static_cast<size8>(dataset_input);
 		  dataRun            =static_cast<size8>(dataRun_input);
@@ -102,7 +103,7 @@ void EventFiller::setValues(){
 				  num_true_interactions = psu.getTrueNumInteractions();
 		  }
 		  nTruePUInts         =num_true_interactions;
-		  weight              =han_genEvent	->weight();
+		  genWeight           =han_genEvent	->weight();
 		  process             =static_cast<size8>(mcProcess);
 
 		    if(addPDFWeights){
