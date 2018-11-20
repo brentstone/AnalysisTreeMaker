@@ -68,7 +68,7 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
 	i_dEta_sc                    = data.addMulti<float> (branchName,"dEta_sc"               , 0);
 	i_dEta_seed                  = data.addMulti<float> (branchName,"dEta_seed"             , 0);
 	i_sigmaIetaIeta              = data.addMulti<float> (branchName,"sigmaIetaIeta"         , 0);
-	i_full5x5_sigmaIetaIeta      = data.addMulti<float> (branchName,"fill5x5_sigmaIetaIeta" , 0);
+	i_full5x5_sigmaIetaIeta      = data.addMulti<float> (branchName,"full5x5_sigmaIetaIeta" , 0);
 	i_e1x5                       = data.addMulti<float> (branchName,"e1x5"                  , 0);
 	i_e5x5                       = data.addMulti<float> (branchName,"e5x5"                  , 0);
 
