@@ -44,6 +44,18 @@ private:
 
 	size i_reco_flag      ;
 
+	// for E Reco studies
+	size i_ecalDrivenSeed;
+	size i_hcalOverEcal;
+	size i_hcalOverEcalBc;
+	size i_dPhi_sc;
+	size i_dEta_sc;
+	size i_dEta_seed;
+	size i_sigmaIetaIeta;
+	size i_full5x5_sigmaIetaIeta;
+	size i_e1x5;
+	size i_e5x5;
+
     float minPT                = 0;
     bool  storeSC              = 0;
     bool  storeReco            = 0;

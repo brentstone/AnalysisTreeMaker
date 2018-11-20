@@ -60,6 +60,18 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
     i_sc_act_o_pt    = data.addMulti<float>(branchName  ,"sc_act_o_pt"           , 0);
     i_sc_dr_act      = data.addMulti<float>(branchName  ,"sc_dr_act"             , 0);
 
+    // For E Reco studies
+	i_ecalDrivenSeed             = data.addMulti<bool> (branchName,"ecalDrivenSeed"         , 0);
+	i_hcalOverEcal               = data.addMulti<float> (branchName,"hcalOverEcal"          , 0);
+	i_hcalOverEcalBc             = data.addMulti<float> (branchName,"hcalOverEcalBc"        , 0);
+	i_dPhi_sc                    = data.addMulti<float> (branchName,"dPhi_sc"               , 0);
+	i_dEta_sc                    = data.addMulti<float> (branchName,"dEta_sc"               , 0);
+	i_dEta_seed                  = data.addMulti<float> (branchName,"dEta_seed"             , 0);
+	i_sigmaIetaIeta              = data.addMulti<float> (branchName,"sigmaIetaIeta"         , 0);
+	i_full5x5_sigmaIetaIeta      = data.addMulti<float> (branchName,"fill5x5_sigmaIetaIeta" , 0);
+	i_e1x5                       = data.addMulti<float> (branchName,"e1x5"                  , 0);
+	i_e5x5                       = data.addMulti<float> (branchName,"e5x5"                  , 0);
+
     if(storeSC){
         i_sccol_et   = data.addMulti<float >(branchName,"sccol_et"               , 0);
         i_sccol_eta  = data.addMulti<float >(branchName,"sccol_eta"              , 0);
@@ -104,6 +116,17 @@ void ElectronFiller::fill(){
 		const edm::Ptr<pat::Electron> lep(han_electrons, iE);
 		if(lep->pt() < minPT) continue;
 
+		// For E Reco studies
+		data.fillMulti(i_ecalDrivenSeed, lep->ecalDrivenSeed());
+		data.fillMulti(i_hcalOverEcal, float(lep->hcalOverEcal()));
+		data.fillMulti(i_hcalOverEcalBc, float(lep->hcalOverEcalBc()));
+		data.fillMulti(i_dPhi_sc, float(lep->deltaPhiSuperClusterTrackAtVtx()));
+		data.fillMulti(i_dEta_sc, float(lep->deltaEtaSuperClusterTrackAtVtx()));
+		data.fillMulti(i_dEta_seed, float(lep->deltaEtaSeedClusterTrackAtVtx()));
+		data.fillMulti(i_sigmaIetaIeta, float(lep->sigmaIetaIeta()));
+		data.fillMulti(i_full5x5_sigmaIetaIeta, float(lep->full5x5_sigmaIetaIeta()));
+		data.fillMulti(i_e1x5, float(lep->e1x5()));
+		data.fillMulti(i_e5x5, float(lep->e5x5()));
 
 		data.fillMulti(i_pt     , float(lep->pt()));
 		data.fillMulti(i_eta    , float(lep->eta()));
