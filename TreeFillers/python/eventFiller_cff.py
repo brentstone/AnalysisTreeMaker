@@ -8,7 +8,8 @@ EventFiller = cms.PSet(
     rho                    = cms.InputTag('fixedGridRhoFastjetAll'),
     puSummaryInfo          = cms.InputTag('slimmedAddPileupInfo'),    
     met                    = cms.InputTag('slimmedMETs'),
-    rawMet                 = cms.InputTag('slimmedMETs'),  
+    rawMet                 = cms.InputTag('slimmedMETs'),
+    vanMet                 = cms.InputTag('slimmedMETs'),  
     genEvent               = cms.InputTag('generator'),
     lheEvent               = cms.InputTag('externalLHEProducer'),
 )

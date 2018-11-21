@@ -96,7 +96,7 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , ak4PuppiJetFiller         = cms.PSet(ak4PuppiJetFiller)
 #                                  , ak4PuppiNoLepJetFiller    = cms.PSet(ak4PuppiNoLepJetFiller)
                                  , ak8PuppiNoLepFatJetFiller = cms.PSet(ak8PuppiNoLepFatJetFiller)
-                                , ak8PuppiFatJetFiller      = cms.PSet(ak8PuppiFatJetFiller)
+                                 , ak8PuppiFatJetFiller      = cms.PSet(ak8PuppiFatJetFiller)
                                  , ElectronFiller            = cms.PSet(ElectronFiller)
                                  , MuonFiller                = cms.PSet(MuonFiller)  
 #                                 , PhotonFiller                = cms.PSet(PhotonFiller)  
@@ -111,11 +111,11 @@ if isRealData and not isCrab:
     setupJSONFiltering(process,era)
 
 from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
-metCorrections(process,process.treeMaker.EventFiller.met,isRealData)
-from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
-defaultJetSequences(process,isRealData,dataRun)
-from AnalysisTreeMaker.TreeMaker.eleVIDProducer_cff import eleVIDProducer
-eleVIDProducer(process)
+metCorrections(process,process.treeMaker,isRealData,era)
+# from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
+# defaultJetSequences(process,isRealData,dataRun)
+# from AnalysisTreeMaker.TreeMaker.eleVIDProducer_cff import eleVIDProducer
+# eleVIDProducer(process)
 
 if 'signal' in sample:
     process.treeMaker.EventFiller.addPDFWeights = True;
@@ -123,20 +123,13 @@ if 'signal' in sample:
 
 #==============================================================================================================================#
 #==============================================================================================================================#
-# https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#Details_about_the_application_of
-process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
-process.BadPFMuonFilter.muons = cms.InputTag("slimmedMuons")
-process.BadPFMuonFilter.PFCandidates = cms.InputTag("packedPFCandidates")
-process.BadPFMuonFilter.taggingMode = cms.bool(True)
-
-process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
-process.BadChargedCandidateFilter.muons = cms.InputTag("slimmedMuons")
-process.BadChargedCandidateFilter.PFCandidates = cms.InputTag("packedPFCandidates")
-process.BadChargedCandidateFilter.taggingMode = cms.bool(True)
-
 #filter out events that dont pass a chosen trigger in data
-if isRealData :
-    process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
-    process.p = cms.Path(process.triggerFilter *process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
+# if isRealData :
+#     process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
+#     process.p = cms.Path(process.triggerFilter *process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
+# else :
+#     process.p = cms.Path(process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
+if '2017' in era:
+    process.p = cms.Path(process.fullPatMetSequenceModifiedMET * process.treeMaker)
 else :
-    process.p = cms.Path(process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
+    process.p = cms.Path( process.treeMaker)

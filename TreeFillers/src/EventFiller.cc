@@ -21,12 +21,14 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	token_rho            =cc.consumes<double>                         (cfg.getParameter<edm::InputTag>("rho"));
 	token_met            =cc.consumes<pat::METCollection>             (cfg.getParameter<edm::InputTag>("met"));
 	token_rawMet         =cc.consumes<pat::METCollection>             (cfg.getParameter<edm::InputTag>("rawMet"));
+	token_vanMet         =cc.consumes<pat::METCollection>             (cfg.getParameter<edm::InputTag>("vanMet"));
 	if(!isRealData){
 		token_puSum          =cc.consumes<std::vector<PileupSummaryInfo> >(cfg.getParameter<edm::InputTag>("puSummaryInfo"));
 		token_genEvent       =cc.consumes<GenEventInfoProduct>            (cfg.getParameter<edm::InputTag>("genEvent"));
 	    if(addPDFWeights)
 	        token_lheEventInfo            =cc.consumes<LHEEventProduct>       (cfg.getParameter<edm::InputTag>("lheEvent"));
 	}
+
 
 	data.addSingle(run           ,branchName,"run"           );
 	data.addSingle(lumi          ,branchName,"lumi"          );
@@ -41,6 +43,8 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	data.addSingle(met_unclUp_phi,branchName,"met_unclUp_phi",10);
 	data.addSingle(met_raw_pt    ,branchName,"met_raw_pt"    ,10);
 	data.addSingle(met_raw_phi   ,branchName,"met_raw_phi"   ,10);
+    data.addSingle(met_van_pt    ,branchName,"met_van_pt"    ,10);
+    data.addSingle(met_van_phi   ,branchName,"met_van_phi"   ,10);
 	data.addSingle(dataEra       ,branchName,"dataEra"           );
 	if(isRealData){
 	    data.addSingle(dataset       ,branchName,"dataset"       );
@@ -58,6 +62,7 @@ void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	iEvent.getByToken(token_rho     ,han_rho     );
 	iEvent.getByToken(token_met     ,han_met     );
 	iEvent.getByToken(token_rawMet  ,han_rawMet  );
+	iEvent.getByToken(token_vanMet  ,han_vanMet  );
 
 	if(!realData){
 		iEvent.getByToken(token_puSum   ,han_puSum   );
@@ -91,6 +96,8 @@ void EventFiller::setValues(){
 	  met_unclUp_phi   = han_met->front().shiftedPhi(pat::MET::UnclusteredEnUp);
 	  met_raw_pt       = han_rawMet->front().uncorPt();
 	  met_raw_phi      = han_rawMet->front().uncorPhi();
+	  met_van_pt       = han_vanMet->front().pt();
+	  met_van_phi      = han_vanMet->front().phi();
 	  dataEra            =static_cast<size8>(dataEra_input);
 	  if(realData){
 		  dataset            =static_cast<size8>(dataset_input);
