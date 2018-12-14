@@ -24,5 +24,5 @@ TriggerFiller = cms.PSet(
     ignore                          = cms.bool(False),
     branchName                      = cms.string("event"),
     trigBits                        = cms.InputTag('TriggerResults','','HLT'),
-    trigPrescales                   = cms.InputTag('patTrigger'),  
+#     trigPrescales                   = cms.InputTag('patTrigger'),  
 )

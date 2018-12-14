@@ -124,12 +124,16 @@ if 'signal' in sample:
 #==============================================================================================================================#
 #==============================================================================================================================#
 #filter out events that dont pass a chosen trigger in data
-# if isRealData :
-#     process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
-#     process.p = cms.Path(process.triggerFilter *process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
-# else :
-#     process.p = cms.Path(process.BadPFMuonFilter *process.BadChargedCandidateFilter *process.treeMaker)
-if '2017' in era:
-    process.p = cms.Path(process.fullPatMetSequenceModifiedMET * process.treeMaker)
+if isRealData :
+    process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
+    process.triggerFilter.dataRun = dataRun
+    process.triggerFilter.sample = sample
+    if '2017' in era:
+        process.p = cms.Path(process.triggerFilter * process.fullPatMetSequenceModifiedMET * process.treeMaker)    
+    else:
+        process.p = cms.Path(process.triggerFilter * process.treeMaker)
 else :
-    process.p = cms.Path( process.treeMaker)
+    if '2017' in era:
+        process.p = cms.Path(process.fullPatMetSequenceModifiedMET * process.treeMaker)
+    else :
+        process.p = cms.Path( process.treeMaker)

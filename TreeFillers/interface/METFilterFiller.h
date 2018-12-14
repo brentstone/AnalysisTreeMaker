@@ -16,16 +16,15 @@ public:
 	virtual void setValues();
 
 private:
-
-
-
-
+	void fillNames();
 
 	size metFilters                = 0;
 	bool isRealData = false;
 	edm::EDGetTokenT<edm::TriggerResults>  token_trigBits;
 	edm::Handle<edm::TriggerResults> han_trigBits;
 	const edm::TriggerNames *              triggerNames =0;
+
+	std::vector<std::string> filterNames;
 };
 }
 

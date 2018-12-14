@@ -6,26 +6,26 @@
 #include "AnalysisTreeMaker/TreeMaker/interface/BaseTreeMaker.h"
 #include "AnalysisTreeMaker/TreeMaker/interface/BaseFiller.h"
 #include "AnalysisSupport/TreeInterface/interface/TreeWrapper.h"
+#include "AnalysisTreeMaker/TreeFillers/interface/FillerConstantHelpers.h"
 
 namespace AnaTM {
 
 //--------------------------
 AnalysisTreeMaker::AnalysisTreeMaker(const edm::ParameterSet & iConfig)
 {
-    setupMaps();
 
     globalTag              = iConfig.getParameter<std::string>("globalTag" );
     std::string dataEraStr = iConfig.getParameter<std::string>("dataEra"   );
     std::string sample     = iConfig.getParameter<std::string>("sample"    );
     std::string dataRunStr = iConfig.getParameter<std::string>("dataRun"   );
-    realData               = strFind(sample,"data");
+    realData               = strFind(dataRunStr,"Run");
 
-    dataEra = getDataEra(dataEraStr);
+    dataEra = FillerConstants::getDataEra(dataEraStr);
     if(realData){
-    		dataRun = getDataRun(dataRunStr);
-    		dataset = getDataset(sample);
+    		dataRun = FillerConstants::getDataRun(dataRunStr);
+    		dataset = FillerConstants::getDataset(sample);
     } else {
-    		mcProcess = getMCProcess(sample);
+    		mcProcess = FillerConstants::getMCProcess(sample);
     }
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
 	std::cout << " ++  Setting up AnalysisTreeMaker"<<std::endl;
@@ -83,59 +83,6 @@ void AnalysisTreeMaker::fill() {
 	}
 	tree()->fill();
     for(auto f : initializedFillers) {f->reset();}
-
-}
-//--------------------------
-FillerConstants::DataEra AnalysisTreeMaker::getDataEra(const std::string& sample) const{
-    auto val = dataEraMap.find(sample);
-    if(val != dataEraMap.end()) return val->second;
-
-    std::string errorStr = "Could not interpret DataEra: ("
-            + sample +")! If you don't want to give one, you must provide (NONE).";
-    throw cms::Exception( "AnalysisTreeMaker::getDataEra()",errorStr);
-}
-//--------------------------
-FillerConstants::DataRun AnalysisTreeMaker::getDataRun(const std::string& sample) const{
-	auto val = dataRunMap.find(sample);
-	if(val != dataRunMap.end()) return val->second;
-
-	std::string errorStr = "Could not interpret DataRun: ("
-			+ sample +")! If you don't want to give one, you must provide (NONE).";
-	throw cms::Exception( "AnalysisTreeMaker::getDataRun()",errorStr);
-}
-//--------------------------
-FillerConstants::Dataset AnalysisTreeMaker::getDataset(const std::string& sample) const{
-    auto val = datasetMap.find(sample);
-    if(val != datasetMap.end()) return val->second;
-
-    std::string errorStr = "Could not interpret Dataset: ("
-            + sample +")! If you don't want to give one, you must provide (NONE).";
-    throw cms::Exception( "AnalysisTreeMaker::getDataset()",errorStr);
-}
-//--------------------------
-FillerConstants::MCProcess AnalysisTreeMaker::getMCProcess(const std::string& sample) const{
-    auto val = mcProcessMap.find(sample);
-    if(val != mcProcessMap.end()) return val->second;
-
-    std::string errorStr = "Could not interpret MCProcess: ("
-            + sample +")! If you don't want to give one, you must provide (NONE).";
-    throw cms::Exception( "AnalysisTreeMaker::getMCProcess()",errorStr);
-}
-
-
-void AnalysisTreeMaker::setupMaps(){
-    for(unsigned int i = 0; i < FillerConstants::DataEraNames.size(); ++i){
-        dataEraMap[FillerConstants::DataEraNames[i] ] =FillerConstants::DataEra(i);
-    }
-    for(unsigned int i = 0; i < FillerConstants::DataRunNames.size(); ++i){
-        dataRunMap[FillerConstants::DataRunNames[i] ] = FillerConstants::DataRun(i);
-    }
-    for(unsigned int i = 0; i < FillerConstants::DatasetNames.size(); ++i){
-        datasetMap[FillerConstants::DatasetNames[i] ] = FillerConstants::Dataset(i);
-    }
-    for(unsigned int i = 0; i < FillerConstants::MCProcessNames.size(); ++i){
-        mcProcessMap[FillerConstants::MCProcessNames[i] ] = FillerConstants::MCProcess(i);
-    }
 
 }
 
