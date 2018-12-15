@@ -7,11 +7,11 @@
 namespace FillerConstants{
 
 template <class storage>
-void addPass(storage& passList, const size passed ) { passList |= (storage(1) << passed);}
+void addPass(storage& passList, const ASTypes::size passed ) { passList |= (storage(1) << passed);}
 template <class storage>
-void removePass(storage& passList, const size passed ) { passList &= ~(storage(1) << passed);}
+void removePass(storage& passList, const ASTypes::size passed ) { passList &= ~(storage(1) << passed);}
 template <class storage>
-bool doesPass(const storage passList, const size checkPassed ) {return  checkPassed & (storage(1) << checkPassed);};
+bool doesPass(const storage passList, const ASTypes::size checkPassed ) {return  passList & (storage(1) << checkPassed);};
 
 enum DataEra   {NOERA, ERA_2016,ERA_2017,ERA_2018};
 const std::vector<std::string> DataEraNames = { "none","2016","2017","2018"};
