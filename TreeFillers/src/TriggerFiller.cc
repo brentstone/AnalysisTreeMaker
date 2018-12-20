@@ -8,7 +8,7 @@ namespace AnaTM{
 
 TriggerFiller::TriggerFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,FillerConstants::DataEra dataEra,FillerConstants::Dataset dataset):
 		BaseFiller(fullParamSet,psetName,"TriggerFiller"),
-        dataset_input  (dataset_input)
+        dataset_input  (dataset)
 {
 	if(ignore()) return;
 	token_trigBits       = cc.consumes<edm::TriggerResults>                 (cfg.getParameter<edm::InputTag>("trigBits"));
