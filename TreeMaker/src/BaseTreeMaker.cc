@@ -39,10 +39,13 @@ AnalysisTreeMaker::AnalysisTreeMaker(const edm::ParameterSet & iConfig)
 	usesResource("TFileService");
 }
 //--------------------------
-AnalysisTreeMaker::~AnalysisTreeMaker(){ for(auto f : initializedFillers) delete f; }
+AnalysisTreeMaker::~AnalysisTreeMaker(){ for(auto f : initializedFillers) delete f;  if(treeWrapper) delete treeWrapper;}
 //--------------------------
 BaseFiller * AnalysisTreeMaker::initialize(BaseFiller * filler){
-	if(filler->ignore()) return 0;
+	if(filler->ignore()){
+	    delete filler;
+	    return 0;
+	}
 	initializedFillers.push_back(filler);
 	return initializedFillers.back();
 }
