@@ -32,7 +32,7 @@ void METFilterFiller::setValues(){
 };
 
 void METFilterFiller::fillNames(){
-    filterNames.resize(FillerConstants::Flag_METFilters);
+    filterNames.resize(FillerConstants::Flag_NFilters);
     filterNames[FillerConstants::Flag_HBHENoiseFilter                          ] ="Flag_HBHENoiseFilter";
     filterNames[FillerConstants::Flag_HBHENoiseIsoFilter                       ] ="Flag_HBHENoiseIsoFilter";
     filterNames[FillerConstants::Flag_CSCTightHaloFilter                       ] ="Flag_CSCTightHaloFilter";
