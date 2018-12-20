@@ -12,18 +12,15 @@ GenParticleFiller::GenParticleFiller(const edm::ParameterSet& fullParamSet, cons
 	fillAllParticles         =cfg.getParameter<bool>("fillAllParticles");
 	token_genParticles       = cc.consumes<reco::GenParticleCollection>     (cfg.getParameter<edm::InputTag>("genParticles"));
 
-	i_pt             = data.addMulti<float >(branchName,"pt"                          , 0);
-	i_eta            = data.addMulti<float >(branchName,"eta"                         , 0);
-	i_phi            = data.addMulti<float >(branchName,"phi"                         , 0);
-	i_mass           = data.addMulti<float >(branchName,"mass"                        , 0);
-	i_status         = data.addMulti<size8 >(branchName,"status"                      , 0);
-	i_pdgid          = data.addMulti<int   >(branchName,"pdgid"                       , 0);
-	i_nmoms          = data.addMulti<stor  >(branchName,"nmoms"                       , 0);
-	i_firstmom       = data.addMulti<stor  >(branchName,"firstmom"                    , 0);
-	i_ndaus          = data.addMulti<stor  >(branchName,"ndaus"                       , 0);
-	i_firstdau       = data.addMulti<stor  >(branchName,"firstdau"                    , 0);
-	i_assoc          = data.addMulti<stor  >(branchName,"assoc"                       , 0);
-
+    data.addVector(pt      ,branchName,"parts_N","pt"  ,10);
+    data.addVector(eta     ,branchName,"parts_N","eta" ,10);
+    data.addVector(phi     ,branchName,"parts_N","phi" ,10);
+    data.addVector(mass    ,branchName,"parts_N","mass",10);
+    data.addVector(status  ,branchName,"parts_N","status"  );
+    data.addVector(pdgid   ,branchName,"parts_N","pdgid"   );
+    data.addVector(nmoms   ,branchName,"parts_N","nmoms"   );
+    data.addVector(firstmom,branchName,"parts_N","firstmom");
+    data.addVector(assoc   ,branchName,"assoc_N","assoc" );
 
 
 };
@@ -34,11 +31,8 @@ void GenParticleFiller::reset() {
     assocList.clear();
     nMoms    .clear();
     firstMoms.clear();
-    nDaus    .clear();
-    firstDaus.clear();
 }
 void GenParticleFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-	reset();
 	iEvent.getByToken(token_genParticles     ,han_genParticles     );
 	//Decide which particles to store
 	if(fillAllParticles){
@@ -50,24 +44,21 @@ void GenParticleFiller::load(const edm::Event& iEvent, const edm::EventSetup& iS
 		addHardInteraction(storedGenParticles,candMap);
 
 	//fill the association between the stored guys
-	fillAssoc(storedGenParticles,candMap,false,false, assocList,nMoms,firstMoms,nDaus,firstDaus);
-	loadedStatus = true;
+	fillAssoc(storedGenParticles,candMap,false, assocList,nMoms,firstMoms);
 };
-void GenParticleFiller::fill()
+void GenParticleFiller::setValues()
 {
   for(unsigned int iC = 0; iC < storedGenParticles.size(); ++iC){
-	  data.fillMulti(i_pt       ,float(storedGenParticles[iC]->pt()  ));
-	  data.fillMulti(i_eta      ,float(storedGenParticles[iC]->eta() ));
-	  data.fillMulti(i_phi      ,float(storedGenParticles[iC]->phi() ));
-	  data.fillMulti(i_mass     ,float(storedGenParticles[iC]->mass()));
-	  data.fillMulti(i_status   ,ASTypes::convertTo<ASTypes::size8>(storedGenParticles[iC]->status(),"GenParticleFiller::fill() -> status"));
-	  data.fillMulti(i_pdgid    ,storedGenParticles[iC]->pdgId());
-	  data.fillMulti(i_nmoms    ,nMoms[iC]      );
-	  data.fillMulti(i_firstmom ,firstMoms[iC]  );
-	  data.fillMulti(i_ndaus    ,nDaus[iC]      );
-	  data.fillMulti(i_firstdau ,firstDaus[iC]  );
+      pt       ->push_back(storedGenParticles[iC]->pt()  );
+      eta      ->push_back(storedGenParticles[iC]->eta() );
+      phi      ->push_back(storedGenParticles[iC]->phi() );
+      mass     ->push_back(storedGenParticles[iC]->mass());
+      status   ->push_back(ASTypes::convertTo<ASTypes::size8>(storedGenParticles[iC]->status(),"GenParticleFiller::fill() -> status"));
+      pdgid    ->push_back(storedGenParticles[iC]->pdgId());
   }
-  for(const auto& a : assocList) data.fillMulti(i_assoc,a);
+  (*nmoms   )= nMoms;
+  (*firstmom)= firstMoms;
+  (*assoc) = assocList;
 }
 
 
@@ -169,8 +160,8 @@ void GenParticleFiller::fillDauVec(const reco::GenParticle * c, const CandMap& c
   }
 }
 //--------------------------------------------------------------------------------------------------
-void GenParticleFiller::fillAssoc(const reco::GenParticleRefVector& cands,const CandMap& candMap, const bool requireMoms, const bool requireDaus,
-                                  storVec& assocList, storVec& nMoms,storVec& firstMom,storVec& nDaus,storVec& firstDau ) const {
+void GenParticleFiller::fillAssoc(const reco::GenParticleRefVector& cands,const CandMap& candMap, const bool requireMoms,
+                                  storVec& assocList, storVec& nMoms,storVec& firstMom ) const {
 
   //check to see if the storage element can hold the number of gen particles
   ASTypes::convertTo<stor>(cands.size(),"Stored candidates size");
@@ -182,11 +173,11 @@ void GenParticleFiller::fillAssoc(const reco::GenParticleRefVector& cands,const 
     firstMom.push_back(ASTypes::convertTo<stor>(moms.size() == 0 ? 0 : assocList.size(),"Fill fistMom"));
     assocList.insert(assocList.end(),moms.begin(),moms.end());
 
-    storVec daus;
-    fillDauVec(&*c,candMap,requireDaus,daus);
-    nDaus.push_back(ASTypes::convertTo<stor>(daus.size(),"fill nDaus"));
-    firstDau.push_back(ASTypes::convertTo<stor>(daus.size() == 0 ? 0 : assocList.size(),"fill fistDau"));
-    assocList.insert(assocList.end(),daus.begin(),daus.end());
+//    storVec daus;
+//    fillDauVec(&*c,candMap,requireDaus,daus);
+//    nDaus.push_back(ASTypes::convertTo<stor>(daus.size(),"fill nDaus"));
+//    firstDau.push_back(ASTypes::convertTo<stor>(daus.size() == 0 ? 0 : assocList.size(),"fill fistDau"));
+//    assocList.insert(assocList.end(),daus.begin(),daus.end());
   }
 }
 
