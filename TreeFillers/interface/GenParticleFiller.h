@@ -10,7 +10,7 @@ public:
 	GenParticleFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc);
 	virtual ~GenParticleFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void fill();
+	virtual void setValues();
 
 private:
 	virtual void reset();
@@ -21,24 +21,22 @@ private:
     typedef std::vector<stor> storVec;
     void fillMomVec(const reco::GenParticle * c, const CandMap& candMap,const bool requireMoms, storVec& moms) const;
     void fillDauVec(const reco::GenParticle * c, const CandMap& candMap,const bool requireDaus, storVec& daus) const;
-    void fillAssoc(const reco::GenParticleRefVector& cands,const CandMap& candMap, const bool requireMoms, const bool requireDaus,
-        storVec& assocList,storVec& nMoms,storVec& firstMom,storVec& nDaus,storVec& firstDau ) const;
+    void fillAssoc(const reco::GenParticleRefVector& cands,const CandMap& candMap, const bool requireMoms,
+        storVec& assocList,storVec& nMoms,storVec& firstMom ) const;
 
     //Add the particles from the main interaction
     void addHardInteraction(reco::GenParticleRefVector& outParticles,CandMap& candMap)const;
 
 
-    size i_pt       ;
-    size i_eta      ;
-    size i_phi      ;
-    size i_mass     ;
-    size i_status   ;
-    size i_pdgid    ;
-    size i_nmoms    ;
-    size i_firstmom ;
-    size i_ndaus    ;
-    size i_firstdau ;
-    size i_assoc    ;
+    spvfloat  pt         =make_spvfloat();
+    spvfloat  eta        =make_spvfloat();
+    spvfloat  phi        =make_spvfloat();
+    spvfloat  mass       =make_spvfloat();
+    spvsize8  status     =make_spvsize8();
+    spvint    pdgid      =make_spvint();
+    spvsize16 nmoms      =make_spvsize16();
+    spvsize16 firstmom   =make_spvsize16();
+    spvsize16 assoc      =make_spvsize16();
 
     bool fillAllParticles = false;
 
@@ -52,8 +50,6 @@ private:
     storVec assocList;
     storVec nMoms;
     storVec firstMoms;
-    storVec nDaus;
-    storVec firstDaus;
 };
 }
 
