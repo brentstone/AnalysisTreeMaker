@@ -62,7 +62,7 @@ private:
     size8    dataEra        =0;
     size8    dataset        =0;
     size8    dataRun        =0;
-    spvfloat genWeights     =make_spvfloat();
+    spv_float genWeights     =make_spv_float();
     // End Tree content
 
     edm::EDGetTokenT<reco::VertexCollection>          token_vtx     ;

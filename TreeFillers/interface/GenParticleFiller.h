@@ -28,15 +28,15 @@ private:
     void addHardInteraction(reco::GenParticleRefVector& outParticles,CandMap& candMap)const;
 
 
-    spvfloat  pt         =make_spvfloat();
-    spvfloat  eta        =make_spvfloat();
-    spvfloat  phi        =make_spvfloat();
-    spvfloat  mass       =make_spvfloat();
-    spvsize8  status     =make_spvsize8();
-    spvint    pdgid      =make_spvint();
-    spvsize16 nmoms      =make_spvsize16();
-    spvsize16 firstmom   =make_spvsize16();
-    spvsize16 assoc      =make_spvsize16();
+    spv_float  pt         =make_spv_float();
+    spv_float  eta        =make_spv_float();
+    spv_float  phi        =make_spv_float();
+    spv_float  mass       =make_spv_float();
+    spv_size8  status     =make_spv_size8();
+    spv_int    pdgid      =make_spv_int();
+    spv_size16 nmoms      =make_spv_size16();
+    spv_size16 firstmom   =make_spv_size16();
+    spv_size16 assoc      =make_spv_size16();
 
     bool fillAllParticles = false;
 
