@@ -12,31 +12,38 @@ public:
 	MuonFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, const EventFiller * eventFiller);
 	virtual ~MuonFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void fill();
+	virtual void setValues();
 
-	bool isMediumMuon_23Sep2016(const reco::Muon & recoMu) const;
+	double getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho) const ;
 
 private:
-	size i_pt             ;
-	size i_eta            ;
-	size i_phi            ;
-	size i_q              ;
-	size i_d0             ;
-	size i_dz             ;
-	size i_sip3D          ;
-	size i_miniIso        ;
-	size i_dBRelISO       ;
-	size i_id   		  ;
-	size i_dRnorm         ;
-	size i_lepAct_o_pt    ;
+	spv_float pt             = make_spv_float();
+	spv_float eta            = make_spv_float();
+	spv_float phi            = make_spv_float();
+	spv_size  id             = make_spv_size ();
+	spv_int8  q              = make_spv_int8 ();
+	spv_float d0             = make_spv_float();
+	spv_float dz             = make_spv_float();
+	spv_float sip3D          = make_spv_float();
+	spv_float miniIso        = make_spv_float();
+	spv_float dBRelISO       = make_spv_float();
+	spv_float trackerIso     = make_spv_float();
+	spv_float ptRel          = make_spv_float();
+	spv_float ptRatio        = make_spv_float();
+	spv_float dRnorm         = make_spv_float();
+	spv_float lepAct_o_pt    = make_spv_float();
     float minPT                = 0;
 
+    double miniiso_mindr    = 0;
+    double miniiso_maxdr    = 0;
+    double miniiso_kt_scale = 0;
+
     edm::EDGetTokenT<pat::MuonCollection>                token_muons  ;
-    edm::EDGetTokenT<pat::PackedCandidateCollection>	    token_pfCands;
+    edm::EDGetTokenT<pat::PackedCandidateCollection>	 token_pfCands;
     edm::EDGetTokenT<double>                             token_miniiso_rho;
 
     edm::Handle<pat::MuonCollection>                     han_muons;
-    edm::Handle<pat::PackedCandidateCollection>			han_pfCands;
+    edm::Handle<pat::PackedCandidateCollection>			 han_pfCands;
     edm::Handle<double>                                  han_miniiso_rho;
 
     const EventFiller * event;

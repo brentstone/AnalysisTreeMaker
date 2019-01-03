@@ -64,12 +64,35 @@ enum ElectronRECOStatus {ELRECO_TrckDrv
                         ,ELRECO_ECALDrv
 };
 
-enum MuonID   { MUID_SOFT
-               ,MUID_LOOSE
-               ,MUID_MED
-               ,MUID_TIGHT
-               ,MUID_HIGHPT
-               ,MUID_MED16
+// from https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+enum MuonID   {
+    MUID_CutBasedIdLoose                //reco::Muon::isLooseMuon  ≥CMSSW_9_4_X
+   ,MUID_CutBasedIdMedium               //reco::Muon::isMediumMuon ≥CMSSW_9_4_X
+   ,MUID_CutBasedIdMediumPrompt         //reco::Muon::isMediumMuon and dz<0.1 and dxy< 0.02    ≥CMSSW_9_4_X
+   ,MUID_CutBasedIdTight                //reco::Muon::isTightMuon  ≥CMSSW_9_4_X
+   ,MUID_CutBasedIdGlobalHighPt            //reco::Muon::isHighPtMuon (better momentum resolution) ≥CMSSW_9_4_X
+   ,MUID_CutBasedIdTrkHighPt            //reco::Muon:: isTrackerHighPtMuon (better efficiency) ≥CMSSW_9_4_X
+   ,MUID_PFIsoVeryLoose                 //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.40 ≥CMSSW_9_4_X
+   ,MUID_PFIsoLoose                    //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.25  ≥CMSSW_9_4_X
+   ,MUID_PFIsoMedium                   //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.20  ≥CMSSW_9_4_X
+   ,MUID_PFIsoTight                    //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.15  ≥CMSSW_9_4_X
+   ,MUID_PFIsoVeryTight                 //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.10 ≥CMSSW_9_4_X
+   ,MUID_PFIsoVeryVeryTight             //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.05 ≥CMSSW_10_1_X
+   ,MUID_TkIsoLoose                    //Relative Tracker isolation (0.3 cone) <0.10   ≥CMSSW_9_4_X
+   ,MUID_TkIsoTight                    //Relative Tracker isolation (0.3 cone) <0.05   ≥CMSSW_9_4_X
+   ,MUID_SoftCutBasedId                 //reco::Muon::isSoftMuon   ≥CMSSW_9_4_X
+   ,MUID_SoftMvaId                         //≥CMSSW_10_1_X MiniAOD only
+   ,MUID_MvaLoose                      //≥CMSSW_9_4_X  2016 training,MiniAOD only
+   ,MUID_MvaMedium                         //≥CMSSW_9_4_X  2016 training,MiniAOD only
+   ,MUID_MvaTight                      //≥CMSSW_9_4_X  2016 training, MiniAOD only
+   ,MUID_MiniIsoLoose                  //Relative MiniIso <0.40    ≥CMSSW_9_4_X    MiniAOD only
+   ,MUID_MiniIsoMedium                     //Relative MiniIso <0.20    ≥CMSSW_9_4_X    MiniAOD only
+   ,MUID_MiniIsoTight                  //Relative MiniIso <0.10    ≥CMSSW_9_4_X    MiniAOD only
+   ,MUID_MiniIsoVeryTight               //Relative MiniIso <0.05   ≥CMSSW_9_4_X    MiniAOD only
+   ,MUID_TriggerIdLoose                 //robust selector for HLT  ≥CMSSW_10_0_X
+   ,MUID_InTimeMuon                    //≥CMSSW_10_1_X
+   ,MUID_MultiIsoLoose                     //miniIso with ptRatio and pTRel    ≥CMSSW_10_1_X   MiniAOD only
+   ,MUID_MultiIsoMedium                 //miniIso with ptRatio and pTRel   ≥CMSSW_10_1_X   MiniAOD only
 };
 
 //From

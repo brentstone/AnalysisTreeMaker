@@ -1,6 +1,7 @@
 <use   name="root"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/Math"/>
+<use   name="PhysicsTools/PatUtils"/>
 <export>
   <lib   name="1"/>
 </export>
