@@ -5,7 +5,7 @@ process = cms.Process('run')
 
 process.options = cms.untracked.PSet(
     allowUnscheduled=cms.untracked.bool(True),
-#     wantSummary=cms.untracked.bool(True)
+    wantSummary=cms.untracked.bool(True)
 )
 
 # process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
@@ -83,6 +83,11 @@ era     = options.dataEra
 
 isRealData = (dataRun != "NONE")
 
+if isRealData and not isCrab:
+    setupJSONFiltering(process,era)
+
+#==============================================================================================================================#
+#==============================================================================================================================#
 from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , globalTag = cms.string('')
@@ -104,36 +109,48 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,era,dataRun)
 
-#==============================================================================================================================#
-#==============================================================================================================================#
-
-if isRealData and not isCrab:
-    setupJSONFiltering(process,era)
-
-from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
-metCorrections(process,process.treeMaker,isRealData,era)
-# from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
-# defaultJetSequences(process,isRealData,dataRun)
-# from AnalysisTreeMaker.TreeMaker.eleVIDProducer_cff import eleVIDProducer
-# eleVIDProducer(process)
-
 if 'signal' in sample:
     process.treeMaker.EventFiller.addPDFWeights = True;
-
-
 #==============================================================================================================================#
 #==============================================================================================================================#
+
+# from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
+# defaultJetSequences(process,isRealData,dataRun)
+
+process.p = cms.Path()
+#==============================================================================================================================#
+#==============================================================================================================================#
+
 #filter out events that dont pass a chosen trigger in data
 if isRealData :
     process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
     process.triggerFilter.dataRun = dataRun
     process.triggerFilter.sample = sample
-    if '2017' in era:
-        process.p = cms.Path(process.triggerFilter * process.fullPatMetSequenceModifiedMET * process.treeMaker)    
-    else:
-        process.p = cms.Path(process.triggerFilter * process.treeMaker)
-else :
-    if '2017' in era:
-        process.p = cms.Path(process.fullPatMetSequenceModifiedMET * process.treeMaker)
-    else :
-        process.p = cms.Path( process.treeMaker)
+    process.p += process.triggerFilter
+    
+
+#https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes
+if '2017' in era:
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,
+    runVID=True,
+    era='2017-Nov17ReReco')  #era is new to select between 2016 / 2017,  it defaults to 2017
+    process.p += process.egammaPostRecoSeq
+    process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')
+if '2016' in era:
+    from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+    setupEgammaPostRecoSeq(process,
+                       runEnergyCorrections=False, #corrections by default are fine so no need to re-run
+                       era='2016-Legacy')
+    process.p += process.egammaPostRecoSeq
+    process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')  
+    
+    
+from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
+metCorrections(process,process.treeMaker,isRealData,era)        
+if '2017' in era:
+    process.p += process.fullPatMetSequenceModifiedMET
+
+#==============================================================================================================================#
+#==============================================================================================================================#
+process.p += process.treeMaker
