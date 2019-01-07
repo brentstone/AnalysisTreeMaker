@@ -91,19 +91,19 @@ public:
 
 			if((this->*LeptonLessPFProducer::muonID) (*lep) == false ) continue;
 
-			double muISO = 0;
-			if(mu_doMiniIso){
-				float EA = Isolations::muonEA(lep->eta());
-				muISO = Isolations::getPFMiniIsolation(han_pfCand, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, EA, *han_mu_rho);
-			} else {
-				double sumChargedHadronPt = lep->pfIsolationR04().sumChargedHadronPt;
-				double sumNeutralHadronPt = lep->pfIsolationR04().sumNeutralHadronEt;
-				double sumPhotonPt        = lep->pfIsolationR04().sumPhotonEt;
-				double sumPUPt            = lep->pfIsolationR04().sumPUPt;
-				double pt                 = lep->pt();
-				muISO = (sumChargedHadronPt+TMath::Max(0.,sumNeutralHadronPt+sumPhotonPt-0.5*sumPUPt))/pt;
-			}
-			if(mu_ISO > 0 && muISO >= mu_ISO) continue;
+//			double muISO = 0;
+//			if(mu_doMiniIso){
+//				float EA = Isolations::muonEA(lep->eta());
+//				muISO = Isolations::getPFMiniIsolation(han_pfCand, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, EA, *han_mu_rho);
+//			} else {
+//				double sumChargedHadronPt = lep->pfIsolationR04().sumChargedHadronPt;
+//				double sumNeutralHadronPt = lep->pfIsolationR04().sumNeutralHadronEt;
+//				double sumPhotonPt        = lep->pfIsolationR04().sumPhotonEt;
+//				double sumPUPt            = lep->pfIsolationR04().sumPUPt;
+//				double pt                 = lep->pt();
+//				muISO = (sumChargedHadronPt+TMath::Max(0.,sumNeutralHadronPt+sumPhotonPt-0.5*sumPUPt))/pt;
+//			}
+//			if(mu_ISO > 0 && muISO >= mu_ISO) continue;
 
 			if(lep->originalObjectRef().isNull()){
 				std::cout << "NULL PF CAND REF!"<<"MU: " <<lep->originalObjectRef().key() <<" -> "<< lep->pt()<<","<< lep->eta()<<","<< lep->phi() <<" -> "<< lep->isPFMuon()<<std::endl;
@@ -134,18 +134,18 @@ public:
 			if(!vetoIdIsoMasked.cutFlowPassed()) continue;
 
 
-			float eISO = 0;
-			float eA = Isolations::electronEA(lep->superCluster()->eta());
-			if(e_doMiniIso){
-				eISO = Isolations::getPFMiniIsolation(han_pfCand, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, eA, *han_e_rho);
-			} else {
-				const auto& iso = lep->pfIsolationVariables();
-				eISO = ( iso.sumChargedHadronPt
-						+ std::max( 0.0, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*(*han_e_rho)) )
-											 / lep->pt() ;
-			}
-
-			if(e_ISO > 0 && eISO >= e_ISO) continue;
+//			float eISO = 0;
+//			float eA = Isolations::electronEA(lep->superCluster()->eta());
+//			if(e_doMiniIso){
+//				eISO = Isolations::getPFMiniIsolation(han_pfCand, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, eA, *han_e_rho);
+//			} else {
+//				const auto& iso = lep->pfIsolationVariables();
+//				eISO = ( iso.sumChargedHadronPt
+//						+ std::max( 0.0, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*(*han_e_rho)) )
+//											 / lep->pt() ;
+//			}
+//
+//			if(e_ISO > 0 && eISO >= e_ISO) continue;
 			for(unsigned int iC = 0;iC < lep->associatedPackedPFCandidates().size(); ++iC){
 	            int pdg = std::abs(lep->associatedPackedPFCandidates()[iC]->pdgId());
 	            if(pdg == 11 || pdg == 211 || pdg ==22)

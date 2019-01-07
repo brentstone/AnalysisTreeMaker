@@ -7,14 +7,17 @@
 
 namespace AnaTM{
 class EventFiller;
+//--------------------------------------------------------------------------------------------------
+// MuonFiller
+//--------------------------------------------------------------------------------------------------
 class MuonFiller : public BaseFiller {
 public:
-	MuonFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, const EventFiller * eventFiller);
+	MuonFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+	        edm::ConsumesCollector&& cc, const EventFiller * eventFiller);
 	virtual ~MuonFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
 
-	double getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho) const ;
 
 private:
 	spv_float pt             = make_spv_float();
