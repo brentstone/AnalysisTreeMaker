@@ -2,6 +2,7 @@
 #define ANALYSIS_TREEMAKER_UTILITIES_TNPJETACTVARS_H_
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/PFIsolation.h"
 
 
@@ -18,8 +19,8 @@ float muonRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
                 const float dr,
                 const float rho);
 
-float electronRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
-        const math::XYZTLorentzVector& p4,
+float eleRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
+        const pat::Electron * lep,
         const float sumP4PTIso,
         const float dr,
         const float rho);

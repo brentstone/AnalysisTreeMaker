@@ -1,4 +1,5 @@
 #include "../interface/TnPJetActVars.h"
+#include "../interface/Isolations.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
 #include <cmath>
@@ -62,7 +63,7 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
     const float dR_lepact = deltaR(p4, PFactMom);
 
     const float dR_lepactNORM = dR_lepact / r_miso;
-    const float PtRatio_lepact = ptcl->isElectron() ? electronRelMiniIsoPUCorrected(isos,p4,PFactMom.pt(),r_SAcone,rho) : muonRelMiniIsoPUCorrected(isos,p4,PFactMom.pt(),r_SAcone,rho);
+    const float PtRatio_lepact = ptcl->isElectron() ? eleRelMiniIsoPUCorrected(isos,(const pat::Electron*)ptcl,PFactMom.pt(),r_SAcone,rho) : muonRelMiniIsoPUCorrected(isos,p4,PFactMom.pt(),r_SAcone,rho);
 
     return { dR_lepactNORM, PtRatio_lepact};
 
@@ -91,33 +92,24 @@ float TnPJetActVars::muonRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
         const float rho){
     //pat function includes the division by the lepton pt
     const double stdISO =  iso.chargedHadronIso() + iso.neutralHadronIso() +iso.photonIso();
-    const double correctionOPT = stdISO > 0 ? pat::muonRelMiniIsoPUCorrected(iso,p4,dr,rho) /stdISO : 1.0;
-    return sumP4PTIso*correctionOPT;
+    const double sumCorr = stdISO > 0 ? p4.pt()*pat::muonRelMiniIsoPUCorrected(iso,p4,dr,rho) /stdISO : 1.0;
+    return sumP4PTIso*sumCorr/p4.pt();
 }
 
-float TnPJetActVars::electronRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
-        const math::XYZTLorentzVector& p4,
+
+
+float TnPJetActVars::eleRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
+        const pat::Electron * lep,
         const float sumP4PTIso,
         const float dr,
         const float rho){
-    //https://github.com/cms-sw/cmssw/blob/CMSSW_8_0_X/RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt
-    //https://github.com/cmsb2g/B2GAnaFW/blob/v8.0.x_v3.2/src/ElectronUserData.cc
-    //These are Effective areas suitable for 80X samples post ICHEP
-    const float absEta = std::fabs(p4.eta());
-    float effArea = 0.;
-    if(absEta>0.0 &&   absEta<=1.0)   effArea = 0.1703;
-    if(absEta>1.0 &&   absEta<=1.479) effArea = 0.1715;
-    if(absEta>1.479 && absEta<=2.0) effArea = 0.1213;
-    if(absEta>2.0 &&   absEta<=2.2)   effArea = 0.1230;
-    if(absEta>2.2 &&   absEta<=2.3)   effArea = 0.1635;
-    if(absEta>2.3 &&   absEta<=2.4)   effArea = 0.1937;
-    if(absEta>2.4 &&   absEta<=5.0)   effArea = 0.2393;
 
+    const float effArea = Isolations::electronEA(lep->superCluster()->eta());
     const double eaCorrection = rho * effArea * (dr/0.3) * (dr/0.3);
     const double correctedIso = iso.chargedHadronIso() + std::max(0.0, iso.neutralHadronIso()+iso.photonIso() - eaCorrection);
     const double origIso = iso.chargedHadronIso() +  iso.neutralHadronIso() +  iso.photonIso();
     const double sumCorr = origIso > 0 ? correctedIso/origIso : 1.0;
 
-    return  (sumP4PTIso*sumCorr/p4.pt());
+    return sumP4PTIso*sumCorr/lep->pt();
 }
 
