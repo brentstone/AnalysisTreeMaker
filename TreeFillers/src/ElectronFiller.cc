@@ -9,188 +9,199 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-using ASTypes::int8;
-using ASTypes::size8;
-using ASTypes::size16;
+using namespace FillerConstants;
 
 namespace AnaTM{
-
-ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, const EventFiller * eventFiller):
-				BaseFiller(fullParamSet,psetName,"ElectronFiller")
+//--------------------------------------------------------------------------------------------------
+ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+        edm::ConsumesCollector&& cc, const EventFiller * eventFiller):
+				        BaseFiller(fullParamSet,psetName,"ElectronFiller")
 {
-	if(ignore()) return;
-	if(eventFiller == 0) throw cms::Exception("ElectronFiller::ElectronFiller()", "You need to provide an EventFiller when you construct the ElectronFiller!");
-	event = eventFiller;
-	minPT       = cfg.getParameter<double>("minPT");
-	storeSC     = cfg.getParameter<bool>("storeSC");
-	storeReco   = cfg.getParameter<bool>("storeReco");
-	token_electrons   =cc.consumes<pat::ElectronCollection >(cfg.getParameter<edm::InputTag>("electrons"));
+    if(ignore()) return;
+    if(eventFiller == 0) throw cms::Exception(
+            "ElectronFiller::ElectronFiller()",
+            "You need to provide an EventFiller when you construct the ElectronFiller!");
+    event = eventFiller;
+    minPT       = cfg.getParameter<double>("minPT");
+    storeIDVars   = cfg.getParameter<bool>("storeIDVars");
+    token_electrons   =cc.consumes<pat::ElectronCollection >(
+            cfg.getParameter<edm::InputTag>("electrons"));
+    token_pfCands =cc.consumes<pat::PackedCandidateCollection>(
+            cfg.getParameter<edm::InputTag>("pfCandidates"));
 
-	token_cut_veto     =cc.consumes<edm::ValueMap<vid::CutFlowResult>>(cfg.getParameter<edm::InputTag>("cut_veto" ));
-	token_cut_loose    =cc.consumes<edm::ValueMap<vid::CutFlowResult>>(cfg.getParameter<edm::InputTag>("cut_loose"));
-	token_cut_med      =cc.consumes<edm::ValueMap<vid::CutFlowResult>>(cfg.getParameter<edm::InputTag>("cut_med"  ));
-	token_cut_tight    =cc.consumes<edm::ValueMap<vid::CutFlowResult>>(cfg.getParameter<edm::InputTag>("cut_tight"));
-	token_cut_heep     =cc.consumes<edm::ValueMap<vid::CutFlowResult>>(cfg.getParameter<edm::InputTag>("cut_heep"));
-	token_mva          =cc.consumes<edm::ValueMap<float              >>(cfg.getParameter<edm::InputTag>("mva"));
-	token_mvaCat       =cc.consumes<edm::ValueMap<int                >>(cfg.getParameter<edm::InputTag>("mvaCat"));
-
-	token_pfCands =cc.consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfCandidates"));
-	token_miniiso_rho  =cc.consumes<double>(cfg.getParameter<edm::InputTag>("miniiso_rho"));
-
-	if(storeSC)
-	    token_scs  =cc.consumes<reco::SuperClusterCollection >(cfg.getParameter<edm::InputTag>("superclusters"));
-
-
-	i_pt              = data.addMulti<float> (branchName,"pt"                    , 0);
-	i_eta             = data.addMulti<float> (branchName,"eta"                   , 0);
-	i_phi             = data.addMulti<float> (branchName,"phi"                   , 0);
-	i_q               = data.addMulti<int8  >(branchName,"q"                     , 0);
-	i_scEta           = data.addMulti<float >(branchName,"scEta"                 , 0);
-	i_d0              = data.addMulti<float >(branchName,"d0"                    , 0);
-	i_dz              = data.addMulti<float >(branchName,"dz"                    , 0);
-	i_sip3D           = data.addMulti<float >(branchName,"sip3D"                 , 0);
-	i_mvaID           = data.addMulti<float >(branchName,"mvaID"                 , 0);
-	i_mvaID_cat       = data.addMulti<size8 >(branchName,"mvaID_cat"             , 0);
-	i_miniIso         = data.addMulti<float >(branchName,"miniIso"               , 0);
-	i_eaRelISO        = data.addMulti<float >(branchName,"eaRelISO"              , 0);
-
-	i_id              = data.addMulti<size16>(branchName,"id"                    , 0);
-	i_dRnorm          = data.addMulti<float>(branchName ,"dRnorm"                , 0);
-	i_lepAct_o_pt     = data.addMulti<float>(branchName ,"lepAct_o_pt"           , 0);
-    i_sc_act_o_pt    = data.addMulti<float>(branchName  ,"sc_act_o_pt"           , 0);
-    i_sc_dr_act      = data.addMulti<float>(branchName  ,"sc_dr_act"             , 0);
-
-    if(storeSC){
-        i_sccol_et   = data.addMulti<float >(branchName,"sccol_et"               , 0);
-        i_sccol_eta  = data.addMulti<float >(branchName,"sccol_eta"              , 0);
-        i_sccol_phi  = data.addMulti<float >(branchName,"sccol_phi"              , 0);
+    data.addVector(pt         ,branchName,"electrons_N","pt"                   ,10);
+    data.addVector(eta        ,branchName,"electrons_N","eta"                  ,10);
+    data.addVector(phi        ,branchName,"electrons_N","phi"                  ,10);
+    data.addVector(q          ,branchName,"electrons_N","q"                    );
+    data.addVector(scEta      ,branchName,"electrons_N","scEta"                ,10);
+    data.addVector(scE        ,branchName,"electrons_N","scE"                 ,10);
+    data.addVector(uncorPt    ,branchName,"electrons_N","uncorPt"              ,10);
+    data.addVector(id         ,branchName,"electrons_N","id"                   );
+    data.addVector(d0         ,branchName,"electrons_N","d0"                   ,6);
+    data.addVector(dz         ,branchName,"electrons_N","dz"                   ,6);
+    data.addVector(sip3D      ,branchName,"electrons_N","sip3D"                ,6);
+    data.addVector(mvaID      ,branchName,"electrons_N","mvaID"                ,6);
+    data.addVector(miniIso    ,branchName,"electrons_N","miniIso"              ,6);
+    data.addVector(miniIsoFP  ,branchName,"electrons_N","miniIsoFP"            ,6);
+    data.addVector(eaRelIso   ,branchName,"electrons_N","eaRelIso"             ,6);
+    data.addVector(trackerIso ,branchName,"electrons_N","trackerIso"           ,6);
+    data.addVector(dRnorm     ,branchName,"electrons_N","dRnorm"               ,6);
+    data.addVector(lepAct_o_pt,branchName,"electrons_N","lepAct_o_pt"          ,6);
+    data.addVector(sc_act_o_pt,branchName,"electrons_N","sc_act_o_pt"          ,6);
+    data.addVector(sc_dr_act  ,branchName,"electrons_N","sc_dr_act"            ,6);
+    if(storeIDVars){
+        data.addVector(passMedCutBased      ,branchName,"electrons_N","passMedCutBased"      );
+        data.addVector(passTightCutBased    ,branchName,"electrons_N","passTightCutBased"    );
+        data.addVector(full5x5_sigmaIetaIeta,branchName,"electrons_N","full5x5_sigmaIetaIeta",6);
+        data.addVector(abs_dEtaSeed         ,branchName,"electrons_N","abs_dEtaSeed"         ,6);
+        data.addVector(abs_dPhiIn           ,branchName,"electrons_N","abs_dPhiIn"           ,6);
+        data.addVector(HoE                  ,branchName,"electrons_N","HoE"                  ,6);
+        data.addVector(HoE_BC               ,branchName,"electrons_N","HoE_BC"               ,6);
+        data.addVector(abs_1oEm1op          ,branchName,"electrons_N","abs_1oEm1op"          ,6);
+        data.addVector(missInnerHits        ,branchName,"electrons_N","missInnerHits"        );
+        data.addVector(passConvVeto         ,branchName,"electrons_N","passConvVeto"         );
+        data.addVector(seeding              ,branchName,"electrons_N","seeding"              );
+        data.addVector(nSaturatedXtals      ,branchName,"electrons_N","nSaturatedXtals"   ,6);
+        data.addVector(e2x5OverE5x5         ,branchName,"electrons_N","e2x5OverE5x5"   ,6);
+        data.addVector(e1x5OverE5x5         ,branchName,"electrons_N","e1x5OverE5x5"   ,6);
+        data.addVector(isolEmHadDepth1      ,branchName,"electrons_N","isolEmHadDepth1"   ,6);
     }
-
-    if(storeReco){
-        i_reco_flag              = data.addMulti<size8>(branchName,"reco_flag"                    , 0);
-
-    }
-
-}
-;
-void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-	reset();
-
-	iEvent.getByToken(token_electrons     ,han_electrons     );
-	iEvent.getByToken(token_cut_veto      ,han_cut_veto      );
-	iEvent.getByToken(token_cut_loose     ,han_cut_loose     );
-	iEvent.getByToken(token_cut_med       ,han_cut_med       );
-	iEvent.getByToken(token_cut_tight     ,han_cut_tight     );
-	iEvent.getByToken(token_cut_heep      ,han_cut_heep      );
-	iEvent.getByToken(token_mva           ,han_mva           );
-	iEvent.getByToken(token_mvaCat        ,han_mvaCat        );
-	iEvent.getByToken(token_pfCands       ,han_pfCands     );
-	iEvent.getByToken(token_miniiso_rho   ,han_miniiso_rho     );
-	if(storeSC){
-	    iEvent.getByToken(token_scs   ,han_scs     );
-	}
-
-	loadedStatus = true;
 };
-void ElectronFiller::fill(){
+//--------------------------------------------------------------------------------------------------
+void ElectronFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    iEvent.getByToken(token_electrons     ,han_electrons     );
+    iEvent.getByToken(token_pfCands       ,han_pfCands     );
+};
+//--------------------------------------------------------------------------------------------------
+void ElectronFiller::setValues(){
 
-	if(!event->isLoaded()){
-		throw cms::Exception("ElectronFiller.fill()", "You need to load the EventFiller before you load the ElectronFiller!");
-	}
-	const auto* vtx = event->getPrimVertex();
-	auto vtx_pt =  vtx ? vtx->position() : reco::Vertex::Point();
+    if(!event->isLoaded()){
+        throw cms::Exception("ElectronFiller.fill()",
+                "You need to load the EventFiller before you load the ElectronFiller!");
+    }
+    const auto* vtx = event->getPrimVertex();
+    auto vtx_pt =  vtx ? vtx->position() : reco::Vertex::Point();
 
-	for (size iE = 0; iE < han_electrons->size(); ++iE){
-		const edm::Ptr<pat::Electron> lep(han_electrons, iE);
-		if(lep->pt() < minPT) continue;
+    for (size iE = 0; iE < han_electrons->size(); ++iE){
+        const edm::Ptr<pat::Electron> lep(han_electrons, iE);
+        auto corrP4  = lep->p4() * lep->userFloat("ecalTrkEnergyPostCorr") / lep->energy();
+        if(lep->pt() < minPT && corrP4.pt() < minPT) continue;
+        pt          ->push_back(corrP4.pt());
+        eta         ->push_back(corrP4.eta());
+        phi         ->push_back(corrP4.phi());
+        q           ->push_back(lep->charge());
+        scEta       ->push_back(lep->superCluster()->eta());
+        scE        ->push_back(lep->superCluster()->energy());
+        uncorPt     ->push_back(lep->pt());
 
+        size16 lepID = 0;
 
-		data.fillMulti(i_pt     , float(lep->pt()));
-		data.fillMulti(i_eta    , float(lep->eta()));
-		data.fillMulti(i_phi    , float(lep->phi()));
-		data.fillMulti(i_q      , int8(lep->charge()));
-		data.fillMulti(i_scEta  , float(lep->superCluster()->eta()));
+        auto addP = [&](const std::string& cutName, const ElectronID stdE,
+                const ElectronID noIsoE, const unsigned int nCuts = 10,
+                const unsigned int isoCut = 7  ){
+            if(lep->electronID(cutName))addPass(lepID,stdE  );
+            int cutList = lep->userInt(cutName);
+            bool pass = true;
+            for(unsigned int iC = 0; iC < nCuts; ++iC){
+                if(iC == isoCut) continue;
+                if(doesPass(cutList,iC )) continue;
+                pass = false;
+                break;
+            }
+            if(pass) addPass(lepID,noIsoE  );
+        };
 
-		data.fillMulti<float>(i_d0, lep->gsfTrack()->dxy(vtx_pt));
-		data.fillMulti<float>(i_dz, lep->gsfTrack()->dz(vtx_pt));
-		float sip3d=std::fabs(lep->dB(pat::Electron::PV3D) / lep->edB(pat::Electron::PV3D));
-		data.fillMulti<float>(i_sip3D, sip3d);
+        addP("cutBasedElectronID-Fall17-94X-V2-loose",ELID_cut_loose,ELID_cut_loose_noIso);
+        addP("cutBasedElectronID-Fall17-94X-V2-medium",ELID_cut_medium,ELID_cut_medium_noIso);
+        addP("cutBasedElectronID-Fall17-94X-V2-tight",ELID_cut_tight,ELID_cut_tight_noIso);
 
-		size16 idResult = 0;
-		auto setID = [&](edm::Handle<edm::ValueMap<vid::CutFlowResult> >& cutHan, FillerConstants::ElectronID comp, FillerConstants::ElectronID noIso) {
-			if ((*cutHan)[ lep ].cutFlowPassed()){
-				FillerConstants::addPass(idResult,comp);
-			}
-			if((*cutHan)[ lep ].getCutFlowResultMasking("GsfEleEffAreaPFIsoCut_0").cutFlowPassed()){
-				FillerConstants::addPass(idResult,noIso);
-			}
-		};
-		setID(han_cut_veto ,FillerConstants::ELID_CUT_VETO ,FillerConstants::ELID_CUT_NOISO_VETO );
-		setID(han_cut_loose,FillerConstants::ELID_CUT_LOOSE,FillerConstants::ELID_CUT_NOISO_LOOSE);
-		setID(han_cut_med  ,FillerConstants::ELID_CUT_MED  ,FillerConstants::ELID_CUT_NOISO_MED  );
-		setID(han_cut_tight,FillerConstants::ELID_CUT_TIGHT,FillerConstants::ELID_CUT_NOISO_TIGHT);
+         if (lep->electronID("mvaEleID-Fall17-iso-V2-wpHZZ"))     addPass(lepID,ELID_mva_wpHZZ        );
+         if (lep->electronID("mvaEleID-Fall17-iso-V2-wp80"))      addPass(lepID,ELID_mva_wp80         );
+         if (lep->electronID("mvaEleID-Fall17-iso-V2-wp90"))      addPass(lepID,ELID_mva_wp90         );
+         if (lep->electronID("mvaEleID-Fall17-iso-V2-wpLoose"))   addPass(lepID,ELID_mva_wpLoose      );
+         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wp80"))    addPass(lepID,ELID_mva_wp80_noIso   );
+         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wp90"))    addPass(lepID,ELID_mva_wp90_noIso   );
+         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wpLoose")) addPass(lepID,ELID_mva_wpLoose_noIso);
 
-        if ((*han_cut_heep)[ lep ].cutFlowPassed()) FillerConstants::addPass(idResult,FillerConstants::ELID_CUT_HEEP);
+         addP("heepElectronID-HEEPV70",ELID_heep,ELID_heep_noIso,12);
 
-		auto maskedCutFlowData = (*han_cut_heep)[ lep ].getCutFlowResultMasking("GsfEleValueMapIsoRhoCut_0");
-		maskedCutFlowData = maskedCutFlowData.getCutFlowResultMasking("GsfEleEmHadD1IsoRhoCut_0");
-		if (maskedCutFlowData.cutFlowPassed()) FillerConstants::addPass(idResult,FillerConstants::ELID_CUT_NOISO_HEEP);
-
-		data.fillMulti(i_id     , idResult);
-
-		const float eA = Isolations::electronEA(lep->superCluster()->eta());
-		const auto& iso = lep->pfIsolationVariables();
-		float eAIso = ( iso.sumChargedHadronPt
-				+ std::max( 0.0f, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*event->rho()) )  // EA uses fixedGridRhoFastjetAll, which is what eventFiller stores (https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolationRun2)
-							 / lep->pt() ;
-		data.fillMulti(i_eaRelISO     , eAIso);
-
-		//https://github.com/cmsb2g/B2GAnaFW/blob/v8.0.x_v3.2/src/ElectronUserData.cc
-	    float miniIso = Isolations::getPFMiniIsolation(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., false, true, eA, *han_miniiso_rho);
-	    data.fillMulti(i_miniIso     , miniIso);
-
-	    std::vector<float> JetActvars = TnPJetActVars::getPFJetActVars(han_pfCands, dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., eA, *han_miniiso_rho);
-	    data.fillMulti(i_dRnorm, JetActvars[0]);
-	    data.fillMulti(i_lepAct_o_pt, JetActvars[1]);
-
-	    float gp_mva_val  = (*han_mva)[ lep ];
-	    int   gp_mva_cat  = (*han_mvaCat)[ lep ];
-	    data.fillMulti(i_mvaID         , gp_mva_val);
-	    data.fillMulti(i_mvaID_cat     , ASTypes::convertTo<size8>(gp_mva_cat,"ElectronFiller::mvaID_cat"));
+        id          ->push_back(lepID);
+        d0          ->push_back(lep->gsfTrack()->dxy(vtx_pt));
+        dz          ->push_back(lep->gsfTrack()->dz(vtx_pt) );
+        sip3D       ->push_back(std::fabs(lep->dB(pat::Electron::PV3D)
+                / lep->edB(pat::Electron::PV3D)));
+        mvaID       ->push_back(lep->userFloat("ElectronMVAEstimatorRun2Fall17NoIsoV2Values"));
 
 
-	    float sc_act_o_pt, sc_dr_act;
-	    getSCActivity(&*lep,vtx_pt,eA,sc_act_o_pt,sc_dr_act);
-        data.fillMulti(i_sc_act_o_pt       , sc_act_o_pt);
-        data.fillMulti(i_sc_dr_act         , sc_dr_act);
 
-        if(storeReco){
+        const float eA = Isolations::electronEA(lep->superCluster()->eta());
+        const auto& iso = lep->pfIsolationVariables();
+        // EA uses fixedGridRhoFastjetAll, which is what eventFiller stores
+        //(https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolationRun2)
+        const float eAIso = ( iso.sumChargedHadronPt
+                + std::max( 0.0f, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*event->getRho()) );
+
+        miniIso->push_back(Isolations::getEleRelMiniIsoPUCorrected(
+                lep->miniPFIsolation(),&*lep,event->getRho(),
+                0.05,0.2,10.0));
+
+        miniIsoFP->push_back(Isolations::getEleRelMiniIsoWFootprintRemovalPUCorrected(
+                &*han_pfCands,&*lep,event->getRho()));
+        eaRelIso    ->push_back(eAIso/lep->pt());
+        trackerIso  ->push_back(lep->userFloat("heepTrkPtIso")/lep->pt());
+
+        const std::vector<float> jetActvars = TnPJetActVars::getPFJetActVars(han_pfCands,
+                dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., event->getRho());
+
+        dRnorm      ->push_back(jetActvars[0]);
+        lepAct_o_pt ->push_back(jetActvars[1]);
+
+        float sc_rato, sc_dr;
+        getSCActivity(&*lep,vtx_pt,eA,sc_rato,sc_dr);
+        sc_act_o_pt ->push_back(sc_rato);
+        sc_dr_act   ->push_back(sc_dr);
+
+        if(storeIDVars){
+            passMedCutBased      ->push_back(lep->userInt("cutBasedElectronID-Fall17-94X-V2-medium"));
+            passTightCutBased    ->push_back(lep->userInt("cutBasedElectronID-Fall17-94X-V2-tight"));
+            full5x5_sigmaIetaIeta->push_back(lep->full5x5_sigmaIetaIeta());
+            const float dEInS = lep->superCluster().isNonnull() && lep->superCluster()->seed().isNonnull() ?
+                    lep->deltaEtaSuperClusterTrackAtVtx() - lep->superCluster()->eta() + lep->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+            abs_dEtaSeed         ->push_back(std::fabs(dEInS));
+            abs_dPhiIn           ->push_back( std::abs(lep->deltaPhiSuperClusterTrackAtVtx()));
+            HoE                  ->push_back( lep->hadronicOverEm());
+            HoE_BC               ->push_back(lep->hcalOverEcalBc());
+            const float ecal_energy_inverse = 1.0/lep->ecalEnergy();
+            const float eSCoverP = lep->eSuperClusterOverP();
+            abs_1oEm1op          ->push_back(std::abs(1.0 - eSCoverP)*ecal_energy_inverse);
+            missInnerHits        ->push_back(
+                    lep->gsfTrack()->hitPattern().numberOfLostHits(
+                            reco::HitPattern::MISSING_INNER_HITS));
+            //this needs a lot of extra work...
+            //so we can just steal it from the ID result since it is a bool!
+            passConvVeto         ->push_back(
+                    doesPass(lep->userInt("cutBasedElectronID-Fall17-94X-V2-medium"),8 ));
             size8 recoFlg = 0;
-            if(lep->trackerDrivenSeed()) FillerConstants::addPass(recoFlg,FillerConstants::ELRECO_TrckDrv);
-            if(lep->ecalDriven()) FillerConstants::addPass(recoFlg,FillerConstants::ELRECO_ECALDrv);
-            data.fillMulti(i_reco_flag     , recoFlg);
+            if(lep->trackerDrivenSeed()) addPass(recoFlg,ELRECO_TrckDrv);
+            if(lep->ecalDriven()) addPass(recoFlg,ELRECO_ECALDrv);
+            seeding              ->push_back(recoFlg);
+            nSaturatedXtals      ->push_back(lep->nSaturatedXtals());
+            const double e5x5 = lep->full5x5_e5x5();
+            e2x5OverE5x5->push_back( e5x5!=0 ? lep->full5x5_e2x5Max()/e5x5 : 0);
+            e1x5OverE5x5 ->push_back(  e5x5!=0 ? lep->full5x5_e1x5()/e5x5 : 0);
+            isolEmHadDepth1->push_back(  lep->dr03EcalRecHitSumEt() + lep->dr03HcalDepth1TowerSumEt());
         }
-	}
 
-	if(!storeSC) return;
-    for (size iE = 0; iE < han_scs->size(); ++iE){
-        const auto& lep = (*han_scs)[iE];
-        const auto& pos =  lep.position();
-        const float et = lep.energy()*std::sin(pos.theta());
-        const float eta = pos.eta();
-        if(et <= 5) continue;
-        if(std::fabs(eta) >= 2.5 ) continue;
-        data.fillMulti(i_sccol_et     , et);
-        data.fillMulti(i_sccol_eta    , eta);
-        data.fillMulti(i_sccol_phi    , float(pos.phi()));
+
 
     }
 
 }
+//--------------------------------------------------------------------------------------------------
+void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx,
+        const float eA, float& act_o_pt, float& actDR) const {
 
-void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, const float eA, float& act_o_pt, float& actDR) const {
-
-    const float eaCorr = event->rho()*0.4*0.4/(0.3*0.3)*eA;
+    const float eaCorr = event->getRho()*0.4*0.4/(0.3*0.3)*eA;
     const auto& pos = ele->superCluster()->position();
     GlobalVector mom(pos.x()-vtx.x(),pos.y()-vtx.y(),pos.z()-vtx.z());
     ASTypes::CylLorentzVectorF pIso;
@@ -207,7 +218,8 @@ void ElectronFiller::getSCActivity(const pat::Electron* ele, const reco::Vertex:
             iso_neutral += can.pt();
         }
     }
-    const float scpt = ele->superCluster()->energy()*std::sin(ele->superCluster()->position().theta());
+    const float scpt = ele->superCluster()->energy()
+            *std::sin(ele->superCluster()->position().theta());
     act_o_pt = (iso_charged + std::max(0.0f, iso_neutral - eaCorr))/scpt;
     actDR = PhysicsUtilities::deltaR(mom,pIso);
 }

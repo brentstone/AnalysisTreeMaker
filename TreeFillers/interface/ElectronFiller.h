@@ -9,69 +9,74 @@
 
 namespace AnaTM{
 class EventFiller;
+//--------------------------------------------------------------------------------------------------
+// MuonFiller
+//--------------------------------------------------------------------------------------------------
 class ElectronFiller : public BaseFiller {
 public:
-	ElectronFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, const EventFiller * eventFiller);
+	ElectronFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+	        edm::ConsumesCollector&& cc, const EventFiller * eventFiller);
 	virtual ~ElectronFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void fill();
+	virtual void setValues();
 
 private:
-	void getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx, const float eA,float& act_o_pt, float& actDR) const;
+	void getSCActivity(const pat::Electron* ele, const reco::Vertex::Point& vtx,
+	        const float eA,float& act_o_pt, float& actDR) const;
 
 
-	size i_pt             ;
-	size i_eta            ;
-	size i_phi            ;
-	size i_q              ;
-	size i_scEta          ;
-	size i_d0             ;
-	size i_dz             ;
-	size i_sip3D          ;
-	size i_mvaID          ;
-	size i_mvaID_cat      ;
-	size i_miniIso        ;
-	size i_eaRelISO       ;
-	size i_id             ;
-	size i_dRnorm         ;
-	size i_lepAct_o_pt    ;
-	size i_sc_act_o_pt    ;
-	size i_sc_dr_act      ;
+	spv_float pt                   = make_spv_float();
+	spv_float eta                  = make_spv_float();
+	spv_float phi                  = make_spv_float();
+	spv_int8 q                     = make_spv_int8();
+	spv_float scEta                = make_spv_float();
+	spv_float scE                  = make_spv_float();
+	spv_float uncorPt              = make_spv_float();
+	spv_size16 id                  = make_spv_size16();
 
-	size i_sccol_et       ;
-	size i_sccol_eta      ;
-	size i_sccol_phi      ;
+	spv_float d0                   = make_spv_float();
+	spv_float dz                   = make_spv_float();
+	spv_float sip3D                = make_spv_float();
 
-	size i_reco_flag      ;
+	spv_float mvaID                = make_spv_float();
+	spv_float miniIso              = make_spv_float();
+    spv_float miniIsoFP            = make_spv_float();
+	spv_float eaRelIso             = make_spv_float();
+	spv_float trackerIso           = make_spv_float();
+
+	spv_float dRnorm               = make_spv_float();
+	spv_float lepAct_o_pt          = make_spv_float();
+	spv_float sc_act_o_pt          = make_spv_float();
+	spv_float sc_dr_act            = make_spv_float();
+
+	//ID vars (for cut based)
+	spv_size16 passMedCutBased     = make_spv_size16();
+	spv_size16 passTightCutBased   = make_spv_size16();
+	spv_float  full5x5_sigmaIetaIeta= make_spv_float();
+	spv_float  abs_dEtaSeed         = make_spv_float();
+	spv_float  abs_dPhiIn           = make_spv_float();
+	spv_float  HoE                  = make_spv_float();
+	spv_float  HoE_BC               = make_spv_float();
+	spv_float  abs_1oEm1op          = make_spv_float();
+	spv_size8  missInnerHits        = make_spv_size8();
+	spv_size8  passConvVeto         = make_spv_size8();
+	//ID vars HEEP extra
+	spv_size8  seeding              = make_spv_size8();
+	spv_size8  nSaturatedXtals      = make_spv_size8();
+	spv_float  e2x5OverE5x5         = make_spv_float();
+	spv_float  e1x5OverE5x5         = make_spv_float();
+	spv_float  isolEmHadDepth1      = make_spv_float();
+
+
 
     float minPT                = 0;
-    bool  storeSC              = 0;
-    bool  storeReco            = 0;
+    bool  storeIDVars          = 0;
 
     edm::EDGetTokenT<pat::ElectronCollection>            token_electrons;
-    edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_veto ;
-    edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_loose;
-    edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_med  ;
-    edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_tight;
-    edm::EDGetTokenT<edm::ValueMap<vid::CutFlowResult> > token_cut_heep;
-    edm::EDGetTokenT<edm::ValueMap<float              >> token_mva  ;
-    edm::EDGetTokenT<edm::ValueMap<int                >> token_mvaCat;
     edm::EDGetTokenT<pat::PackedCandidateCollection>     token_pfCands;
-    edm::EDGetTokenT<double>                             token_miniiso_rho;
-    edm::EDGetTokenT<reco::SuperClusterCollection>       token_scs;
 
     edm::Handle<pat::ElectronCollection>                 han_electrons;
-    edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_veto ;
-    edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_loose;
-    edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_med  ;
-    edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_tight;
-    edm::Handle<edm::ValueMap<vid::CutFlowResult> >      han_cut_heep ;
-    edm::Handle<edm::ValueMap<float              >>      han_mva  ;
-    edm::Handle<edm::ValueMap<int                >>      han_mvaCat;
     edm::Handle<pat::PackedCandidateCollection>			 han_pfCands;
-    edm::Handle<double>                                  han_miniiso_rho;
-    edm::Handle<reco::SuperClusterCollection>            han_scs;
-
 
     const EventFiller * event;
 
