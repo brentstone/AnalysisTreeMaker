@@ -8,81 +8,78 @@ using ASTypes::size8;
 using ASTypes::int8;
 
 namespace AnaTM{
-
-FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, bool isRealData):
-				        BaseFiller(fullParamSet,psetName,"FatJetFiller"),
-				        isRealData(isRealData)
+//--------------------------------------------------------------------------------------------------
+FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+        edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra):
+                                                BaseFiller(fullParamSet,psetName,"FatJetFiller"),
+                                                isRealData(isRealData),dataEra(dataEra)
 {
     if(ignore()) return;
     jetType      =cfg.getParameter<std::string>("jetType");
     subjetType   =cfg.getParameter<std::string>("subjetType");
+    isPuppi = ASTypes::strFind(jetType,"Puppi") || ASTypes::strFind(jetType,"puppi");
 
     fillGenJets  =cfg.getParameter<bool>("fillGenJets");
+    addBTaggingInfo=cfg.getParameter<bool>("addBTaggingInfo");
     token_jets   =cc.consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"));
     minJetPT     = cfg.getParameter<double>("minJetPT");
     if(!isRealData && fillGenJets)
-        token_genJets=cc.consumes<reco::GenJetCollection>(cfg.getParameter<edm::InputTag>("genjets"));
+        token_genJets=cc.consumes<reco::GenJetCollection>(
+                cfg.getParameter<edm::InputTag>("genjets"));
 
     jetDef =cfg.getParameter<std::string>("jetDef");
     subjetDef=cfg.getParameter<std::string>("subjetDef");
 
-    i_pt             = data.addMulti<float>(branchName,"pt"                    , 0);
-    i_eta            = data.addMulti<float>(branchName,"eta"                   , 0);
-    i_phi            = data.addMulti<float>(branchName,"phi"                   , 0);
-    i_mass           = data.addMulti<float>(branchName,"mass"                  , 0);
-    i_toRawFact      = data.addMulti<float>(branchName,"toRawFact"             , 0);
-    i_csv            = data.addMulti<float>(branchName,"csv"                   , 0);
-    i_id             = data.addMulti<size8>(branchName,"id"                    , 0);
+
+    data.addVector(pt             ,branchName,"jets_N","pt"                ,10);
+    data.addVector(eta            ,branchName,"jets_N","eta"               ,10);
+    data.addVector(phi            ,branchName,"jets_N","phi"               ,10);
+    data.addVector(mass           ,branchName,"jets_N","mass"              ,10);
+    data.addVector(toRawFact      ,branchName,"jets_N","toRawFact"         ,8);
+    data.addVector(id             ,branchName,"jets_N","id"                );
+    if(addBTaggingInfo) data.addVector(bbt            ,branchName,"jets_N","bbt"               ,8);
+    data.addVector(tau1           ,branchName,"jets_N","tau1"              ,8);
+    data.addVector(tau2           ,branchName,"jets_N","tau2"              ,8);
+    data.addVector(tau3           ,branchName,"jets_N","tau3"              ,8);
+    data.addVector(ecfb1          ,branchName,"jets_N","ecfb1"             ,8);
+    data.addVector(ecfb2          ,branchName,"jets_N","ecfb2"             ,8);
 
     if(!isRealData){
-        i_hadronFlavor   = data.addMulti<int8>(branchName,"hadronFlavor"          , 0);
-        i_partonFlavor   = data.addMulti<int8>(branchName,"partonFlavor"          , 0);
-        i_JECUnc         = data.addMulti<float>(branchName,"JECUnc"               , 0);
+        data.addVector(hadronFlavor   ,branchName,"jets_N","hadronFlavor"      );
+        data.addVector(partonFlavor   ,branchName,"jets_N","partonFlavor"      );
+        data.addVector(JECUnc         ,branchName,"jets_N","JECUnc"            ,8);
         if(fillGenJets){
-            i_genIDX         = data.addMulti<size8>(branchName,"genIDX"                , 0);
-            i_gen_pt         = data.addMulti<float>(branchName,"gen_pt"                , 0);
-            i_gen_eta        = data.addMulti<float>(branchName,"gen_eta"               , 0);
-            i_gen_phi        = data.addMulti<float>(branchName,"gen_phi"               , 0);
-            i_gen_mass       = data.addMulti<float>(branchName,"gen_mass"              , 0);
+            data.addVector(genIDX         ,branchName,"jets_N","genIDX"        );
+            data.addVector(gen_pt         ,branchName,"genJets_N","gen_pt"     ,8);
+            data.addVector(gen_eta        ,branchName,"genJets_N","gen_eta"    ,8);
+            data.addVector(gen_phi        ,branchName,"genJets_N","gen_phi"    ,8);
+            data.addVector(gen_mass       ,branchName,"genJets_N","gen_mass"   ,8);
         }
     }
 
-    i_bbt                = data.addMulti<float>(branchName,"bbt"                                 , 0);
-    i_tau1               = data.addMulti<float>(branchName,"tau1"                                , 0);
-    i_tau2               = data.addMulti<float>(branchName,"tau2"                                , 0);
-    i_tau3               = data.addMulti<float>(branchName,"tau3"                                , 0);
-    i_sj1_pt             = data.addMulti<float>(branchName,"sj1_pt"                              , 0);
-    i_sj1_eta            = data.addMulti<float>(branchName,"sj1_eta"                             , 0);
-    i_sj1_phi            = data.addMulti<float>(branchName,"sj1_phi"                             , 0);
-    i_sj1_mass           = data.addMulti<float>(branchName,"sj1_mass"                            , 0);
-    i_sj1_toRawFact      = data.addMulti<float>(branchName,"sj1_toRawFact"                       , 0);
-    i_sj1_csv            = data.addMulti<float>(branchName,"sj1_csv"                             , 0);
-    if(!isRealData){
-        i_sj1_JECUnc         = data.addMulti<float>(branchName,"sj1_JECUnc"               , 0);
-        i_sj1_hadronFlavor   = data.addMulti<int8>(branchName,"sj1_hadronFlavor"                    , 0);
-        i_sj1_partonFlavor   = data.addMulti<int8>(branchName,"sj1_partonFlavor"                    , 0);
+    data.addVector(sjIDX1         ,branchName,"jets_N","sjIDX1"        );
+    data.addVector(sjnum          ,branchName,"jets_N","sjnum"         );
+    data.addVector(sj_pt          ,branchName,"subjets_N","sj_pt"          ,10);
+    data.addVector(sj_eta         ,branchName,"subjets_N","sj_eta"         ,10);
+    data.addVector(sj_phi         ,branchName,"subjets_N","sj_phi"         ,10);
+    data.addVector(sj_mass        ,branchName,"subjets_N","sj_mass"        ,10);
+    data.addVector(sj_toRawFact   ,branchName,"subjets_N","sj_toRawFact"   ,8);
+    if(addBTaggingInfo){
+        data.addVector(sj_csv         ,branchName,"subjets_N","sj_csv"         ,10);
+        data.addVector(sj_deep_csv    ,branchName,"subjets_N","sj_deep_csv"    ,10);
     }
-    i_sj2_pt             = data.addMulti<float>(branchName,"sj2_pt"                              , 0);
-    i_sj2_eta            = data.addMulti<float>(branchName,"sj2_eta"                             , 0);
-    i_sj2_phi            = data.addMulti<float>(branchName,"sj2_phi"                             , 0);
-    i_sj2_mass           = data.addMulti<float>(branchName,"sj2_mass"                            , 0);
-    i_sj2_toRawFact      = data.addMulti<float>(branchName,"sj2_toRawFact"                       , 0);
-    i_sj2_csv            = data.addMulti<float>(branchName,"sj2_csv"                             , 0);
+//        data.addVector(sj_deep_flavor ,branchName,"subjets_N","sj_deep_flavor" ,10);
     if(!isRealData){
-        i_sj2_JECUnc         = data.addMulti<float>(branchName,"sj2_JECUnc"               , 0);
-        i_sj2_hadronFlavor   = data.addMulti<int8>(branchName,"sj2_hadronFlavor"                    , 0);
-        i_sj2_partonFlavor   = data.addMulti<int8>(branchName,"sj2_partonFlavor"                    , 0);
+        data.addVector(sj_hadronFlavor,branchName,"subjets_N","sj_hadronFlavor");
+        data.addVector(sj_partonFlavor,branchName,"subjets_N","sj_partonFlavor");
+        data.addVector(sj_JECUnc      ,branchName,"subjets_N","sj_JECUnc"      ,8);
     }
-
 }
-;
+//--------------------------------------------------------------------------------------------------
 void FatJetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    reset();
-
     iEvent.getByToken(token_jets     ,han_jets     );
     if(!isRealData && fillGenJets)
         iEvent.getByToken(token_genJets  ,han_genJets     );
-
 
     if(!isRealData){
         iSetup.get<JetCorrectionsRecord>().get(jetType.c_str(),jetCorParameters);
@@ -93,116 +90,100 @@ void FatJetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         JetCorrectorParameters const & subjetCorPar = (*subjetCorParameters)["Uncertainty"];
         subjetCorUnc.reset(new JetCorrectionUncertainty(subjetCorPar));
     }
-
-    loadedStatus = true;
 };
+//--------------------------------------------------------------------------------------------------
 void FatJetFiller::processGenJets(){
     for(unsigned int iG = 0; iG < han_genJets->size(); ++iG){
         const auto& jet = han_genJets->at(iG);
-        data.fillMulti(i_gen_pt      ,float(jet.pt()  ));
-        data.fillMulti(i_gen_eta     ,float(jet.eta() ));
-        data.fillMulti(i_gen_phi     ,float(jet.phi() ));
-        data.fillMulti(i_gen_mass    ,float(jet.mass()));
+        gen_pt  ->push_back(jet.pt()  );
+        gen_eta ->push_back(jet.eta() );
+        gen_phi ->push_back(jet.phi() );
+        gen_mass->push_back(jet.mass());
     }
 }
-void FatJetFiller::fill(){
+//--------------------------------------------------------------------------------------------------
+void FatJetFiller::setValues(){
     if(!isRealData && fillGenJets)
         processGenJets();
     for(const auto& jet : (*han_jets)){
         if(jet.pt() < minJetPT) continue;
-        data.fillMulti(i_pt      ,float(jet.pt()  ));
-        data.fillMulti(i_eta     ,float(jet.eta() ));
-        data.fillMulti(i_phi     ,float(jet.phi() ));
-        data.fillMulti(i_mass    ,float(jet.mass()));
-        data.fillMulti(i_toRawFact, float(jet.jecFactor("Uncorrected")));
-
-        data.fillMulti(i_csv     ,
-                float(jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
+        pt  ->push_back(jet.pt()  );
+        eta ->push_back(jet.eta() );
+        phi ->push_back(jet.phi());
+        mass->push_back(jet.mass());
+        const float rawFactor = jet.jecFactor("Uncorrected");
+        toRawFact->push_back(rawFactor);
 
         size8 idStat = 0;
-        if(JetFiller::passLooseID(jet)) FillerConstants::addPass(idStat,FillerConstants::JETID_LOOSE);
-        if(JetFiller::passTightID(jet)) FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
-        data.fillMulti(i_id ,idStat);
+        if(jet.hasPFSpecific()){
+            if(dataEra == FillerConstants::ERA_2016){
+                if(JetFiller::passLooseID2016(jet))
+                    FillerConstants::addPass(idStat,FillerConstants::JETID_LOOSE);
+                if(JetFiller::passTightID2016(jet))
+                    FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+            } else {
+                if(JetFiller::passTightID2017(jet,isPuppi))
+                    FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+            }
+        }
+        id->push_back(idStat);
 
+        if(addBTaggingInfo) bbt->push_back(
+                jet.bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags"));
+        tau1->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau1"));
+        tau2->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau2"));
+        tau3->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau3"));
+        ecfb1->push_back(
+                jet.userFloat("ak8PFJets"+jetDef+"SoftDropValueMap:nb1AK8"+jetDef+"SoftDropN2"));
+        ecfb2->push_back(
+                jet.userFloat("ak8PFJets"+jetDef+"SoftDropValueMap:nb2AK8"+jetDef+"SoftDropN2"));
+        //NjettinessAK8PuppiPOSTFIX:tau1,
+        //ak8PFJetsPuppiPOSTFIXSoftDropValueMap:nb1AK8PuppiPOSTFIXSoftDropN2
 
         if(!isRealData){
-            data.fillMulti(i_hadronFlavor ,ASTypes::convertTo<int8>(jet.hadronFlavour(),"JetFiller::hadronFlavor") );
-            data.fillMulti(i_partonFlavor ,ASTypes::convertTo<int8>(jet.partonFlavour(),"JetFiller::partonFlavor") );
+            hadronFlavor->push_back(jet.hadronFlavour());
+            partonFlavor->push_back(jet.partonFlavour());
             jetCorUnc->setJetEta(jet.eta());
             jetCorUnc->setJetPt(jet.pt()); // here you must use the CORRECTED jet pt
-            data.fillMulti(i_JECUnc    ,float(jetCorUnc->getUncertainty(true)));
+            JECUnc->push_back(jetCorUnc->getUncertainty(true));
 
             if(fillGenJets){
                 auto genRef = jet.genJetFwdRef().backRef();
                 size key = genRef.isNull() ? 255 :genRef.key();
-                data.fillMulti(i_genIDX , size8(std::min(key,size(255)) ));
+                genIDX->push_back(std::min(key,size(255)));
             }
         }
 
-        data.fillMulti(i_bbt     ,
-                float(jet.bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags")));
-        data.fillMulti(i_tau1          , jet.userFloat("Njettiness"+jetDef+":tau1"));
-        data.fillMulti(i_tau2          , jet.userFloat("Njettiness"+jetDef+":tau2"));
-        data.fillMulti(i_tau3          , jet.userFloat("Njettiness"+jetDef+":tau3"));
+
 
         auto subjets = jet.subjets(subjetDef);
-        if(subjets.size()!=0){
-            data.fillMulti(i_sj1_pt          ,float(subjets[0]->pt()                 ));
-            data.fillMulti(i_sj1_eta         ,float(subjets[0]->eta()                ));
-            data.fillMulti(i_sj1_phi         ,float(subjets[0]->phi()                ));
-            data.fillMulti(i_sj1_mass        ,float(subjets[0]->mass()               ));
-            data.fillMulti(i_sj1_toRawFact   ,float( subjets[0]->pt()  > 0 ? subjets[0]->correctedP4(0).pt()/subjets[0]->pt() : 0));//https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging
-            data.fillMulti(i_sj1_csv         ,float(subjets[0]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
-            if(!isRealData){
-                data.fillMulti(i_sj1_hadronFlavor,ASTypes::convertTo<int8>(subjets[0]->hadronFlavour(),"FatJetFiller::hadronFlavor"));
-                data.fillMulti(i_sj1_partonFlavor,ASTypes::convertTo<int8>(subjets[0]->partonFlavour(),"FatJetFiller::partonFlavor"));
-                subjetCorUnc->setJetEta(subjets[0]->eta());
-                subjetCorUnc->setJetPt(subjets[0]->pt()); // here you must use the CORRECTED jet pt
-                data.fillMulti(i_sj1_JECUnc    ,float(subjetCorUnc->getUncertainty(true)));
+        sjIDX1->push_back(subjets.size() ?  sj_pt->size() : 0);
+        sjnum->push_back(subjets.size());
+        for(const auto& sj : subjets){
+            sj_pt          ->push_back(sj->pt());
+            sj_eta         ->push_back(sj->eta());
+            sj_phi         ->push_back(sj->phi());
+            sj_mass        ->push_back(sj->mass());
+            sj_toRawFact   ->push_back( sj->pt()  > 0 ? sj->correctedP4(0).pt()/sj->pt() : 0);
+            if(addBTaggingInfo){
+                sj_csv         ->push_back(
+                        sj->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+                sj_deep_csv    ->push_back(
+                        sj->bDiscriminator("pfDeepCSVJetTags:probb")
+                        + sj->bDiscriminator("pfDeepCSVJetTags:probbb"));
             }
-        } else {
-            data.fillMulti(i_sj1_pt          ,float(0));
-            data.fillMulti(i_sj1_eta         ,float(0));
-            data.fillMulti(i_sj1_phi         ,float(0));
-            data.fillMulti(i_sj1_mass        ,float(0));
-            data.fillMulti(i_sj1_toRawFact   ,float(0));
-            data.fillMulti(i_sj1_csv         ,float(0));
+//                        sj_deep_flavor ->push_back(
+//                                sj->bDiscriminator("pfDeepFlavourJetTags:probb")
+//                                +sj->bDiscriminator("pfDeepFlavourJetTags:probbb")
+//                                +sj->bDiscriminator("pfDeepFlavourJetTags:problepb"));
+            sj_hadronFlavor->push_back(sj->hadronFlavour());
+            sj_partonFlavor->push_back(sj->partonFlavour());
             if(!isRealData){
-                data.fillMulti(i_sj1_hadronFlavor,size8(0));
-                data.fillMulti(i_sj1_partonFlavor,size8(0));
-                data.fillMulti(i_sj1_JECUnc    ,float(0));
-
-            }
-        }
-        if(subjets.size() >1){
-            data.fillMulti(i_sj2_pt          ,float(subjets[1]->pt()                 ));
-            data.fillMulti(i_sj2_eta         ,float(subjets[1]->eta()                ));
-            data.fillMulti(i_sj2_phi         ,float(subjets[1]->phi()                ));
-            data.fillMulti(i_sj2_mass        ,float(subjets[1]->mass()               ));
-            data.fillMulti(i_sj2_toRawFact   ,float( subjets[1]->pt()  > 0 ? subjets[1]->correctedP4(0).pt()/subjets[1]->pt() : 0));//https://twiki.cern.ch/twiki/bin/view/CMS/JetWtagging            data.fillMulti(i_sj2_raw_mass    ,float(subjets[1]->correctedP4(0).mass()));
-            data.fillMulti(i_sj2_csv         ,float(subjets[1]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
-            if(!isRealData){
-                data.fillMulti(i_sj2_hadronFlavor,ASTypes::convertTo<int8>(subjets[1]->hadronFlavour(),"FatJetFiller::hadronFlavor"));
-                data.fillMulti(i_sj2_partonFlavor,ASTypes::convertTo<int8>(subjets[1]->partonFlavour(),"FatJetFiller::partonFlavor"));
-                subjetCorUnc->setJetEta(subjets[1]->eta());
-                subjetCorUnc->setJetPt(subjets[1]->pt()); // here you must use the CORRECTED jet pt
-                data.fillMulti(i_sj2_JECUnc    ,float(subjetCorUnc->getUncertainty(true)));
-            }
-        } else {
-            data.fillMulti(i_sj2_pt          ,float(0));
-            data.fillMulti(i_sj2_eta         ,float(0));
-            data.fillMulti(i_sj2_phi         ,float(0));
-            data.fillMulti(i_sj2_mass        ,float(0));
-            data.fillMulti(i_sj2_toRawFact   ,float(0));
-            data.fillMulti(i_sj2_csv         ,float(0));
-            if(!isRealData){
-                data.fillMulti(i_sj2_hadronFlavor,size8(0));
-                data.fillMulti(i_sj2_partonFlavor,size8(0));
-                data.fillMulti(i_sj2_JECUnc    ,float(0));
+                subjetCorUnc->setJetEta(sj->eta());
+                subjetCorUnc->setJetPt(sj->pt()); // here you must use the CORRECTED jet pt
+                sj_JECUnc      ->push_back(subjetCorUnc->getUncertainty(true));
             }
         }
-
-
 
     }
 };

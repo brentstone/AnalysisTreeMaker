@@ -2,51 +2,54 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/JetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/FillerConstants.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
 using ASTypes::size8;
 using ASTypes::int8;
 namespace AnaTM{
-
-JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, bool isRealData):
+//--------------------------------------------------------------------------------------------------
+JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+        edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra):
 		                        BaseFiller(fullParamSet,psetName,"JetFiller")
-,isRealData(isRealData)
+,isRealData(isRealData), dataEra(dataEra)
 {
     if(ignore()) return;
     jetType      =cfg.getParameter<std::string>("jetType");
     fillGenJets  =cfg.getParameter<bool>("fillGenJets");
     token_jets   =cc.consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"));
     minJetPT     = cfg.getParameter<double>("minJetPT");
+    isPuppi = ASTypes::strFind(jetType,"Puppi") || ASTypes::strFind(jetType,"puppi");
     if(!isRealData && fillGenJets)
-        token_genJets=cc.consumes<reco::GenJetCollection>(cfg.getParameter<edm::InputTag>("genjets"));
+        token_genJets=cc.consumes<reco::GenJetCollection>(
+                cfg.getParameter<edm::InputTag>("genjets"));
 
-    i_pt             = data.addMulti<float>(branchName,"pt"                    , 0);
-    i_eta            = data.addMulti<float>(branchName,"eta"                   , 0);
-    i_phi            = data.addMulti<float>(branchName,"phi"                   , 0);
-    i_mass           = data.addMulti<float>(branchName,"mass"                  , 0);
-    i_toRawFact      = data.addMulti<float>(branchName,"toRawFact"             , 0);
-    i_chef           = data.addMulti<float>(branchName,"chef"                  , 0);
-    i_metUnc_rawPx   = data.addMulti<float>(branchName,"metUnc_rawPx"          , 0);
-    i_metUnc_rawPy   = data.addMulti<float>(branchName,"metUnc_rawPy"          , 0);
-    i_csv            = data.addMulti<float>(branchName,"csv"                   , 0);
-    i_id             = data.addMulti<size8>(branchName,"id"                    , 0);
-
+    data.addVector(pt          ,branchName,"jets_N","pt"                    ,10);
+    data.addVector(eta         ,branchName,"jets_N","eta"                   ,10);
+    data.addVector(phi         ,branchName,"jets_N","phi"                   ,10);
+    data.addVector(mass        ,branchName,"jets_N","mass"                  ,10);
+    data.addVector(toRawFact   ,branchName,"jets_N","toRawFact"             ,8);
+    data.addVector(metUnc_rawPx,branchName,"jets_N","metUnc_rawPx"          ,8);
+    data.addVector(metUnc_rawPy,branchName,"jets_N","metUnc_rawPy"          ,8);
+    data.addVector(csv         ,branchName,"jets_N","csv"                   ,10);
+    data.addVector(deep_csv    ,branchName,"jets_N","deep_csv"              ,10);
+//    data.addVector(deep_flavor ,branchName,"jets_N","deep_flavor"           ,10);
+    data.addVector(id          ,branchName,"jets_N","id"                    );
 
     if(!isRealData){
-        i_hadronFlavor   = data.addMulti<int8>(branchName,"hadronFlavor"          , 0);
-        i_partonFlavor   = data.addMulti<int8>(branchName,"partonFlavor"          , 0);
-        i_JECUnc         = data.addMulti<float>(branchName,"JECUnc"                , 0);
+        data.addVector(hadronFlavor,branchName,"jets_N","hadronFlavor"         );
+        data.addVector(partonFlavor,branchName,"jets_N","partonFlavor"         );
+        data.addVector(JECUnc      ,branchName,"jets_N","JECUnc"             ,8);
         if(fillGenJets){
-            i_genIDX         = data.addMulti<size8>(branchName,"genIDX"                , 0);
-            i_gen_pt         = data.addMulti<float>(branchName,"gen_pt"                , 0);
-            i_gen_eta        = data.addMulti<float>(branchName,"gen_eta"               , 0);
-            i_gen_phi        = data.addMulti<float>(branchName,"gen_phi"               , 0);
-            i_gen_mass       = data.addMulti<float>(branchName,"gen_mass"              , 0);
+            data.addVector(genIDX  ,branchName,"jets_N","genIDX"               );
+            data.addVector(gen_pt  ,branchName,"genJets_N","gen_pt"          ,8);
+            data.addVector(gen_eta ,branchName,"genJets_N","gen_eta"         ,8);
+            data.addVector(gen_phi ,branchName,"genJets_N","gen_phi"         ,8);
+            data.addVector(gen_mass,branchName,"genJets_N","gen_mass"        ,8);
         }
     }
-}
-;
+};
+//--------------------------------------------------------------------------------------------------
 void JetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    reset();
-
     iEvent.getByToken(token_jets     ,han_jets     );
     if(!isRealData && fillGenJets)
         iEvent.getByToken(token_genJets  ,han_genJets     );
@@ -56,12 +59,10 @@ void JetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         JetCorrectorParameters const & JetCorPar = (*jetCorParameters)["Uncertainty"];
         jetCorUnc.reset(new JetCorrectionUncertainty(JetCorPar));
     }
-
-    loadedStatus = true;
 };
 
-
-bool JetFiller::passLooseID(const pat::Jet& jet)  {
+//--------------------------------------------------------------------------------------------------
+bool JetFiller::passLooseID2016(const pat::Jet& jet)  {
     const float aEta    = std::fabs(jet.eta());
     const float neutHF  = jet.neutralHadronEnergyFraction();
     const float neutEMF = jet.neutralEmEnergyFraction();
@@ -90,7 +91,8 @@ bool JetFiller::passLooseID(const pat::Jet& jet)  {
     }
     return true;
 }
-bool JetFiller::passTightID(const pat::Jet& jet)  {
+//--------------------------------------------------------------------------------------------------
+bool JetFiller::passTightID2016(const pat::Jet& jet)  {
     const float aEta    = std::fabs(jet.eta());
     const float neutHF  = jet.neutralHadronEnergyFraction();
     const float neutEMF = jet.neutralEmEnergyFraction();
@@ -119,35 +121,122 @@ bool JetFiller::passTightID(const pat::Jet& jet)  {
     }
     return true;
 }
+//--------------------------------------------------------------------------------------------------
+std::pair<float,float> JetFiller::getPuppiMult(const pat::Jet& jet){
+    float puppiMultiplicity = 0;
+    float neutralPuppiMultiplicity = 0;
+    float neutralHadronPuppiMultiplicity = 0;
+    float photonPuppiMultiplicity = 0;
+    float HFHadronPuppiMultiplicity = 0;
+    float HFEMPuppiMultiplicity = 0;
 
+    for (unsigned i = 0; i < jet.numberOfDaughters(); i++) {
+        const pat::PackedCandidate &dau =
+                static_cast<const pat::PackedCandidate &>(*jet.daughter(i));
+        auto weight = dau.puppiWeight();
+        puppiMultiplicity += weight;
+        // This logic is taken from RecoJets/JetProducers/src/JetSpecific.cc
+        switch (std::abs(dau.pdgId())) {
+          case 130: //PFCandidate::h0 :    // neutral hadron
+            neutralHadronPuppiMultiplicity += weight;
+            neutralPuppiMultiplicity += weight;
+            break;
+          case 22: //PFCandidate::gamma:   // photon
+            photonPuppiMultiplicity += weight;
+            neutralPuppiMultiplicity += weight;
+            break;
+          case 1: // PFCandidate::h_HF :    // hadron in HF
+            HFHadronPuppiMultiplicity += weight;
+            neutralPuppiMultiplicity += weight;
+            break;
+          case 2: //PFCandidate::egamma_HF :    // electromagnetic in HF
+            HFEMPuppiMultiplicity += weight;
+            neutralPuppiMultiplicity += weight;
+            break;
+        }
+    }
+
+   return std::make_pair(puppiMultiplicity,neutralPuppiMultiplicity);
+     //[total][neutral]
+}
+//--------------------------------------------------------------------------------------------------
+bool JetFiller::passTightID2017(const pat::Jet& jet, bool isPuppi)  {
+
+    std::pair<float,float> pMult;
+    if(isPuppi) pMult = getPuppiMult(jet);
+
+
+    //var defs https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+    const float aEta     = std::fabs(jet.eta());
+    const float neutHadF = jet.neutralHadronEnergyFraction();
+    const float neutEMF  = jet.neutralEmEnergyFraction();
+    const int   numCon   = isPuppi ?  int(pMult.first) : jet.chargedMultiplicity()
+            +jet.neutralMultiplicity();
+    const float chrgHF   = jet.chargedHadronEnergyFraction();
+    const int   numNeut  = isPuppi ?  int(pMult.second) : jet.neutralMultiplicity();
+    const int   numChrg  = jet.chargedMultiplicity();
+
+
+
+    if(aEta <= 2.7){
+        if(neutHadF >= 0.90) return false;
+        if(neutEMF >= 0.90) return false;
+        if(numCon <= 1) return false;
+        if(aEta <= 2.4){
+            if(chrgHF == 0) return false;
+            if(numChrg == 0) return false;
+        }
+    } else if(aEta <= 3.0){
+        if(isPuppi){
+            if(neutHadF>=0.99) return false;
+        }else {
+            if(neutEMF <= 0.02) return false;
+            if(neutEMF >= 0.99) return false;
+            if(numNeut <= 2) return false;
+        }
+    } else {
+        if(isPuppi){
+            if(neutEMF >= 0.90) return false;
+            if(neutHadF<=0.02) return false;
+            if(numNeut <= 2) return false;
+            if(numNeut >= 15) return false;
+        } else {
+            if(neutEMF >= 0.90) return false;
+            if(neutHadF<=0.02) return false;
+            if(numNeut <= 10) return false;
+        }
+    }
+    return true;
+}
+//--------------------------------------------------------------------------------------------------
 void JetFiller::processGenJets(){
     for(unsigned int iG = 0; iG < han_genJets->size(); ++iG){
         const auto& jet = han_genJets->at(iG);
-        data.fillMulti(i_gen_pt      ,float(jet.pt()  ));
-        data.fillMulti(i_gen_eta     ,float(jet.eta() ));
-        data.fillMulti(i_gen_phi     ,float(jet.phi() ));
-        data.fillMulti(i_gen_mass    ,float(jet.mass()));
+        gen_pt  ->push_back(jet.pt()  );
+        gen_eta ->push_back(jet.eta() );
+        gen_phi ->push_back(jet.phi() );
+        gen_mass->push_back(jet.mass());
     }
 }
-void JetFiller::fill(){
+//--------------------------------------------------------------------------------------------------
+void JetFiller::setValues(){
     if(!isRealData && fillGenJets)processGenJets();
 
     for(const auto& jet : (*han_jets)){
         if(jet.pt() < minJetPT) continue;
-        data.fillMulti(i_pt      ,float(jet.pt()  ));
-        data.fillMulti(i_eta     ,float(jet.eta() ));
-        data.fillMulti(i_phi     ,float(jet.phi() ));
-        data.fillMulti(i_mass    ,float(jet.mass()));
+        pt  ->push_back(jet.pt()  );
+        eta ->push_back(jet.eta() );
+        phi ->push_back(jet.phi() );
+        mass->push_back(jet.mass());
         const float rawFactor = jet.jecFactor("Uncorrected");
-        data.fillMulti(i_toRawFact    ,rawFactor);
+        toRawFact->push_back(rawFactor);
 
         reco::LeafCandidate::LorentzVector raw_p4 = jet.p4() * rawFactor;
-        data.fillMulti(i_chef    ,float(jet.chargedHadronEnergy()/raw_p4.E()));
 
         const float emf = ( jet.neutralEmEnergy() + jet.chargedEmEnergy() )/raw_p4.E();
         if(emf >0.9){
-            data.fillMulti(i_metUnc_rawPx    ,float(0.0));
-            data.fillMulti(i_metUnc_rawPy    ,float(0.0));
+            metUnc_rawPx    ->push_back(0.0);
+            metUnc_rawPy    ->push_back(0.0);
         } else {
             for ( unsigned int idau = 0; idau < jet.numberOfDaughters(); ++idau) {
                 const auto * pfcand = jet.daughter(idau);
@@ -155,36 +244,48 @@ void JetFiller::fill(){
                       raw_p4 -= pfcand->p4();
                   }
             }
-            data.fillMulti(i_metUnc_rawPx    ,float(raw_p4.px()));
-            data.fillMulti(i_metUnc_rawPy    ,float(raw_p4.py()));
+            metUnc_rawPx->push_back(raw_p4.px());
+            metUnc_rawPy->push_back(raw_p4.py());
         }
 
-
-
-        data.fillMulti(i_csv     ,
-                float(jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")));
-
+        csv->push_back(jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+        deep_csv->push_back(jet.bDiscriminator("pfDeepCSVJetTags:probb")
+                + jet.bDiscriminator("pfDeepCSVJetTags:probbb"));
+//        deep_flavor->push_back(jet.bDiscriminator("pfDeepFlavourJetTags:probb")
+//                +jet.bDiscriminator("pfDeepFlavourJetTags:probbb")
+//                +jet.bDiscriminator("pfDeepFlavourJetTags:problepb"));
 
         size8 idStat = 0;
-        bool passPU = jet.hasUserFloat("pileupJetId:fullId") &&
-                (jet.userInt("pileupJetIdUpdated:fullId") & (1 << 2));
-        if(passPU) FillerConstants::addPass(idStat,FillerConstants::JETID_PU);
-        if(passLooseID(jet)) FillerConstants::addPass(idStat,FillerConstants::JETID_LOOSE);
-        if(passTightID(jet)) FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
-        data.fillMulti(i_id ,idStat);
+        const int puID = isPuppi ? 0 : jet.userInt("pileupJetId:fullId");
+        if(puID & (1 << 2) ) FillerConstants::addPass(idStat,FillerConstants::JETID_PU_L);
+        if(puID & (1 << 1) ) FillerConstants::addPass(idStat,FillerConstants::JETID_PU_M);
+        if(puID & (1 << 0) ) FillerConstants::addPass(idStat,FillerConstants::JETID_PU_T);
+
+
+        if(dataEra == FillerConstants::ERA_2016){
+            if(passLooseID2016(jet))
+                FillerConstants::addPass(idStat,FillerConstants::JETID_LOOSE);
+            if(passTightID2016(jet))
+                FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+        } else {
+            if(passTightID2017(jet,isPuppi))
+                FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+        }
+
+        id->push_back(idStat);
 
         if(!isRealData){
-            data.fillMulti(i_hadronFlavor ,ASTypes::convertTo<int8>(jet.hadronFlavour(),"JetFiller::hadronFlavor") );
-            data.fillMulti(i_partonFlavor ,ASTypes::convertTo<int8>(jet.partonFlavour(),"JetFiller::partonFlavor") );
+            hadronFlavor->push_back(jet.hadronFlavour());
+            partonFlavor->push_back(jet.partonFlavour());
 
             jetCorUnc->setJetEta(jet.eta());
             jetCorUnc->setJetPt(jet.pt()); // here you must use the CORRECTED jet pt
-            data.fillMulti(i_JECUnc    ,float(jetCorUnc->getUncertainty(true)));
+            JECUnc->push_back(jetCorUnc->getUncertainty(true));
 
             if(fillGenJets){
                 auto genRef = jet.genJetFwdRef().backRef();
                 size key = genRef.isNull() ? 255 :genRef.key();
-                data.fillMulti(i_genIDX , size8(std::min(key,size(255)) ));
+                genIDX->push_back(std::min(key,size(255)));
             }
         }
     }

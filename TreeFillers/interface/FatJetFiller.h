@@ -5,12 +5,16 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 namespace AnaTM{
+//--------------------------------------------------------------------------------------------------
+// FatJetFiller
+//--------------------------------------------------------------------------------------------------
 class FatJetFiller : public BaseFiller {
 public:
-	FatJetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, bool isRealData);
+	FatJetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+	        edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra);
 	virtual ~FatJetFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void fill();
+	virtual void setValues();
 
 private:
 	void processGenJets();
@@ -19,51 +23,52 @@ private:
 private:
 
 
-	size i_pt                 = 0;
-	size i_eta                = 0;
-	size i_phi                = 0;
-	size i_mass               = 0;
-    size i_toRawFact          = 0;
-	size i_csv                = 0;
-	size i_id                 = 0;
-	size i_hadronFlavor       = 0;
-	size i_partonFlavor       = 0;
-    size i_JECUnc             = 0;
-	size i_genIDX             = 0;
-	size i_gen_pt             = 0;
-	size i_gen_eta            = 0;
-	size i_gen_phi            = 0;
-	size i_gen_mass           = 0;
+	spv_float pt                 = make_spv_float();
+	spv_float eta                = make_spv_float();
+	spv_float phi                = make_spv_float();
+	spv_float mass               = make_spv_float();
+    spv_float toRawFact          = make_spv_float();
+    spv_size8 id                 = make_spv_size8();
+    spv_float bbt                = make_spv_float();
+    spv_float tau1               = make_spv_float();
+    spv_float tau2               = make_spv_float();
+    spv_float tau3               = make_spv_float();
+    spv_float ecfb1              = make_spv_float();
+    spv_float ecfb2              = make_spv_float();
 
-	size i_bbt                = 0;
-	size i_tau1               = 0;
-	size i_tau2               = 0;
-	size i_tau3               = 0;
+    spv_int8  hadronFlavor       = make_spv_int8 ();
+    spv_int8  partonFlavor       = make_spv_int8 ();
+    spv_float JECUnc             = make_spv_float();
+    spv_size8 genIDX             = make_spv_size8();
+	spv_float gen_pt             = make_spv_float();
+	spv_float gen_eta            = make_spv_float();
+	spv_float gen_phi            = make_spv_float();
+	spv_float gen_mass           = make_spv_float();
 
-    size i_sj1_pt             = 0;
-    size i_sj1_eta            = 0;
-    size i_sj1_phi            = 0;
-    size i_sj1_mass           = 0;
-    size i_sj1_toRawFact       = 0;
-    size i_sj1_csv            = 0;
-    size i_sj1_JECUnc         = 0;
-    size i_sj1_hadronFlavor   = 0;
-    size i_sj1_partonFlavor   = 0;
+	spv_size8 sjIDX1             = make_spv_size8();
+	spv_size8 sjnum              = make_spv_size8();
+    spv_float sj_pt              = make_spv_float();
+    spv_float sj_eta             = make_spv_float();
+    spv_float sj_phi             = make_spv_float();
+    spv_float sj_mass            = make_spv_float();
+    spv_float sj_toRawFact       = make_spv_float();
+    spv_float sj_csv             = make_spv_float();
+    spv_float sj_deep_csv        = make_spv_float();
+//    spv_float sj_deep_flavor     = make_spv_float();
+    spv_int8  sj_hadronFlavor    = make_spv_int8 ();
+    spv_int8  sj_partonFlavor    = make_spv_int8 ();
+    spv_float sj_JECUnc          = make_spv_float();
 
-    size i_sj2_pt             = 0;
-    size i_sj2_eta            = 0;
-    size i_sj2_phi            = 0;
-    size i_sj2_mass           = 0;
-    size i_sj2_toRawFact      = 0;
-    size i_sj2_JECUnc         = 0;
-    size i_sj2_csv            = 0;
-    size i_sj2_hadronFlavor   = 0;
-    size i_sj2_partonFlavor   = 0;
+
 
     bool isRealData           = false;
+    const FillerConstants::DataEra     dataEra;
     bool fillGenJets          = false;
     std::string jetType           = "";
     std::string subjetType           = "";
+    bool isPuppi = false;
+    bool addBTaggingInfo = false;
+
 
 	std::string jetDef   ;
 	std::string subjetDef;
