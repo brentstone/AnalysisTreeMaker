@@ -104,7 +104,6 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , ak8PuppiFatJetFiller      = cms.PSet(ak8PuppiFatJetFiller)
                                  , ElectronFiller            = cms.PSet(ElectronFiller)
                                  , MuonFiller                = cms.PSet(MuonFiller)  
-#                                 , PhotonFiller                = cms.PSet(PhotonFiller)  
                                  , GenParticleFiller         = cms.PSet(GenParticleFiller)
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,era,dataRun)
@@ -114,8 +113,6 @@ if 'signal' in sample:
 #==============================================================================================================================#
 #==============================================================================================================================#
 
-# from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
-# defaultJetSequences(process,isRealData,dataRun)
 
 process.p = cms.Path()
 #==============================================================================================================================#
@@ -126,8 +123,7 @@ if isRealData :
     process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
     process.triggerFilter.dataRun = dataRun
     process.triggerFilter.sample = sample
-    process.p += process.triggerFilter
-    
+    process.p += process.triggerFilter     
 
 #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes
 if '2017' in era:
@@ -144,7 +140,9 @@ if '2016' in era:
                        era='2016-Legacy')
     process.p += process.egammaPostRecoSeq
     process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')  
-    
+
+from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
+defaultJetSequences(process,isRealData,dataRun)
     
 from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
 metCorrections(process,process.treeMaker,isRealData,era)        

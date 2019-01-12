@@ -25,15 +25,15 @@ def setupTreeMakerAndGlobalTag(process, analyzer, isRealData, dataEra, dataRun =
     
     if '2017' in dataEra:
         if isRealData:
-            analyzer.globalTag = "94X_dataRun2_v6" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
+            analyzer.globalTag = "94X_dataRun2_v11" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
         else:
-            analyzer.globalTag = "94X_mc2017_realistic_v14" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
+            analyzer.globalTag = "94X_mc2017_realistic_v17" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
     
     if '2018' in dataEra:
         if isRealData:
-            analyzer.globalTag = "102X_dataRun2_Prompt_v6" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+            analyzer.globalTag = "102X_dataRun2_Prompt_v11" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
         else:
-            analyzer.globalTag = "102X_upgrade2018_realistict_v12" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+            analyzer.globalTag = "102X_upgrade2018_realistic_v12" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
     
     process.GlobalTag.globaltag = analyzer.globalTag
         
