@@ -115,13 +115,13 @@ void ElectronFiller::setValues(){
         addP("cutBasedElectronID-Fall17-94X-V2-medium",ELID_cut_medium,ELID_cut_medium_noIso);
         addP("cutBasedElectronID-Fall17-94X-V2-tight",ELID_cut_tight,ELID_cut_tight_noIso);
 
-         if (lep->electronID("mvaEleID-Fall17-iso-V2-wpHZZ"))     addPass(lepID,ELID_mva_wpHZZ        );
-         if (lep->electronID("mvaEleID-Fall17-iso-V2-wp80"))      addPass(lepID,ELID_mva_wp80         );
-         if (lep->electronID("mvaEleID-Fall17-iso-V2-wp90"))      addPass(lepID,ELID_mva_wp90         );
-         if (lep->electronID("mvaEleID-Fall17-iso-V2-wpLoose"))   addPass(lepID,ELID_mva_wpLoose      );
-         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wp80"))    addPass(lepID,ELID_mva_wp80_noIso   );
-         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wp90"))    addPass(lepID,ELID_mva_wp90_noIso   );
-         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wpLoose")) addPass(lepID,ELID_mva_wpLoose_noIso);
+         if (lep->electronID("mvaEleID-Fall17-iso-V2-wpHZZ"))    addPass(lepID,ELID_mva_wpHZZ        );
+         if (lep->electronID("mvaEleID-Fall17-iso-V2-wp80"))     addPass(lepID,ELID_mva_wp80         );
+         if (lep->electronID("mvaEleID-Fall17-iso-V2-wp90"))     addPass(lepID,ELID_mva_wp90         );
+         if (lep->electronID("mvaEleID-Fall17-iso-V2-wpLoose"))  addPass(lepID,ELID_mva_wpLoose      );
+         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wp80"))   addPass(lepID,ELID_mva_wp80_noIso   );
+         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wp90"))   addPass(lepID,ELID_mva_wp90_noIso   );
+         if (lep->electronID("mvaEleID-Fall17-noIso-V2-wpLoose"))addPass(lepID,ELID_mva_wpLoose_noIso);
 
          addP("heepElectronID-HEEPV70",ELID_heep,ELID_heep_noIso,12);
 
@@ -165,8 +165,10 @@ void ElectronFiller::setValues(){
             passMedCutBased      ->push_back(lep->userInt("cutBasedElectronID-Fall17-94X-V2-medium"));
             passTightCutBased    ->push_back(lep->userInt("cutBasedElectronID-Fall17-94X-V2-tight"));
             full5x5_sigmaIetaIeta->push_back(lep->full5x5_sigmaIetaIeta());
-            const float dEInS = lep->superCluster().isNonnull() && lep->superCluster()->seed().isNonnull() ?
-                    lep->deltaEtaSuperClusterTrackAtVtx() - lep->superCluster()->eta() + lep->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+            const float dEInS = lep->superCluster().isNonnull() && lep->superCluster()->seed().isNonnull()
+                    ? lep->deltaEtaSuperClusterTrackAtVtx() - lep->superCluster()->eta() + lep->superCluster()->seed()->eta()
+                    : std::numeric_limits<float>::max();
+
             abs_dEtaSeed         ->push_back(std::fabs(dEInS));
             abs_dPhiIn           ->push_back( std::abs(lep->deltaPhiSuperClusterTrackAtVtx()));
             HoE                  ->push_back( lep->hadronicOverEm());
