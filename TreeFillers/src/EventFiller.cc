@@ -3,9 +3,11 @@
 
 
 namespace AnaTM{
-
-EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,
-		bool isRealData, FillerConstants::DataEra dataEra_input, FillerConstants::DataRun dataRun_input,FillerConstants::Dataset dataset_input,FillerConstants::MCProcess mcProcess
+//--------------------------------------------------------------------------------------------------
+EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+        edm::ConsumesCollector&& cc, bool isRealData, FillerConstants::DataEra dataEra_input,
+        FillerConstants::DataRun dataRun_input,FillerConstants::Dataset dataset_input,
+        FillerConstants::MCProcess mcProcess
 		) :
 		BaseFiller(fullParamSet,psetName,"EventFiller"),
 		realData (isRealData),
@@ -17,16 +19,23 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 {
 	if(ignore()) return;
 
-	token_vtx            =cc.consumes<reco::VertexCollection>         (cfg.getParameter<edm::InputTag>("vertices"));
-	token_rho            =cc.consumes<double>                         (cfg.getParameter<edm::InputTag>("rho"));
-	token_met            =cc.consumes<pat::METCollection>             (cfg.getParameter<edm::InputTag>("met"));
-	token_rawMet         =cc.consumes<pat::METCollection>             (cfg.getParameter<edm::InputTag>("rawMet"));
-	token_vanMet         =cc.consumes<pat::METCollection>             (cfg.getParameter<edm::InputTag>("vanMet"));
+	token_vtx   =cc.consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"));
+	token_rho   =cc.consumes<double>                (cfg.getParameter<edm::InputTag>("rho"));
+	token_met   =cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("met"));
+	token_rawMet=cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("rawMet"));
+	token_vanMet=cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("vanMet"));
+	token_prefweight    =cc.consumes<double>(edm::InputTag("prefiringweight:NonPrefiringProb"));
+	token_prefweightup  =cc.consumes<double>(edm::InputTag("prefiringweight:NonPrefiringProbUp"));
+	token_prefweightdown=cc.consumes<double>(edm::InputTag("prefiringweight:NonPrefiringProbDown"));
+
 	if(!isRealData){
-		token_puSum          =cc.consumes<std::vector<PileupSummaryInfo> >(cfg.getParameter<edm::InputTag>("puSummaryInfo"));
-		token_genEvent       =cc.consumes<GenEventInfoProduct>            (cfg.getParameter<edm::InputTag>("genEvent"));
+		token_puSum   =cc.consumes<std::vector<PileupSummaryInfo>>
+		        (cfg.getParameter<edm::InputTag>("puSummaryInfo"));
+		token_genEvent=cc.consumes<GenEventInfoProduct>
+		        (cfg.getParameter<edm::InputTag>("genEvent"));
 	    if(addPDFWeights)
-	        token_lheEventInfo            =cc.consumes<LHEEventProduct>       (cfg.getParameter<edm::InputTag>("lheEvent"));
+	        token_lheEventInfo=cc.consumes<LHEEventProduct>
+	            (cfg.getParameter<edm::InputTag>("lheEvent"));
 	}
 
 
@@ -53,16 +62,24 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	    data.addSingle(nTruePUInts   ,branchName,"nTruePUInts"   ,10);
 	    data.addSingle(genWeight     ,branchName,"genWeight"        ,10);
 	    data.addSingle(process       ,branchName,"process"       );
+	    data.addSingle(prefweight    ,branchName,"prefweight"    ,8);
+	    data.addSingle(prefweightup  ,branchName,"prefweightup"  ,8);
+	    data.addSingle(prefweightdown,branchName,"prefweightdown",8);
 	    data.addVector(genWeights    ,branchName,"genWeights_N","genWeights",10);
 	}
 
 };
+//--------------------------------------------------------------------------------------------------
 void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	iEvent.getByToken(token_vtx     ,han_vtx     );
 	iEvent.getByToken(token_rho     ,han_rho     );
 	iEvent.getByToken(token_met     ,han_met     );
 	iEvent.getByToken(token_rawMet  ,han_rawMet  );
 	iEvent.getByToken(token_vanMet  ,han_vanMet  );
+
+	iEvent.getByToken(token_prefweight  ,han_prefweight  );
+	iEvent.getByToken(token_prefweightup  ,han_prefweightup  );
+	iEvent.getByToken(token_prefweightdown  ,han_prefweightdown  );
 
 	if(!realData){
 		iEvent.getByToken(token_puSum   ,han_puSum   );
@@ -77,6 +94,7 @@ void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
 	primaryVertex = han_vtx->size() ? &han_vtx->front() : (const reco::Vertex*)(0);
 };
+//--------------------------------------------------------------------------------------------------
 void EventFiller::setValues(){
 	  bool hasgoodvtx =  primaryVertex &&
 			  ( !primaryVertex->isFake() && primaryVertex->ndof() > 4.0
@@ -112,6 +130,9 @@ void EventFiller::setValues(){
 		  nTruePUInts         =num_true_interactions;
 		  genWeight           =han_genEvent	->weight();
 		  process             =static_cast<size8>(mcProcess);
+		  prefweight        =*han_prefweight    ;
+		  prefweightup      =*han_prefweightup  ;
+		  prefweightdown    =*han_prefweightdown;
 
 		    if(addPDFWeights){
 		      const auto& pdfWeights = han_lheEventInfo->weights();

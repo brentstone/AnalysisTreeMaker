@@ -108,8 +108,9 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,era,dataRun)
 
-if 'signal' in sample:
-    process.treeMaker.EventFiller.addPDFWeights = True;
+# turn off for now
+# if 'signal' in sample:
+#     process.treeMaker.EventFiller.addPDFWeights = True;
 #==============================================================================================================================#
 #==============================================================================================================================#
 
@@ -148,6 +149,17 @@ from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
 metCorrections(process,process.treeMaker,isRealData,era)        
 if '2017' in era:
     process.p += process.fullPatMetSequenceModifiedMET
+    
+if '2017' in era or '2016' in era :
+    process.prefiringweight = cms.EDProducer("L1ECALPrefiringWeightProducer",
+                                 ThePhotons = cms.InputTag("slimmedPhotons"),
+                                 TheJets = cms.InputTag("slimmedJets"),
+                                 L1Maps = cms.FileInPath("L1Prefiring/EventWeightProducer/data/L1PrefiringMaps_new.root"), # update this line with the location of this file
+                                 DataEra = cms.string("2017BtoF"), #Use 2016BtoH for 2016
+                                 UseJetEMPt = cms.bool(False), #can be set to true to use jet prefiring maps parametrized vs pt(em) instead of pt
+                                 PrefiringRateSystematicUncty = cms.double(0.2) #Minimum relative prefiring uncty per object
+                                 )
+    process.p += process.prefiringweight
 
 #==============================================================================================================================#
 #==============================================================================================================================#

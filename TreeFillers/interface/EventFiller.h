@@ -13,18 +13,24 @@
 
 
 namespace AnaTM{
-
+//--------------------------------------------------------------------------------------------------
+// EventCoords
+//--------------------------------------------------------------------------------------------------
 struct EventCoords {
   EventCoords() : run(0),lumi(0),event(0) {}
   size run;
   size lumi;
   ASTypes::size64 event;
 };
-
+//--------------------------------------------------------------------------------------------------
+// EventFiller
+//--------------------------------------------------------------------------------------------------
 class EventFiller : public BaseFiller {
 public:
-	EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,
-			bool isRealData,FillerConstants::DataEra dataEra, FillerConstants::DataRun dataRun,FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess);
+	EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+	        edm::ConsumesCollector&& cc,
+			bool isRealData,FillerConstants::DataEra dataEra, FillerConstants::DataRun dataRun,
+			FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess);
 	virtual ~EventFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
@@ -62,6 +68,9 @@ private:
     size8    dataEra        =0;
     size8    dataset        =0;
     size8    dataRun        =0;
+    float    prefweight     =0;
+    float    prefweightup   =0;
+    float    prefweightdown =0;
     spv_float genWeights     =make_spv_float();
     // End Tree content
 
@@ -73,6 +82,9 @@ private:
     edm::EDGetTokenT<std::vector<PileupSummaryInfo> > token_puSum   ;
     edm::EDGetTokenT<GenEventInfoProduct>             token_genEvent;
     edm::EDGetTokenT<LHEEventProduct>                 token_lheEventInfo  ;
+    edm::EDGetTokenT< double > token_prefweight;
+    edm::EDGetTokenT< double > token_prefweightup;
+    edm::EDGetTokenT< double > token_prefweightdown;
 
 
     edm::Handle<reco::VertexCollection>          han_vtx     ;
@@ -83,6 +95,9 @@ private:
     edm::Handle<pat::METCollection>              han_vanMet     ;
     edm::Handle<GenEventInfoProduct>             han_genEvent;
     edm::Handle<LHEEventProduct>                 han_lheEventInfo;
+    edm::Handle< double > han_prefweight;
+    edm::Handle< double > han_prefweightup;
+    edm::Handle< double > han_prefweightdown;
 
     const reco::Vertex * primaryVertex =0;
     EventCoords evtCoord;
