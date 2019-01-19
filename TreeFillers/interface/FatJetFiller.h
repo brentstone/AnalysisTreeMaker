@@ -30,6 +30,7 @@ private:
     spv_float toRawFact          = make_spv_float();
     spv_size8 id                 = make_spv_size8();
     spv_float bbt                = make_spv_float();
+//    spv_float deep_flavor        = make_spv_float();
     spv_float tau1               = make_spv_float();
     spv_float tau2               = make_spv_float();
     spv_float tau3               = make_spv_float();
@@ -54,7 +55,6 @@ private:
     spv_float sj_toRawFact       = make_spv_float();
     spv_float sj_csv             = make_spv_float();
     spv_float sj_deep_csv        = make_spv_float();
-//    spv_float sj_deep_flavor     = make_spv_float();
     spv_int8  sj_hadronFlavor    = make_spv_int8 ();
     spv_int8  sj_partonFlavor    = make_spv_int8 ();
     spv_float sj_JECUnc          = make_spv_float();

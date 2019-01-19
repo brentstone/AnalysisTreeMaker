@@ -11,8 +11,8 @@ namespace AnaTM{
 //--------------------------------------------------------------------------------------------------
 FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
         edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra):
-                                                BaseFiller(fullParamSet,psetName,"FatJetFiller"),
-                                                isRealData(isRealData),dataEra(dataEra)
+                                                                BaseFiller(fullParamSet,psetName,"FatJetFiller"),
+                                                                isRealData(isRealData),dataEra(dataEra)
 {
     if(ignore()) return;
     jetType      =cfg.getParameter<std::string>("jetType");
@@ -37,7 +37,10 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
     data.addVector(mass           ,branchName,"jets_N","mass"              ,10);
     data.addVector(toRawFact      ,branchName,"jets_N","toRawFact"         ,8);
     data.addVector(id             ,branchName,"jets_N","id"                );
-    if(addBTaggingInfo) data.addVector(bbt            ,branchName,"jets_N","bbt"               ,8);
+    if(addBTaggingInfo){
+        data.addVector(bbt            ,branchName,"jets_N","bbt"               ,8);
+//        data.addVector(deep_flavor    ,branchName,"jets_N","deep_flavor"       ,10);
+    }
     data.addVector(tau1           ,branchName,"jets_N","tau1"              ,8);
     data.addVector(tau2           ,branchName,"jets_N","tau2"              ,8);
     data.addVector(tau3           ,branchName,"jets_N","tau3"              ,8);
@@ -68,7 +71,6 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
         data.addVector(sj_csv         ,branchName,"subjets_N","sj_csv"         ,10);
         data.addVector(sj_deep_csv    ,branchName,"subjets_N","sj_deep_csv"    ,10);
     }
-//        data.addVector(sj_deep_flavor ,branchName,"subjets_N","sj_deep_flavor" ,10);
     if(!isRealData){
         data.addVector(sj_hadronFlavor,branchName,"subjets_N","sj_hadronFlavor");
         data.addVector(sj_partonFlavor,branchName,"subjets_N","sj_partonFlavor");
@@ -128,8 +130,15 @@ void FatJetFiller::setValues(){
         }
         id->push_back(idStat);
 
-        if(addBTaggingInfo) bbt->push_back(
-                jet.bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags"));
+        if(addBTaggingInfo){
+            bbt->push_back(jet.bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags"));
+
+//            deep_flavor ->push_back(
+//                    jet.bDiscriminator("pfDeepFlavourJetTags:probb")
+//                    +jet.bDiscriminator("pfDeepFlavourJetTags:probbb")
+//                    +jet.bDiscriminator("pfDeepFlavourJetTags:problepb"));
+        }
+
         tau1->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau1"));
         tau2->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau2"));
         tau3->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau3"));
@@ -172,10 +181,7 @@ void FatJetFiller::setValues(){
                         sj->bDiscriminator("pfDeepCSVJetTags:probb")
                         + sj->bDiscriminator("pfDeepCSVJetTags:probbb"));
             }
-//                        sj_deep_flavor ->push_back(
-//                                sj->bDiscriminator("pfDeepFlavourJetTags:probb")
-//                                +sj->bDiscriminator("pfDeepFlavourJetTags:probbb")
-//                                +sj->bDiscriminator("pfDeepFlavourJetTags:problepb"));
+
             sj_hadronFlavor->push_back(sj->hadronFlavour());
             sj_partonFlavor->push_back(sj->partonFlavour());
             if(!isRealData){

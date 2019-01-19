@@ -28,7 +28,7 @@ public:
 		initialize(new AnaTM::ElectronFiller(cfg,"ElectronFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
 		initialize(new AnaTM::MuonFiller(cfg,"MuonFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
 		if(!isRealData())
-			initialize(new AnaTM::GenParticleFiller(cfg,"GenParticleFiller",consumesCollector()));
+			initialize(new AnaTM::GenParticleFiller(cfg,"GenParticleFiller",consumesCollector(),getMCProcess()));
 }
 
 	~SearchRegionTreeMaker() {}
