@@ -15,9 +15,14 @@ def getMatch(summary, entry) :
 
 parser = argparse.ArgumentParser(description='Get DAS summary info')
 parser.add_argument("-i", "--dasEntry", dest="dasEntry", default="", help="Input DAS string")
+parser.add_argument("-s", "--getAllStatus",  dest="getAllStatus", action='store_true', default=False, help="Should we look for all samples? [Default: False]")
+
 args = parser.parse_args()
 
-dascmd =  ("dasgoclient --query=\"dataset=%s\"" % args.dasEntry)
+if args.getAllStatus :
+	dascmd =  ("dasgoclient --query=\"dataset status=* dataset=%s\"" % args.dasEntry)
+else :
+	dascmd =  ("dasgoclient --query=\"dataset=%s\"" % args.dasEntry)
 #dascmd = "cat /Users/nmccoll/Dropbox/Work/Projects/HHbbWW/11_14_18_legacyFrmwrk/test.txt"
 #print dascmd
 dasResult = subprocess.Popen(dascmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -30,7 +35,7 @@ for line in dasResult[0].splitlines():
 	
 	dascmd3 = ("dasgoclient --query=\"parent dataset=%s\"" % line) 
 	dasResult3 = subprocess.Popen(dascmd3, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-	parent = dasResult4[0].rstrip('\n')
+	parent = dasResult3[0].rstrip('\n')
 	
 	file_size = getMatch(summary,"file_size")
 	nblocks = getMatch(summary,"nblocks")

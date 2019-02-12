@@ -46,7 +46,7 @@ const std::vector<std::string> MCProcessNames = { "NONE","signal","ttbar","wjets
 
 
 
-enum JetIDStatus { JETID_PU_L,JETID_PU_M,JETID_PU_T, JETID_LOOSE, JETID_TIGHT};
+enum JetIDStatus { JETID_PU_L,JETID_PU_M,JETID_PU_T, JETID_LOOSE, JETID_TIGHT, JETID_TIGHTNOLEP};
 
 enum ElectronID {
      ELID_cut_loose

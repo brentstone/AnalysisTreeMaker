@@ -160,7 +160,7 @@ std::pair<float,float> JetFiller::getPuppiMult(const pat::Jet& jet){
      //[total][neutral]
 }
 //--------------------------------------------------------------------------------------------------
-bool JetFiller::passTightID2017(const pat::Jet& jet, bool isPuppi)  {
+bool JetFiller::passTightID2017(const pat::Jet& jet, bool isPuppi, bool leptonVeto)  {
 
     std::pair<float,float> pMult;
     if(isPuppi) pMult = getPuppiMult(jet);
@@ -170,6 +170,8 @@ bool JetFiller::passTightID2017(const pat::Jet& jet, bool isPuppi)  {
     const float aEta     = std::fabs(jet.eta());
     const float neutHadF = jet.neutralHadronEnergyFraction();
     const float neutEMF  = jet.neutralEmEnergyFraction();
+    const float chrgEMF  = jet.chargedEmEnergyFraction();
+    const float muonF    = jet.muonEnergyFraction();
     const int   numCon   = isPuppi ?  int(pMult.first) : jet.chargedMultiplicity()
             +jet.neutralMultiplicity();
     const float chrgHF   = jet.chargedHadronEnergyFraction();
@@ -185,6 +187,10 @@ bool JetFiller::passTightID2017(const pat::Jet& jet, bool isPuppi)  {
         if(aEta <= 2.4){
             if(chrgHF == 0) return false;
             if(numChrg == 0) return false;
+        }
+        if(leptonVeto){
+            if(chrgEMF>=0.8) return false;
+            if(muonF>=0.8) return false;
         }
     } else if(aEta <= 3.0){
         if(isPuppi){
@@ -268,8 +274,10 @@ void JetFiller::setValues(){
             if(passTightID2016(jet))
                 FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
         } else {
-            if(passTightID2017(jet,isPuppi))
+            if(passTightID2017(jet,isPuppi,false))
                 FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+            if(passTightID2017(jet,isPuppi,true))
+                FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHTNOLEP);
         }
 
         id->push_back(idStat);

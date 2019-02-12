@@ -24,7 +24,7 @@ public:
 
 	static bool passLooseID2016(const pat::Jet& jet);
 	static bool passTightID2016(const pat::Jet& jet);
-	static bool passTightID2017(const pat::Jet& jet, bool isPuppi);
+	static bool passTightID2017(const pat::Jet& jet, bool isPuppi, bool leptonVeto);
 	static std::pair<float,float> getPuppiMult(const pat::Jet& jet); //[total][neutral]
 
 protected:
