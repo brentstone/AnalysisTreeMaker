@@ -124,8 +124,10 @@ void FatJetFiller::setValues(){
                 if(JetFiller::passTightID2016(jet))
                     FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
             } else {
-                if(JetFiller::passTightID2017(jet,isPuppi))
+                if(JetFiller::passTightID2017(jet,isPuppi,false))
                     FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+                if(JetFiller::passTightID2017(jet,isPuppi,true))
+                    FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHTNOLEP);
             }
         }
         id->push_back(idStat);

@@ -83,12 +83,12 @@ era     = options.dataEra
 
 isRealData = (dataRun != "NONE")
 
+from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 if isRealData and not isCrab:
     setupJSONFiltering(process,era)
 
 #==============================================================================================================================#
 #==============================================================================================================================#
-from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , globalTag = cms.string('')
                                  , dataEra = cms.string(era)
@@ -120,11 +120,12 @@ process.p = cms.Path()
 #==============================================================================================================================#
 
 #filter out events that dont pass a chosen trigger in data
-if isRealData :
-    process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
-    process.triggerFilter.dataRun = dataRun
-    process.triggerFilter.sample = sample
-    process.p += process.triggerFilter     
+ if isRealData :
+     process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
+     process.triggerFilter.dataRun = dataRun
+     process.triggerFilter.sample = sample
+     process.triggerFilter.dataEra =era
+     process.p += process.triggerFilter     
 
 #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes
 if '2017' in era:
