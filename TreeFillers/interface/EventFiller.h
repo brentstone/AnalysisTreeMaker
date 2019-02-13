@@ -30,7 +30,8 @@ public:
 	EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
 	        edm::ConsumesCollector&& cc,
 			bool isRealData,FillerConstants::DataEra dataEra, FillerConstants::DataRun dataRun,
-			FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess);
+			FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess,
+			FillerConstants::SignalType signalType_input);
 	virtual ~EventFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
@@ -44,12 +45,16 @@ private:
 	const FillerConstants::DataRun     dataRun_input  ;
 	const FillerConstants::Dataset     dataset_input  ;
 	const FillerConstants::MCProcess   mcProcess;
+	const FillerConstants::SignalType  signalType_input;
+	const int   sampParam_input;
 	const bool  addPDFWeights;
+
 
 	// Start Tree content
     size     run            =0;
     size     lumi           =0;
     size64   event          =0;
+    int      sampParam      =0;
     size8    goodVtx        =0;
     size16   npv            =0;
     float    rho            =0;
@@ -68,6 +73,7 @@ private:
     size8    dataEra        =0;
     size8    dataset        =0;
     size8    dataRun        =0;
+    size8    signalType     =0;
     float    prefweight     =0;
     float    prefweightup   =0;
     float    prefweightdown =0;

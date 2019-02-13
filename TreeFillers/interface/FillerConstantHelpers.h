@@ -22,6 +22,7 @@ inline DataEra   getDataEra  (const std::string& name) {return getEnum<DataEra>(
 inline DataRun   getDataRun  (const std::string& name) {return getEnum<DataRun>(name,DataRunNames,"DataRun");}
 inline Dataset   getDataset  (const std::string& name) {return getEnum<Dataset>(name,DatasetNames,"Dataset");}
 inline MCProcess getMCProcess(const std::string& name) {return getEnum<MCProcess>(name,MCProcessNames,"MCProcess");}
+inline SignalType getSignalType(const std::string& name) {return getEnum<SignalType>(name,SignalTypeNames,"SignalType");}
 }
 
 

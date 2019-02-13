@@ -39,6 +39,12 @@ options.register('sample',
                  VarParsing.varType.string,
                  "Input sample")
 
+options.register('sampParam',
+                 -1,
+                 VarParsing.multiplicity.singleton,
+                 VarParsing.varType.int,
+                 "Input sample parameter")
+
 options.register('skipEvents',
                  0,
                  VarParsing.multiplicity.singleton,
@@ -100,7 +106,7 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , GenParticleFiller         = cms.PSet(GenParticleFiller)
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,type)
-
+process.treeMaker.EventFiller.sampParam = options.sampParam;
 # turn off for now
 # if 'signal' in sample:
 #     process.treeMaker.EventFiller.addPDFWeights = True;

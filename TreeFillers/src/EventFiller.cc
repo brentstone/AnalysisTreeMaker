@@ -7,7 +7,7 @@ namespace AnaTM{
 EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
         edm::ConsumesCollector&& cc, bool isRealData, FillerConstants::DataEra dataEra_input,
         FillerConstants::DataRun dataRun_input,FillerConstants::Dataset dataset_input,
-        FillerConstants::MCProcess mcProcess
+        FillerConstants::MCProcess mcProcess, FillerConstants::SignalType signalType_input
 		) :
 		BaseFiller(fullParamSet,psetName,"EventFiller"),
 		realData (isRealData),
@@ -15,7 +15,10 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 		dataRun_input  (dataRun_input),
 		dataset_input  (dataset_input),
 		mcProcess(mcProcess),
+		signalType_input(signalType_input),
+		sampParam_input(cfg.getParameter<int>("sampParam")),
 		addPDFWeights(cfg.getParameter<bool>("addPDFWeights"))
+
 {
 	if(ignore()) return;
 
@@ -42,6 +45,7 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	data.addSingle(run           ,branchName,"run"           );
 	data.addSingle(lumi          ,branchName,"lumi"          );
 	data.addSingle(event         ,branchName,"event"         );
+	data.addSingle(sampParam     ,branchName,"sampParam"     );
 	data.addSingle(goodVtx       ,branchName,"goodVtx"       );
 	data.addSingle(npv           ,branchName,"npv"           );
 	data.addSingle(rho           ,branchName,"rho"           ,10);
@@ -59,6 +63,7 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	    data.addSingle(dataset       ,branchName,"dataset"       );
 	    data.addSingle(dataRun       ,branchName,"dataRun"       );
 	} else {
+	    data.addSingle(signalType    ,branchName,"signalType"     );
 	    data.addSingle(nTruePUInts   ,branchName,"nTruePUInts"   ,10);
 	    data.addSingle(genWeight     ,branchName,"genWeight"        ,10);
 	    data.addSingle(process       ,branchName,"process"       );
@@ -104,6 +109,7 @@ void EventFiller::setValues(){
 	  run              = evtCoord.run   ;
 	  lumi             = evtCoord.lumi  ;
 	  event            = evtCoord.event ;
+	  sampParam       = sampParam_input;
 	  goodVtx          = hasgoodvtx;
 	  npv              = ASTypes::convertTo<size16>(han_vtx->size(),"EventFiller::npv" );
 	  rho              = *han_rho;
@@ -133,7 +139,7 @@ void EventFiller::setValues(){
 		  prefweight        =*han_prefweight    ;
 		  prefweightup      =*han_prefweightup  ;
 		  prefweightdown    =*han_prefweightdown;
-
+		  signalType        = signalType_input;
 		    if(addPDFWeights){
 		      const auto& pdfWeights = han_lheEventInfo->weights();
 		      for(const auto& w: pdfWeights){

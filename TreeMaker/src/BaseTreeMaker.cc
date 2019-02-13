@@ -25,6 +25,8 @@ AnalysisTreeMaker::AnalysisTreeMaker(const edm::ParameterSet & iConfig)
     		dataset = FillerConstants::getDataset(sample);
     } else {
     		mcProcess = FillerConstants::getMCProcess(sample);
+    		if(mcProcess==FillerConstants::SIGNAL)
+    		    signalType = FillerConstants::getSignalType(sample);
     }
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
 	std::cout << " ++  Setting up AnalysisTreeMaker"<<std::endl;
@@ -32,7 +34,13 @@ AnalysisTreeMaker::AnalysisTreeMaker(const edm::ParameterSet & iConfig)
 	std::cout << " ++  dataEra             = " << FillerConstants::DataEraNames[dataEra]<<std::endl;
 	std::cout << " ++  dataset             = ";
 	  if      (realData) std::cout << "  \033[31mDATA\033[0m ("<< FillerConstants::DataRunNames[dataRun] <<","<<sample<<")";
-	  else               std::cout << "  \033[1;34mMC\033[0m ("<<sample<<")";
+	  else  {
+	      std::cout << "  \033[1;34mMC\033[0m ("<<     FillerConstants::MCProcessNames[mcProcess];
+	      if(mcProcess==FillerConstants::SIGNAL)
+	          std::cout << " - "<<FillerConstants::SignalTypeNames[signalType];
+	      std::cout <<")";
+	  }
+
 	std::cout << std::endl;
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
 	usesResource("TFileService");

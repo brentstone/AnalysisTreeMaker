@@ -33,6 +33,7 @@ public:
 	FillerConstants::DataRun  getDataRun() const {return dataRun;}
 	FillerConstants::Dataset  getDataset() const {return dataset;}
 	FillerConstants::MCProcess  getMCProcess() const {return mcProcess;}
+	FillerConstants::SignalType  getSignalType() const {return signalType;}
 	TreeWrapper * tree() { return treeWrapper;}
 	//---User helper functions
 
@@ -57,6 +58,7 @@ private:
 	FillerConstants::DataRun     dataRun  = FillerConstants::NODATARUN;
 	FillerConstants::Dataset     dataset  = FillerConstants::NODATASET;
 	FillerConstants::MCProcess   mcProcess= FillerConstants::NOPROCESS;
+	FillerConstants::SignalType  signalType= FillerConstants::NOSIGNAL;
 
 
 	std::vector<BaseFiller*> initializedFillers;
