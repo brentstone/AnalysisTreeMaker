@@ -10,26 +10,26 @@ from AnalysisTreeMaker.TreeFillers.genParticleFiller_cff import *
 
 
 TreeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
-                        ,globalTag = cms.string("")
-                        ,dataRun = cms.string("")
+                        ,globalTag = cms.string("")                        
                         ,sample = cms.string("")
+                        ,type = cms.string("")
                         )
 
-def setupTreeMakerAndGlobalTag(process, analyzer, isRealData, dataEra, dataRun = "NONE"):
+def setupTreeMakerAndGlobalTag(process, analyzer, isRealData, type):
     
-    if '2016' in dataEra:
+    if '2016' in type:
         if isRealData:
             analyzer.globalTag = "94X_dataRun2_v10" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
         else:
             analyzer.globalTag = "94X_mcRun2_asymptotic_v3" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
     
-    if '2017' in dataEra:
+    if '2017' in type:
         if isRealData:
             analyzer.globalTag = "94X_dataRun2_v11" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
         else:
             analyzer.globalTag = "94X_mc2017_realistic_v17" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
     
-    if '2018' in dataEra:
+    if '2018' in type:
         if isRealData:
             analyzer.globalTag = "102X_dataRun2_Prompt_v11" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
         else:

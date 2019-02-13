@@ -3,6 +3,6 @@ from AnalysisTreeMaker.TreeFillers.eventFiller_cff import *
 
 triggerFilter = cms.EDFilter('TriggerFilter',
                              TriggerFiller             = cms.PSet(TriggerFiller),
-                            dataRun = cms.string(""),sample = cms.string(""),dataEra=cms.string("")
+                            type = cms.string(""),sample = cms.string("")
                              
 )

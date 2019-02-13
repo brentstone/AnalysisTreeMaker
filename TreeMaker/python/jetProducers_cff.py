@@ -74,7 +74,7 @@ def addECF(proc,jetSeq,postFix,ecfType,ecfBeta,ecfN3):
              mod["PFJetsSoftDropValueMap"]+':'+mod["ECF"+ecfVar]+ecfType+'2',
             mod["PFJetsSoftDropValueMap"]+':'+mod["ECF"+ecfVar]+ecfType+'3' ]
     
-def producePF(process, isRealData, dataRun = "NONE") :    
+def producePF(process) :    
     process.load("AnalysisTreeMaker.Utilities.leptonLessPFProducer_cff")
     process.load('CommonTools.PileupAlgos.Puppi_cff') #https://twiki.cern.ch/twiki/bin/view/CMS/JetToolbox#New_PF_Collection
     process.puppi.useExistingWeights = True
@@ -125,7 +125,7 @@ def ak8JetSequences(process,isRealData):
 #     process.patJetsAK8PFPuppiNoLep.tagInfoSources = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfosAK8PFPuppiNoLep"), cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfosAK8PFPuppiNoLep"), cms.InputTag("pfDeepCSVTagInfosAK8PFPuppiNoLep"), cms.InputTag("pfBoostedDoubleSVAK8TagInfosAK8PFPuppiNoLep")) 
     
 
-def defaultJetSequences(process, isRealData, dataRun = "NONE"):
-    producePF(process,isRealData,dataRun)
+def defaultJetSequences(process, isRealData):
+    producePF(process)
     ak4JetSequences(process,isRealData)
     ak8JetSequences(process,isRealData)

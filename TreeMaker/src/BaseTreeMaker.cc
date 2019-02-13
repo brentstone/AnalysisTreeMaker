@@ -15,14 +15,13 @@ AnalysisTreeMaker::AnalysisTreeMaker(const edm::ParameterSet & iConfig)
 {
 
     globalTag              = iConfig.getParameter<std::string>("globalTag" );
-    std::string dataEraStr = iConfig.getParameter<std::string>("dataEra"   );
     std::string sample     = iConfig.getParameter<std::string>("sample"    );
-    std::string dataRunStr = iConfig.getParameter<std::string>("dataRun"   );
-    realData               = strFind(dataRunStr,"Run");
+    std::string typeStr    = iConfig.getParameter<std::string>("type"   );
+    realData               = strFind(typeStr,"Run");
 
-    dataEra = FillerConstants::getDataEra(dataEraStr);
+    dataEra = FillerConstants::getDataEra(typeStr);
     if(realData){
-    		dataRun = FillerConstants::getDataRun(dataRunStr);
+    		dataRun = FillerConstants::getDataRun(typeStr);
     		dataset = FillerConstants::getDataset(sample);
     } else {
     		mcProcess = FillerConstants::getMCProcess(sample);
@@ -30,9 +29,9 @@ AnalysisTreeMaker::AnalysisTreeMaker(const edm::ParameterSet & iConfig)
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
 	std::cout << " ++  Setting up AnalysisTreeMaker"<<std::endl;
 	std::cout << " ++  globalTag           = " << globalTag                      << std::endl;
-	std::cout << " ++  dataEra             = " << dataEraStr<<std::endl;
+	std::cout << " ++  dataEra             = " << FillerConstants::DataEraNames[dataEra]<<std::endl;
 	std::cout << " ++  dataset             = ";
-	  if      (realData) std::cout << "  \033[31mDATA\033[0m ("<< dataRunStr <<","<<sample<<")";
+	  if      (realData) std::cout << "  \033[31mDATA\033[0m ("<< FillerConstants::DataRunNames[dataRun] <<","<<sample<<")";
 	  else               std::cout << "  \033[1;34mMC\033[0m ("<<sample<<")";
 	std::cout << std::endl;
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;

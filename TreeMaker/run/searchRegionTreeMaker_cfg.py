@@ -27,23 +27,17 @@ options.register('isCrab',
                  VarParsing.varType.bool,
                  "Input isCrab")
 
-options.register('dataEra',
+options.register('type',
                  "NONE",
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
-                 "Input data era (applies to MC too)")
+                 "Input type")
 
 options.register('sample',
                  "NONE",
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
                  "Input sample")
-
-options.register('dataRun',
-                 "NONE",
-                 VarParsing.multiplicity.singleton,
-                 VarParsing.varType.string,
-                 "Input dataRun")
 
 options.register('skipEvents',
                  0,
@@ -77,23 +71,22 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #==============================================================================================================================#
 
 isCrab  = options.isCrab
-dataRun = options.dataRun
 sample  = options.sample
-era     = options.dataEra
+type = options.type
 
-isRealData = (dataRun != "NONE")
+
+isRealData = ('Run' in type)
 
 from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 if isRealData and not isCrab:
-    setupJSONFiltering(process,era)
+    setupJSONFiltering(process,type)
 
 #==============================================================================================================================#
 #==============================================================================================================================#
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
-                                 , globalTag = cms.string('')
-                                 , dataEra = cms.string(era)
-                                 , dataRun = cms.string(dataRun)
+                                 , globalTag = cms.string('')                                 
                                  , sample = cms.string(sample)
+                                 , type = cms.string(type)
                                  , EventFiller               = cms.PSet(EventFiller)
                                  , METFilterFiller           = cms.PSet(METFilterFiller)
                                  , TriggerFiller             = cms.PSet(TriggerFiller)
@@ -106,7 +99,7 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , MuonFiller                = cms.PSet(MuonFiller)  
                                  , GenParticleFiller         = cms.PSet(GenParticleFiller)
                                  )
-setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,era,dataRun)
+setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,type)
 
 # turn off for now
 # if 'signal' in sample:
@@ -120,22 +113,21 @@ process.p = cms.Path()
 #==============================================================================================================================#
 
 #filter out events that dont pass a chosen trigger in data
- if isRealData :
+if isRealData :
      process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
-     process.triggerFilter.dataRun = dataRun
+     process.triggerFilter.type = type
      process.triggerFilter.sample = sample
-     process.triggerFilter.dataEra =era
      process.p += process.triggerFilter     
 
 #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes
-if '2017' in era:
+if '2017' in type:
     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
     setupEgammaPostRecoSeq(process,
     runVID=True,
     era='2017-Nov17ReReco')  #era is new to select between 2016 / 2017,  it defaults to 2017
     process.p += process.egammaPostRecoSeq
     process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')
-if '2016' in era:
+if '2016' in type:
     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
     setupEgammaPostRecoSeq(process,
                        runEnergyCorrections=False, #corrections by default are fine so no need to re-run
@@ -144,14 +136,14 @@ if '2016' in era:
     process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')  
 
 from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
-defaultJetSequences(process,isRealData,dataRun)
+defaultJetSequences(process,isRealData)
     
 from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
-metCorrections(process,process.treeMaker,isRealData,era)        
-if '2017' in era:
+metCorrections(process,process.treeMaker,isRealData,type)        
+if '2017' in type:
     process.p += process.fullPatMetSequenceModifiedMET
     
-if '2017' in era or '2016' in era :
+if '2017' in type or '2016' in type :
     process.prefiringweight = cms.EDProducer("L1ECALPrefiringWeightProducer",
                                  ThePhotons = cms.InputTag("slimmedPhotons"),
                                  TheJets = cms.InputTag("slimmedJets"),
