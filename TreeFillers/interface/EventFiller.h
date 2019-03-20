@@ -13,59 +13,84 @@
 
 
 namespace AnaTM{
-
+//--------------------------------------------------------------------------------------------------
+// EventCoords
+//--------------------------------------------------------------------------------------------------
 struct EventCoords {
   EventCoords() : run(0),lumi(0),event(0) {}
   size run;
   size lumi;
   ASTypes::size64 event;
 };
-
+//--------------------------------------------------------------------------------------------------
+// EventFiller
+//--------------------------------------------------------------------------------------------------
 class EventFiller : public BaseFiller {
 public:
-	EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,
-			bool isRealData, FillerConstants::DataRun dataRun,FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess);
+	EventFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+	        edm::ConsumesCollector&& cc,
+			bool isRealData,FillerConstants::DataEra dataEra, FillerConstants::DataRun dataRun,
+			FillerConstants::Dataset dataset,FillerConstants::MCProcess mcProcess,
+			FillerConstants::SignalType signalType_input);
 	virtual ~EventFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-	virtual void fill();
+	virtual void setValues();
 
 	const reco::Vertex * getPrimVertex() const {return primaryVertex;}
-	float rho() const {return *han_rho;}
+	float getRho() const {return *han_rho;}
 
 private:
 	const bool                         realData ;
-	const FillerConstants::DataRun     dataRun  ;
-	const FillerConstants::Dataset     dataset  ;
+	const FillerConstants::DataEra     dataEra_input  ;
+	const FillerConstants::DataRun     dataRun_input  ;
+	const FillerConstants::Dataset     dataset_input  ;
 	const FillerConstants::MCProcess   mcProcess;
+	const FillerConstants::SignalType  signalType_input;
+	const int   sampParam_input;
 	const bool  addPDFWeights;
 
-	size i_run                = 0;
-	size i_lumi               = 0;
-	size i_event              = 0;
-	size i_goodVtx            = 0;
-	size i_npv                = 0;
-	size i_rho                = 0;
-	size i_met_pt             = 0;
-	size i_met_phi            = 0;
-	size i_met_sig            = 0;
-	size i_met_unclUp_pt      = 0;
-	size i_met_unclUp_phi     = 0;
-	size i_met_raw_pt         = 0;
-	size i_met_raw_phi        = 0;
-	size i_nTruePUInts        = 0;
-	size i_weight             = 0;
-	size i_process            = 0;
-	size i_dataset            = 0;
-	size i_dataRun            = 0;
-	size i_genWeights         = 0;
+
+	// Start Tree content
+    size     run            =0;
+    size     lumi           =0;
+    size64   event          =0;
+    int      sampParam      =0;
+    size8    goodVtx        =0;
+    size16   npv            =0;
+    float    rho            =0;
+    float    met_pt         =0;
+    float    met_phi        =0;
+    float    met_sig        =0;
+    float    met_unclUp_pt  =0;
+    float    met_unclUp_phi =0;
+    float    met_raw_pt     =0;
+    float    met_raw_phi    =0;
+    float    met_van_pt      =0;
+    float    met_van_phi     =0;
+    float    nTruePUInts    =0;
+    float    genWeight      =0;
+    size8    process        =0;
+    size8    dataEra        =0;
+    size8    dataset        =0;
+    size8    dataRun        =0;
+    size8    signalType     =0;
+    float    prefweight     =0;
+    float    prefweightup   =0;
+    float    prefweightdown =0;
+    spv_float genWeights     =make_spv_float();
+    // End Tree content
 
     edm::EDGetTokenT<reco::VertexCollection>          token_vtx     ;
     edm::EDGetTokenT<double>                          token_rho     ;
     edm::EDGetTokenT<pat::METCollection>              token_met     ;
     edm::EDGetTokenT<pat::METCollection>              token_rawMet  ;
+    edm::EDGetTokenT<pat::METCollection>              token_vanMet  ;
     edm::EDGetTokenT<std::vector<PileupSummaryInfo> > token_puSum   ;
     edm::EDGetTokenT<GenEventInfoProduct>             token_genEvent;
     edm::EDGetTokenT<LHEEventProduct>                 token_lheEventInfo  ;
+    edm::EDGetTokenT< double > token_prefweight;
+    edm::EDGetTokenT< double > token_prefweightup;
+    edm::EDGetTokenT< double > token_prefweightdown;
 
 
     edm::Handle<reco::VertexCollection>          han_vtx     ;
@@ -73,18 +98,16 @@ private:
     edm::Handle<std::vector<PileupSummaryInfo> > han_puSum   ;
     edm::Handle<pat::METCollection>              han_met     ;
     edm::Handle<pat::METCollection>              han_rawMet  ;
+    edm::Handle<pat::METCollection>              han_vanMet     ;
     edm::Handle<GenEventInfoProduct>             han_genEvent;
     edm::Handle<LHEEventProduct>                 han_lheEventInfo;
+    edm::Handle< double > han_prefweight;
+    edm::Handle< double > han_prefweightup;
+    edm::Handle< double > han_prefweightdown;
 
     const reco::Vertex * primaryVertex =0;
     EventCoords evtCoord;
     bool hassGoodVertex = false;
-
-
-
-
-
-
 };
 }
 

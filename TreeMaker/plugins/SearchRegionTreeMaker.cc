@@ -8,7 +8,6 @@
 #include "AnalysisTreeMaker/TreeFillers/interface/FatJetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/ElectronFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/MuonFiller.h"
-#include "AnalysisTreeMaker/TreeFillers/interface/PhotonFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/GenParticleFiller.h"
 
 
@@ -18,20 +17,18 @@ public:
 	SearchRegionTreeMaker(const edm::ParameterSet &cfg) : AnalysisTreeMaker(cfg)
 {
 		const auto * eventFiller = initialize(new AnaTM::EventFiller(cfg,"EventFiller",consumesCollector(),
-				isRealData(),getDataRun(), getDataset(), getMCProcess()));
-
+				isRealData(),getDataEra(),getDataRun(), getDataset(), getMCProcess(), getSignalType()));
 		initialize(new AnaTM::METFilterFiller(cfg,"METFilterFiller",consumesCollector(),isRealData()));
-		initialize(new AnaTM::TriggerFiller(cfg,"TriggerFiller",consumesCollector()));
-		initialize(new AnaTM::JetFiller(cfg,"ak4JetFiller",consumesCollector(),isRealData()));
-		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiJetFiller",consumesCollector(),isRealData()));
-		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiNoLepJetFiller",consumesCollector(),isRealData()));
-		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiNoLepFatJetFiller",consumesCollector(),isRealData()));
-		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiFatJetFiller",consumesCollector(),isRealData()));
+		initialize(new AnaTM::TriggerFiller(cfg,"TriggerFiller",consumesCollector(),getDataEra(), getDataset()));
+		initialize(new AnaTM::JetFiller(cfg,"ak4JetFiller",consumesCollector(),isRealData(),getDataEra()));
+		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiJetFiller",consumesCollector(),isRealData(),getDataEra()));
+		initialize(new AnaTM::JetFiller(cfg,"ak4PuppiNoLepJetFiller",consumesCollector(),isRealData(),getDataEra()));
+		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiNoLepFatJetFiller",consumesCollector(),isRealData(),getDataEra()));
+		initialize(new AnaTM::FatJetFiller(cfg,"ak8PuppiFatJetFiller",consumesCollector(),isRealData(),getDataEra()));
 		initialize(new AnaTM::ElectronFiller(cfg,"ElectronFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
-		initialize(new AnaTM::PhotonFiller(cfg,"PhotonFiller",consumesCollector()));
 		initialize(new AnaTM::MuonFiller(cfg,"MuonFiller",consumesCollector(),(const AnaTM::EventFiller*)eventFiller));
 		if(!isRealData())
-			initialize(new AnaTM::GenParticleFiller(cfg,"GenParticleFiller",consumesCollector()));
+			initialize(new AnaTM::GenParticleFiller(cfg,"GenParticleFiller",consumesCollector(),getMCProcess()));
 }
 
 	~SearchRegionTreeMaker() {}

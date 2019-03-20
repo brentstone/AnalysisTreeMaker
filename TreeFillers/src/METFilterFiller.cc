@@ -6,57 +6,60 @@ namespace AnaTM{
 
 METFilterFiller::METFilterFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, bool isRealData):
 		BaseFiller(fullParamSet,psetName,"METFilterFiller"), isRealData(isRealData)
-
 {
 		if(ignore()) return;
 		token_trigBits         =cc.consumes<edm::TriggerResults> (cfg.getParameter<edm::InputTag>("trigBits"));
-		token_badChHadronFilter=cc.consumes<bool>(cfg.getParameter<edm::InputTag>("badChHadronFilter"));
-		token_badPFMuonFilter  =cc.consumes<bool>(cfg.getParameter<edm::InputTag>("badPFMuonFilter"));
-		if(isRealData){
-			token_dupECALClusters  =cc.consumes<bool>(cfg.getParameter<edm::InputTag>("dupECALClusters"));
-			token_hitsNotReplaced  =cc.consumes<edm::EDCollection<DetId>>(cfg.getParameter<edm::InputTag>("hitsNotReplaced"));
-		}
-
-	    i_metFilters =  data.add<size>   (branchName,"metFilters"                     ,"i",0);
+	    data.addSingle(metFilters           ,branchName,"metFilters"           );
+	    fillNames();
 };
+
 void METFilterFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-	reset();
 	iEvent.getByToken(token_trigBits, han_trigBits);
 	triggerNames  = &iEvent.triggerNames(*han_trigBits);
-
-	iEvent.getByToken(token_badChHadronFilter, han_badChHadronFilter);
-	iEvent.getByToken(token_badPFMuonFilter, han_badPFMuonFilter);
-	if(isRealData){
-	    iEvent.getByToken(token_dupECALClusters, han_dupECALClusters);
-	    iEvent.getByToken(token_hitsNotReplaced, han_hitsNotReplaced);
-	}
-
-
-    loadedStatus = true;
 };
-void METFilterFiller::fill(){
-	  size trigPass = 0;
-	  const size nMF = FillerConstants::metFilterStrings.size();
+
+void METFilterFiller::setValues(){
+	  metFilters = 0;
 	  for(unsigned int i = 0; i < han_trigBits->size(); ++i) {
 		  const auto trigNam = triggerNames->triggerName(i);
-		  for(unsigned int iS = 0; iS < nMF; ++iS){
-			  if(FillerConstants::metFilterStrings[iS] !=  trigNam) continue;
-			  if(han_trigBits->accept(i))FillerConstants::addPass(trigPass,static_cast<FillerConstants::METFilters>(1 << iS));
-			  break;
+		  for(ASTypes::size iS = 0; iS < FillerConstants::Flag_NFilters; ++iS){
+		      auto filt = static_cast<FillerConstants::METFilters>(iS);
+		      if(filterNames[filt] !=  trigNam) continue;
+		      if(han_trigBits->accept(i))FillerConstants::addPass(metFilters,filt);
+		      break;
 		  }
 	  }
-
-	  if(*han_badChHadronFilter)  FillerConstants::addPass(trigPass,FillerConstants::AnaTM_badChargedHadrons);
-	  if(*han_badPFMuonFilter)    FillerConstants::addPass(trigPass,FillerConstants::AnaTM_badMuons);
-
-	  if(isRealData){
-		  if(*han_dupECALClusters)          FillerConstants::addPass(trigPass,FillerConstants::AnaTM_dupECALClusters);
-		  if(!han_hitsNotReplaced->empty()) FillerConstants::addPass(trigPass,FillerConstants::AnaTM_hitsNotReplaced);
-	  }
-
-
-	  data.fill(i_metFilters,trigPass);
-
 };
+
+void METFilterFiller::fillNames(){
+    filterNames.resize(FillerConstants::Flag_NFilters);
+    filterNames[FillerConstants::Flag_HBHENoiseFilter                          ] ="Flag_HBHENoiseFilter";
+    filterNames[FillerConstants::Flag_HBHENoiseIsoFilter                       ] ="Flag_HBHENoiseIsoFilter";
+    filterNames[FillerConstants::Flag_CSCTightHaloFilter                       ] ="Flag_CSCTightHaloFilter";
+    filterNames[FillerConstants::Flag_CSCTightHaloTrkMuUnvetoFilter            ] ="Flag_CSCTightHaloTrkMuUnvetoFilter";
+    filterNames[FillerConstants::Flag_CSCTightHalo2015Filter                   ] ="Flag_CSCTightHalo2015Filter";
+    filterNames[FillerConstants::Flag_globalTightHalo2016Filter                ] ="Flag_globalTightHalo2016Filter";
+    filterNames[FillerConstants::Flag_globalSuperTightHalo2016Filter           ] ="Flag_globalSuperTightHalo2016Filter";
+    filterNames[FillerConstants::Flag_HcalStripHaloFilter                      ] ="Flag_HcalStripHaloFilter";
+    filterNames[FillerConstants::Flag_hcalLaserEventFilter                     ] ="Flag_hcalLaserEventFilter";
+    filterNames[FillerConstants::Flag_EcalDeadCellTriggerPrimitiveFilter       ] ="Flag_EcalDeadCellTriggerPrimitiveFilter";
+    filterNames[FillerConstants::Flag_EcalDeadCellBoundaryEnergyFilter         ] ="Flag_EcalDeadCellBoundaryEnergyFilter";
+    filterNames[FillerConstants::Flag_ecalBadCalibFilter                       ] ="Flag_ecalBadCalibFilter";
+    filterNames[FillerConstants::Flag_goodVertices                             ] ="Flag_goodVertices";
+    filterNames[FillerConstants::Flag_eeBadScFilter                            ] ="Flag_eeBadScFilter";
+    filterNames[FillerConstants::Flag_ecalLaserCorrFilter                      ] ="Flag_ecalLaserCorrFilter";
+    filterNames[FillerConstants::Flag_trkPOGFilters                            ] ="Flag_trkPOGFilters";
+    filterNames[FillerConstants::Flag_chargedHadronTrackResolutionFilter       ] ="Flag_chargedHadronTrackResolutionFilter";
+    filterNames[FillerConstants::Flag_muonBadTrackFilter                       ] ="Flag_muonBadTrackFilter";
+    filterNames[FillerConstants::Flag_BadChargedCandidateFilter                ] ="Flag_BadChargedCandidateFilter";
+    filterNames[FillerConstants::Flag_BadPFMuonFilter                          ] ="Flag_BadPFMuonFilter";
+    filterNames[FillerConstants::Flag_BadChargedCandidateSummer16Filter        ] ="Flag_BadChargedCandidateSummer16Filter";
+    filterNames[FillerConstants::Flag_BadPFMuonSummer16Filter                  ] ="Flag_BadPFMuonSummer16Filter";
+    filterNames[FillerConstants::Flag_trkPOG_manystripclus53X                  ] ="Flag_trkPOG_manystripclus53X";
+    filterNames[FillerConstants::Flag_trkPOG_toomanystripclus53X               ] ="Flag_trkPOG_toomanystripclus53X";
+    filterNames[FillerConstants::Flag_trkPOG_logErrorTooManyClusters           ] ="Flag_trkPOG_logErrorTooManyClusters";
+    filterNames[FillerConstants::Flag_METFilters                               ] ="Flag_METFilters";
+}
+
 
 }

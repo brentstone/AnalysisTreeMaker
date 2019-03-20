@@ -5,4 +5,5 @@ GenParticleFiller = cms.PSet(
     branchName                      = cms.string("genParticle"),
     fillAllParticles                = cms.bool(False),
     genParticles                    = cms.InputTag('prunedGenParticles'),      
+    lheEvent               = cms.InputTag('externalLHEProducer'),
 )

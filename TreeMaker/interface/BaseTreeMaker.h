@@ -29,9 +29,11 @@ public:
 	//---User helper functions
 	int numEvents() const {return nEvents;}
 	bool isRealData() const {return realData;}
+	FillerConstants::DataEra  getDataEra() const {return dataEra;}
 	FillerConstants::DataRun  getDataRun() const {return dataRun;}
 	FillerConstants::Dataset  getDataset() const {return dataset;}
 	FillerConstants::MCProcess  getMCProcess() const {return mcProcess;}
+	FillerConstants::SignalType  getSignalType() const {return signalType;}
 	TreeWrapper * tree() { return treeWrapper;}
 	//---User helper functions
 
@@ -50,21 +52,19 @@ public:
 	//----End automatic functions
 
 private:
-	FillerConstants::DataRun   getDataRun  (const std::string& sample) const;
-	FillerConstants::Dataset   getDataset  (const std::string& sample) const;
-	FillerConstants::MCProcess getMCProcess(const std::string& sample) const;
-
-
 	std::string                  globalTag;
 	bool                         realData ;
+	FillerConstants::DataEra     dataEra  = FillerConstants::NOERA;
 	FillerConstants::DataRun     dataRun  = FillerConstants::NODATARUN;
 	FillerConstants::Dataset     dataset  = FillerConstants::NODATASET;
 	FillerConstants::MCProcess   mcProcess= FillerConstants::NOPROCESS;
+	FillerConstants::SignalType  signalType= FillerConstants::NOSIGNAL;
 
 
 	std::vector<BaseFiller*> initializedFillers;
 	TreeWrapper * treeWrapper = 0;
 	int nEvents = 0;
+
 
 };
 

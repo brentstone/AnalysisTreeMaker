@@ -6,38 +6,53 @@
 #include "AnalysisTreeMaker/TreeMaker/interface/BaseTreeMaker.h"
 #include "AnalysisTreeMaker/TreeMaker/interface/BaseFiller.h"
 #include "AnalysisSupport/TreeInterface/interface/TreeWrapper.h"
+#include "AnalysisTreeMaker/TreeFillers/interface/FillerConstantHelpers.h"
 
 namespace AnaTM {
 
 //--------------------------
 AnalysisTreeMaker::AnalysisTreeMaker(const edm::ParameterSet & iConfig)
 {
-    globalTag              = iConfig.getParameter<std::string>("globalTag" );
-    TString sample         = iConfig.getParameter<std::string>("sample"    );
-    std::string dataRunStr = iConfig.getParameter<std::string>("dataRun"   );
-    realData               = sample.Contains("data",TString::kIgnoreCase);
 
+    globalTag              = iConfig.getParameter<std::string>("globalTag" );
+    std::string sample     = iConfig.getParameter<std::string>("sample"    );
+    std::string typeStr    = iConfig.getParameter<std::string>("type"   );
+    realData               = strFind(typeStr,"Run");
+
+    dataEra = FillerConstants::getDataEra(typeStr);
     if(realData){
-    		dataRun = getDataRun(dataRunStr);
-    		dataset = getDataset(sample.Data());
+    		dataRun = FillerConstants::getDataRun(typeStr);
+    		dataset = FillerConstants::getDataset(sample);
     } else {
-    		mcProcess = getMCProcess(sample.Data());
+    		mcProcess = FillerConstants::getMCProcess(sample);
+    		if(mcProcess==FillerConstants::SIGNAL)
+    		    signalType = FillerConstants::getSignalType(sample);
     }
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
 	std::cout << " ++  Setting up AnalysisTreeMaker"<<std::endl;
 	std::cout << " ++  globalTag           = " << globalTag                      << std::endl;
+	std::cout << " ++  dataEra             = " << FillerConstants::DataEraNames[dataEra]<<std::endl;
 	std::cout << " ++  dataset             = ";
-	  if      (realData) std::cout << "  \033[31mDATA\033[0m ("<< dataRunStr <<","<<sample<<")";
-	  else               std::cout << "  \033[1;34mMC\033[0m ("<<sample<<")";
+	  if      (realData) std::cout << "  \033[31mDATA\033[0m ("<< FillerConstants::DataRunNames[dataRun] <<","<<sample<<")";
+	  else  {
+	      std::cout << "  \033[1;34mMC\033[0m ("<<     FillerConstants::MCProcessNames[mcProcess];
+	      if(mcProcess==FillerConstants::SIGNAL)
+	          std::cout << " - "<<FillerConstants::SignalTypeNames[signalType];
+	      std::cout <<")";
+	  }
+
 	std::cout << std::endl;
 	std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
 	usesResource("TFileService");
 }
 //--------------------------
-AnalysisTreeMaker::~AnalysisTreeMaker(){ for(auto f : initializedFillers) delete f; }
+AnalysisTreeMaker::~AnalysisTreeMaker(){ for(auto f : initializedFillers) delete f;  if(treeWrapper) delete treeWrapper;}
 //--------------------------
 BaseFiller * AnalysisTreeMaker::initialize(BaseFiller * filler){
-	if(filler->ignore()) return 0;
+	if(filler->ignore()){
+	    delete filler;
+	    return 0;
+	}
 	initializedFillers.push_back(filler);
 	return initializedFillers.back();
 }
@@ -67,61 +82,19 @@ void AnalysisTreeMaker::endJob() {
 //--------------------------
 void AnalysisTreeMaker::book(){ for(auto f : initializedFillers) {f->book(tree());} }
 //--------------------------
-void AnalysisTreeMaker::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) { for(auto f : initializedFillers) {f->load(iEvent, iSetup); }}
+void AnalysisTreeMaker::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    for(auto f : initializedFillers) {f->load(iEvent, iSetup);f->setLoaded(); }
+}
 //--------------------------
 void AnalysisTreeMaker::fill() {
-	for(auto f : initializedFillers) {f->fill();}
+	for(auto f : initializedFillers) {
+	    f->setValues();
+	    f->processForTree();
+	}
 	tree()->fill();
+    for(auto f : initializedFillers) {f->reset();}
+
 }
-//--------------------------
-FillerConstants::DataRun AnalysisTreeMaker::getDataRun(const std::string& sample) const{
-	if     (sample == "Run2016A") return FillerConstants::RUN2016A;
-	else if(sample == "Run2016B") return FillerConstants::RUN2016B;
-	else if(sample == "Run2016C") return FillerConstants::RUN2016C;
-	else if(sample == "Run2016D") return FillerConstants::RUN2016D;
-	else if(sample == "Run2016E") return FillerConstants::RUN2016E;
-	else if(sample == "Run2016F") return FillerConstants::RUN2016F;
-	else if(sample == "Run2016G") return FillerConstants::RUN2016G;
-	else if(sample == "Run2016H") return FillerConstants::RUN2016H;
-	else if(sample == "NONE")     return FillerConstants::NODATARUN;
-
-	std::string errorStr = "Could not interpret DataRun: ("
-			+ sample +")! If you don't want to give one, you must provide (NONE).";
-
-	throw cms::Exception( "AnalysisTreeMaker::getDataRun()",errorStr);
-}
-//--------------------------
-FillerConstants::Dataset AnalysisTreeMaker::getDataset(const std::string& sample) const{
-	if     (sample == "data_e")    return FillerConstants::SINGLEE ;
-	else if(sample == "data_mu")   return FillerConstants::SINGLEMU;
-	else if(sample == "data_jetht")return FillerConstants::JETHT   ;
-	else if(sample == "data_met")  return FillerConstants::MET     ;
-	else if(sample == "NONE")      return FillerConstants::NODATASET    ;
-
-	std::string errorStr = "Could not interpret Dataset: ("
-			+ sample +")! If you don't want to give one, you must provide (NONE).";
-
-	throw cms::Exception( "AnalysisTreeMaker::getDataset()",errorStr);
-}
-//--------------------------
-FillerConstants::MCProcess AnalysisTreeMaker::getMCProcess(const std::string& sample) const{
-	if     (sample == "signal")  return FillerConstants::SIGNAL    ;
-	else if(sample == "ttbar")   return FillerConstants::TTBAR     ;
-	else if(sample == "wjets")   return FillerConstants::WJETS     ;
-	else if(sample == "zjets")   return FillerConstants::ZJETS     ;
-	else if(sample == "singlet") return FillerConstants::SINGLET   ;
-	else if(sample == "diboson") return FillerConstants::DIBOSON   ;
-	else if(sample == "ttx")     return FillerConstants::TTX       ;
-	else if(sample == "qcd")     return FillerConstants::QCD       ;
-	else if(sample == "hx")      return FillerConstants::HX        ;
-	else if(sample == "NONE")    return FillerConstants::NOPROCESS ;
-
-	std::string errorStr = "Could not interpret MCProcess: ("
-			+ sample +")! If you don't want to give one, you must provide (NONE).";
-
-	throw cms::Exception( "AnalysisTreeMaker::getDataset()",errorStr);
-}
-
 
 }
 

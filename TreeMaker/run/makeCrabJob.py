@@ -14,15 +14,15 @@ parser.add_argument("-t", "--crabTemp", dest="crabTemp", default="run/template_r
 args = parser.parse_args()
 
 
-def addSample(name,sample,datarun,cross,numE,numF,cmdLine,dasName,configs) :
+def addSample(name,sample,type,sampParam,cross,numF,dasName,configs) :
 	crab_template_file = args.crabTemp
 	with open(crab_template_file, 'r') as crfile:
 		crabconfig = crfile.read()
 	outputFile = name + ".root"
 	configParams = "config.JobType.pyCfgParams = ["
-	if cmdLine != '-' :
-		configParams += ("%s" % cmdLine   )
-	configParams += ("\'sample=%s\',\'dataRun=%s\',\'isCrab=True\','outputFile=%s\'" % (sample, "NONE" if datarun == "-" else datarun,outputFile))  
+# 	if cmdLine != '-' :
+# 		configParams += ("%s" % cmdLine   )
+	configParams += ("\'sample=%s\',\'type=%s\',\'sampParam=%s\',\'isCrab=True\','outputFile=%s\'" % (sample, type,sampParam, outputFile))  
 	configParams += "]"
 		
 	replace_dict = {'_requestName_':name,
@@ -34,9 +34,18 @@ def addSample(name,sample,datarun,cross,numE,numF,cmdLine,dasName,configs) :
 				'_outLFNDirBase_':re.sub(r'/eos/[a-z]+/store', '/store', args.outdir)}
 	for key in replace_dict:
 		crabconfig = crabconfig.replace(key, replace_dict[key])
-	jsonFile = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
-	runRange = '271000-290000'
-	if datarun != "-" :
+		
+	if '2016' in type:
+		jsonFile = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"
+		runRange = '271000-290000'
+	if '2017' in type:
+		jsonFile = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/Final/Cert_294927-306462_13TeV_PromptReco_Collisions17_JSON.txt"
+		runRange = '294000-310000'
+	if '2018' in type:
+		jsonFile = "https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt"
+		runRange = '314000-330000'							
+	
+	if 'Run' in type :
 		crabconfig += ("\nconfig.Data.lumiMask = \'%s\'\n" % jsonFile)
 		crabconfig += ("\nconfig.Data.runRange = \'%s\'\n" % runRange)
 	cfgfilename = ("%s/crab_submit_%s.py" % (args.jobdir, name))
@@ -57,13 +66,13 @@ inputData = open(args.inputData, "r")
 for line in inputData:
 	if re.match("\s*#.*", line) : 
 		continue
-	match = re.match("^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*$", line)
+	match = re.match("^\s*(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s*$", line)
 	if not match : 
 		print "Do not understand:"
 		print line
 		continue
 	addSample(match.group(1),match.group(2),match.group(3),match.group(4),
-			match.group(5),match.group(6),match.group(7),match.group(8),crab_configs)
+			match.group(5),match.group(6),match.group(7),crab_configs)
 print "Creating submission file: submitall.sh"
 with open("submitall.sh", "w") as script:
 	script.write("#!/bin/bash\n\n")

@@ -4,11 +4,13 @@ EventFiller = cms.PSet(
     ignore                 = cms.bool(False),
     branchName             = cms.string("event"),
     addPDFWeights          = cms.bool(False),
+    sampParam              = cms.int32(-1),
     vertices               = cms.InputTag('offlineSlimmedPrimaryVertices'),
     rho                    = cms.InputTag('fixedGridRhoFastjetAll'),
     puSummaryInfo          = cms.InputTag('slimmedAddPileupInfo'),    
     met                    = cms.InputTag('slimmedMETs'),
-    rawMet                 = cms.InputTag('slimmedMETs'),  
+    rawMet                 = cms.InputTag('slimmedMETs'),
+    vanMet                 = cms.InputTag('slimmedMETs'),  
     genEvent               = cms.InputTag('generator'),
     lheEvent               = cms.InputTag('externalLHEProducer'),
 )
@@ -16,16 +18,12 @@ EventFiller = cms.PSet(
 METFilterFiller = cms.PSet(
     ignore                          = cms.bool(False),
     branchName                      = cms.string("event"),
-    trigBits                        = cms.InputTag('TriggerResults','','PAT'),
-    badChHadronFilter               = cms.InputTag('BadChargedCandidateFilter'),
-    badPFMuonFilter                 = cms.InputTag('BadPFMuonFilter'),    
-    dupECALClusters                 = cms.InputTag('particleFlowEGammaGSFixed', 'dupECALClusters', 'PAT'),
-    hitsNotReplaced                 = cms.InputTag('ecalMultiAndGSGlobalRecHitEB', 'hitsNotReplaced', 'PAT')  
+    trigBits                        = cms.InputTag('TriggerResults','','PAT'),  
 )
 
 TriggerFiller = cms.PSet(
     ignore                          = cms.bool(False),
     branchName                      = cms.string("event"),
     trigBits                        = cms.InputTag('TriggerResults','','HLT'),
-    trigPrescales                   = cms.InputTag('patTrigger'),  
+#     trigPrescales                   = cms.InputTag('patTrigger'),  
 )

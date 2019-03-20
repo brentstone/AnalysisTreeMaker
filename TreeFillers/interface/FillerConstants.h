@@ -6,187 +6,168 @@
 #include <string>
 namespace FillerConstants{
 
-template <class storage, class type>
-void addPass(storage& passList, const type passed ) { passList |= passed;}
-template <class storage, class type>
-void removePass(storage& passList, const type passed ) { passList &= ~passed;}
-template <class storage, class type>
-bool doesPass(const storage passList, const type checkPassed ) {return  checkPassed & passList;};
+template <class storage>
+void addPass(storage& passList, const ASTypes::size passed ) { passList |= (storage(1) << passed);}
+template <class storage>
+void removePass(storage& passList, const ASTypes::size passed ) { passList &= ~(storage(1) << passed);}
+template <class storage>
+bool doesPass(const storage passList, const ASTypes::size checkPassed ) {return  passList & (storage(1) << checkPassed);};
 
-
-enum DataRun   {NODATARUN, RUN2016A,RUN2016B,RUN2016C,RUN2016D,RUN2016E,RUN2016F,RUN2016G,RUN2016H};
-enum Dataset   {NODATASET, SINGLEE,SINGLEMU, JETHT,MET};
-const std::vector<std::string> DatasetNames = { "none","singlee","singlemu","jetht","met"};
+enum DataEra   {NOERA, ERA_2016,ERA_2017,ERA_2018};
+const std::vector<std::string> DataEraNames = { "none","2016","2017","2018"};
+enum DataRun   {NODATARUN, RUN2016A,RUN2016B,RUN2016C,RUN2016D,RUN2016E,RUN2016F,RUN2016G,RUN2016H,
+    RUN2017A,RUN2017B,RUN2017C,RUN2017D,RUN2017E,RUN2017F,RUN2017G,RUN2017H,
+    RUN2018A,RUN2018B,RUN2018C,RUN2018D,RUN2018E};
+const std::vector<std::string> DataRunNames =
+{"NONE"," Run2016A","Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H",
+        "Run2017A","Run2017B","Run2017C","Run2017D","Run2017E","Run2017F","Run2017G","Run2017H",
+        "Run2018A","Run2018B","Run2018C","Run2018D","Run2018E"};
+enum Dataset   {
+    NODATASET,
+    PD_BTagCSV        ,
+    PD_BTagMu         ,
+    PD_Charmonium     ,
+    PD_DoubleEG       ,
+    PD_DoubleMuon     ,
+    PD_HTMHT          ,
+    PD_JetHT          ,
+    PD_MET            ,
+    PD_MuOnia         ,
+    PD_MuonEG         ,
+    PD_SingleElectron ,
+    PD_SingleMuon     ,
+    PD_SinglePhoton   ,
+    PD_Tau            ,
+    PD_EGamma         ,
+};
+const std::vector<std::string> DatasetNames = { "NONE","BTagCSV","BTagMu","Charmonium","DoubleEG","DoubleMuon","HTMHT","JetHT","MET","MuOnia","MuonEG","SingleElectron","SingleMuon","SinglePhoton","Tau","EGamma"};
 enum MCProcess {NOPROCESS, SIGNAL,TTBAR,WJETS,ZJETS,SINGLET,DIBOSON,TTX,QCD,HX};
-const std::vector<std::string> MCProcessNames = { "none","signal","ttbar","wjets","zjets","singlet","diboson","ttX","qcd","hx"};
+const std::vector<std::string> MCProcessNames = { "NONE","signal","ttbar","wjets","zjets","singlet","diboson","ttx","qcd","hx"};
 
+enum SignalType  {NOSIGNAL,RADION,BLKGRAV};
+const std::vector<std::string> SignalTypeNames = {"NONE", "radion","blkgrav"};
 
+enum JetIDStatus { JETID_PU_L,JETID_PU_M,JETID_PU_T, JETID_LOOSE, JETID_TIGHT, JETID_TIGHTNOLEP};
 
-enum JetIDStatus { JETID_PU = (1 << 0), JETID_LOOSE = (1 << 1), JETID_TIGHT  = (1 << 2)};
-
-enum ElectronID {ELID_CUT_VETO         = (1 << 0)
-                ,ELID_CUT_LOOSE        = (1 << 1)
-                ,ELID_CUT_MED          = (1 << 2)
-                ,ELID_CUT_TIGHT        = (1 << 3)
-                ,ELID_CUT_HEEP         = (1 << 4)
-                ,ELID_CUT_NOISO_VETO   = (1 << 5)
-                ,ELID_CUT_NOISO_LOOSE  = (1 << 6)
-                ,ELID_CUT_NOISO_MED    = (1 << 7)
-                ,ELID_CUT_NOISO_TIGHT  = (1 << 8)
-                ,ELID_CUT_NOISO_HEEP   = (1 << 9)
+enum ElectronID {
+     ELID_cut_loose
+    ,ELID_cut_medium
+    ,ELID_cut_tight
+    ,ELID_cut_loose_noIso
+    ,ELID_cut_medium_noIso
+    ,ELID_cut_tight_noIso
+    ,ELID_mva_wpHZZ
+    ,ELID_mva_wp80
+    ,ELID_mva_wp90
+    ,ELID_mva_wpLoose
+    ,ELID_mva_wp80_noIso
+    ,ELID_mva_wp90_noIso
+    ,ELID_mva_wpLoose_noIso
+    ,ELID_heep
+    ,ELID_heep_noIso
 };
 
-enum ElectronRECOStatus {ELRECO_TrckDrv         = (1 << 0)
-                        ,ELRECO_ECALDrv         = (1 << 1)
+enum ElectronRECOStatus {ELRECO_TrckDrv
+    ,ELRECO_ECALDrv
 };
 
-enum MuonID   { MUID_SOFT   = (1 << 0)
-               ,MUID_LOOSE  = (1 << 1)
-               ,MUID_MED    = (1 << 2)
-               ,MUID_TIGHT  = (1 << 3)
-               ,MUID_HIGHPT = (1 << 4)
-               ,MUID_MED16  = (1 << 5)
+// from https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+enum MuonID   {
+    MUID_CutBasedIdLoose                //reco::Muon::isLooseMuon  ≥CMSSW_9_4_X
+    ,MUID_CutBasedIdMedium               //reco::Muon::isMediumMuon ≥CMSSW_9_4_X
+    ,MUID_CutBasedIdMediumPrompt         //reco::Muon::isMediumMuon and dz<0.1 and dxy< 0.02    ≥CMSSW_9_4_X
+    ,MUID_CutBasedIdTight                //reco::Muon::isTightMuon  ≥CMSSW_9_4_X
+    ,MUID_CutBasedIdGlobalHighPt            //reco::Muon::isHighPtMuon (better momentum resolution) ≥CMSSW_9_4_X
+    ,MUID_CutBasedIdTrkHighPt            //reco::Muon:: isTrackerHighPtMuon (better efficiency) ≥CMSSW_9_4_X
+    ,MUID_PFIsoVeryLoose                 //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.40 ≥CMSSW_9_4_X
+    ,MUID_PFIsoLoose                    //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.25  ≥CMSSW_9_4_X
+    ,MUID_PFIsoMedium                   //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.20  ≥CMSSW_9_4_X
+    ,MUID_PFIsoTight                    //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.15  ≥CMSSW_9_4_X
+    ,MUID_PFIsoVeryTight                 //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.10 ≥CMSSW_9_4_X
+    ,MUID_PFIsoVeryVeryTight             //Relative PF-isolation (delta beta corrected, 0.4 cone) <0.05 ≥CMSSW_10_1_X
+    ,MUID_TkIsoLoose                    //Relative Tracker isolation (0.3 cone) <0.10   ≥CMSSW_9_4_X
+    ,MUID_TkIsoTight                    //Relative Tracker isolation (0.3 cone) <0.05   ≥CMSSW_9_4_X
+    ,MUID_SoftCutBasedId                 //reco::Muon::isSoftMuon   ≥CMSSW_9_4_X
+    ,MUID_SoftMvaId                         //≥CMSSW_10_1_X MiniAOD only
+    ,MUID_MvaLoose                      //≥CMSSW_9_4_X  2016 training,MiniAOD only
+    ,MUID_MvaMedium                         //≥CMSSW_9_4_X  2016 training,MiniAOD only
+    ,MUID_MvaTight                      //≥CMSSW_9_4_X  2016 training, MiniAOD only
+    ,MUID_MiniIsoLoose                  //Relative MiniIso <0.40    ≥CMSSW_9_4_X    MiniAOD only
+    ,MUID_MiniIsoMedium                     //Relative MiniIso <0.20    ≥CMSSW_9_4_X    MiniAOD only
+    ,MUID_MiniIsoTight                  //Relative MiniIso <0.10    ≥CMSSW_9_4_X    MiniAOD only
+    ,MUID_MiniIsoVeryTight               //Relative MiniIso <0.05   ≥CMSSW_9_4_X    MiniAOD only
+    ,MUID_TriggerIdLoose                 //robust selector for HLT  ≥CMSSW_10_0_X
+    ,MUID_InTimeMuon                    //≥CMSSW_10_1_X
+    ,MUID_MultiIsoLoose                     //miniIso with ptRatio and pTRel    ≥CMSSW_10_1_X   MiniAOD only
+    ,MUID_MultiIsoMedium                 //miniIso with ptRatio and pTRel   ≥CMSSW_10_1_X   MiniAOD only
 };
 
+//From
+//https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2
+//https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/PatAlgos/python/slimming/metFilterPaths_cff.py
 enum METFilters{
-     Flag_goodVertices                      = (1 << 0)
-    ,Flag_globalTightHalo2016Filter         = (1 << 1)
-    ,Flag_HBHENoiseFilter                   = (1 << 2)
-    ,Flag_HBHENoiseIsoFilter                = (1 << 3)
-    ,Flag_EcalDeadCellTriggerPrimitiveFilter= (1 << 4)
-    ,Flag_eeBadScFilter                     = (1 << 5)
-    ,Flag_CSCTightHaloFilter                = (1 << 6)
-    ,Flag_CSCTightHalo2015Filter            = (1 << 7)
-    ,Flag_trackingFailureFilter             = (1 << 8)
-    ,Flag_trkPOGFilters                     = (1 << 9)
-    ,Flag_ecalLaserCorrFilter               = (1 << 10)
-    ,Flag_hcalLaserEventFilter              = (1 << 11)
-    ,Flag_badMuons                          = (1 << 12)
-    ,Flag_duplicateMuons                    = (1 << 13)
-     //Ones we add ourselves
-     //bad muon filters
-    ,AnaTM_badMuons                         = (1 << 14)
-    ,AnaTM_badChargedHadrons                = (1 << 15)
-    //ECAL slew rate
-    ,AnaTM_dupECALClusters                  = (1 << 16)  //true if duplicates are present..bad
-    ,AnaTM_hitsNotReplaced                  = (1 << 17)  //true of not empty...bad
-};
-const std::vector<std::string> metFilterStrings = {
-        "Flag_goodVertices",
-        "Flag_globalTightHalo2016Filter",
-        "Flag_HBHENoiseFilter",
-        "Flag_HBHENoiseIsoFilter",
-        "Flag_EcalDeadCellTriggerPrimitiveFilter",
-        "Flag_eeBadScFilter",
-        "Flag_CSCTightHaloFilter",
-        "Flag_CSCTightHalo2015Filter",
-        "Flag_trackingFailureFilter",
-        "Flag_trkPOGFilters",
-        "Flag_ecalLaserCorrFilter",
-        "Flag_hcalLaserEventFilter",
-        "Flag_badMuons",
-        "Flag_duplicateMuons",
-        "AnaTM_badMuons",
-        "AnaTM_badChargedHadrons",
-        "AnaTM_dupECALClusters",
-        "AnaTM_hitsNotReplaced"
+    Flag_HBHENoiseFilter
+    ,Flag_HBHENoiseIsoFilter
+    ,Flag_CSCTightHaloFilter
+    ,Flag_CSCTightHaloTrkMuUnvetoFilter
+    ,Flag_CSCTightHalo2015Filter
+    ,Flag_globalTightHalo2016Filter
+    ,Flag_globalSuperTightHalo2016Filter
+    ,Flag_HcalStripHaloFilter
+    ,Flag_hcalLaserEventFilter
+    ,Flag_EcalDeadCellTriggerPrimitiveFilter
+    ,Flag_EcalDeadCellBoundaryEnergyFilter
+    ,Flag_ecalBadCalibFilter
+    ,Flag_goodVertices
+    ,Flag_eeBadScFilter
+    ,Flag_ecalLaserCorrFilter
+    ,Flag_trkPOGFilters
+    ,Flag_chargedHadronTrackResolutionFilter
+    ,Flag_muonBadTrackFilter
+    ,Flag_BadChargedCandidateFilter
+    ,Flag_BadPFMuonFilter
+    ,Flag_BadChargedCandidateSummer16Filter
+    ,Flag_BadPFMuonSummer16Filter
+    ,Flag_trkPOG_manystripclus53X
+    ,Flag_trkPOG_toomanystripclus53X
+    ,Flag_trkPOG_logErrorTooManyClusters
+    ,Flag_METFilters
+    ,Flag_NFilters
 };
 
 
 
-enum Triggers{
-    //single mu
-     HLT_TkMu50                            = (ASTypes::size64(1) << 0)
-    ,HLT_Mu50                              = (ASTypes::size64(1) << 1)
-    ,HLT_Mu45_eta2p1                       = (ASTypes::size64(1) << 2)
-    ,HLT_IsoMu24                           = (ASTypes::size64(1) << 3)
-    ,HLT_IsoTkMu24                         = (ASTypes::size64(1) << 4)
-    ,HLT_Mu15_IsoVVVL_PFHT350              = (ASTypes::size64(1) << 5)
-    ,HLT_Mu15_IsoVVVL_PFHT400              = (ASTypes::size64(1) << 6)
-    ,HLT_Mu15_IsoVVVL_PFHT600              = (ASTypes::size64(1) << 7)
-    ,HLT_IsoMu16_eta2p1_MET30              = (ASTypes::size64(1) << 8)
-    //single e
-    ,HLT_Ele27_WPTight_Gsf                 = (ASTypes::size64(1) << 9)
-    ,HLT_Ele45_WPLoose_Gsf                 = (ASTypes::size64(1) << 10)
-    ,HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165 = (ASTypes::size64(1) << 11)
-    ,HLT_Ele105_CaloIdVT_GsfTrkIdT         = (ASTypes::size64(1) << 12)
-    ,HLT_Ele115_CaloIdVT_GsfTrkIdT         = (ASTypes::size64(1) << 13)
-    ,HLT_Ele15_IsoVVVL_PFHT350             = (ASTypes::size64(1) << 14)
-    ,HLT_Ele15_IsoVVVL_PFHT400             = (ASTypes::size64(1) << 15)
-    ,HLT_Ele15_IsoVVVL_PFHT600             = (ASTypes::size64(1) << 16)
-    //jetHT
-    ,HLT_AK8PFHT650_TrimR0p1PT0p03Mass50   = (ASTypes::size64(1) << 17)
-    ,HLT_AK8PFHT700_TrimR0p1PT0p03Mass50   = (ASTypes::size64(1) << 18)
-    ,HLT_AK8PFJet320                       = (ASTypes::size64(1) << 19)
-    ,HLT_AK8PFJet400                       = (ASTypes::size64(1) << 20)
-    ,HLT_AK8PFJet450                       = (ASTypes::size64(1) << 21)
-    ,HLT_AK8PFJet500                       = (ASTypes::size64(1) << 22)
-    ,HLT_AK8PFJet360_TrimMass30            = (ASTypes::size64(1) << 23)
-    ,HLT_AK8PFJet400_TrimMass30            = (ASTypes::size64(1) << 24)
-    ,HLT_PFHT125                           = (ASTypes::size64(1) << 25)
-    ,HLT_PFHT200                           = (ASTypes::size64(1) << 26)
-    ,HLT_PFHT250                           = (ASTypes::size64(1) << 27)
-    ,HLT_PFHT300                           = (ASTypes::size64(1) << 28)
-    ,HLT_PFHT350                           = (ASTypes::size64(1) << 29)
-    ,HLT_PFHT400                           = (ASTypes::size64(1) << 30)
-    ,HLT_PFHT475                           = (ASTypes::size64(1) << 31)
-    ,HLT_PFHT600                           = (ASTypes::size64(1) << 32)
-    ,HLT_PFHT650_WideJetMJJ900DEtaJJ1p5    = (ASTypes::size64(1) << 33)
-    ,HLT_PFHT650_WideJetMJJ950DEtaJJ1p5    = (ASTypes::size64(1) << 34)
-    ,HLT_PFHT650                           = (ASTypes::size64(1) << 35)
-    ,HLT_PFHT800                           = (ASTypes::size64(1) << 36)
-    ,HLT_PFHT900                           = (ASTypes::size64(1) << 37)
-    //met
-    ,HLT_PFMETNoMu110_PFMHTNoMu110_IDTight = (ASTypes::size64(1) << 38)
-    ,HLT_PFMETNoMu120_PFMHTNoMu120_IDTight = (ASTypes::size64(1) << 39)
-    ,HLT_PFMET110_PFMHT110_IDTight         = (ASTypes::size64(1) << 40)
-    ,HLT_PFMET120_PFMHT120_IDTight         = (ASTypes::size64(1) << 41)
-};
 
-const std::vector<std::string> triggerStrings = {
-        "HLT_TkMu50"                                ,
-        "HLT_Mu50"                                  ,
-        "HLT_Mu45_eta2p1"                           ,
-        "HLT_IsoMu24"                               ,
-        "HLT_IsoTkMu24"                             ,
-        "HLT_Mu15_IsoVVVL_PFHT350"                  ,
-        "HLT_Mu15_IsoVVVL_PFHT400"                  ,
-        "HLT_Mu15_IsoVVVL_PFHT600"                  ,
-        "HLT_IsoMu16_eta2p1_MET30"                  ,
-        "HLT_Ele27_WPTight_Gsf"                     ,
-        "HLT_Ele45_WPLoose_Gsf"                     ,
-        "HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165"     ,
-        "HLT_Ele105_CaloIdVT_GsfTrkIdT"             ,
-        "HLT_Ele115_CaloIdVT_GsfTrkIdT"             ,
-        "HLT_Ele15_IsoVVVL_PFHT350"                 ,
-        "HLT_Ele15_IsoVVVL_PFHT400"                 ,
-        "HLT_Ele15_IsoVVVL_PFHT600"                 ,
-        "HLT_AK8PFHT650_TrimR0p1PT0p03Mass50"       ,
-        "HLT_AK8PFHT700_TrimR0p1PT0p03Mass50"       ,
-        "HLT_AK8PFJet320"                           ,
-        "HLT_AK8PFJet400"                           ,
-        "HLT_AK8PFJet450"                           ,
-        "HLT_AK8PFJet500"                           ,
-        "HLT_AK8PFJet360_TrimMass30"                ,
-        "HLT_AK8PFJet400_TrimMass30"                ,
-        "HLT_PFHT125"                               ,
-        "HLT_PFHT200"                               ,
-        "HLT_PFHT250"                               ,
-        "HLT_PFHT300"                               ,
-        "HLT_PFHT350"                               ,
-        "HLT_PFHT400"                               ,
-        "HLT_PFHT475"                               ,
-        "HLT_PFHT600"                               ,
-        "HLT_PFHT650_WideJetMJJ900DEtaJJ1p5"        ,
-        "HLT_PFHT650_WideJetMJJ950DEtaJJ1p5"        ,
-        "HLT_PFHT650"                               ,
-        "HLT_PFHT800"                               ,
-        "HLT_PFHT900"                               ,
-        "HLT_PFMETNoMu110_PFMHTNoMu110_IDTight"     ,
-        "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"     ,
-        "HLT_PFMET110_PFMHT110_IDTight"             ,
-        "HLT_PFMET120_PFMHT120_IDTight"
-
+enum Triggers_2017 {
+    HLT17_PFHT500_PFMET100_PFMHT100_IDTight
+    ,HLT17_PFHT700_PFMET85_PFMHT85_IDTight
+    ,HLT17_PFHT800_PFMET75_PFMHT75_IDTight
+    ,HLT17_AK8PFHT850_TrimMass50
+    ,HLT17_AK8PFJet400_TrimMass30
+    ,HLT17_AK8PFJet500
+    ,HLT17_PFHT1050
+    ,HLT17_PFMET120_PFMHT120_IDTight
+    ,HLT17_PFMET120_PFMHT120_IDTight_PFHT60
+    ,HLT17_PFMET140_PFMHT140_IDTight
+    ,HLT17_PFMETNoMu120_PFMHTNoMu120_IDTight
+    ,HLT17_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60
+    ,HLT17_PFMETNoMu140_PFMHTNoMu140_IDTight
+    ,HLT17_PFMETTypeOne120_PFMHT120_IDTight
+    ,HLT17_PFMETTypeOne120_PFMHT120_IDTight_PFHT60
+    ,HLT17_PFMETTypeOne140_PFMHT140_IDTight
+    ,HLT17_Ele115_CaloIdVT_GsfTrkIdT
+    ,HLT17_Ele15_IsoVVVL_PFHT450
+    ,HLT17_Ele28_eta2p1_WPTight_Gsf_HT150
+    ,HLT17_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned
+    ,HLT17_Ele32_WPTight_Gsf
+    ,HLT17_Ele32_WPTight_Gsf_L1DoubleEG
+    ,HLT17_Ele35_WPTight_Gsf
+    ,HLT17_Ele50_CaloIdVT_GsfTrkIdT_PFJet165
+    ,HLT17_IsoMu27
+    ,HLT17_Mu15_IsoVVVL_PFHT450
+    ,HLT17_Mu50
+    ,HLT17_Photon200
+    ,HLT17_NTrig
 };
 
 
