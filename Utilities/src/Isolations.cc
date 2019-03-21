@@ -41,10 +41,10 @@ pat::PFIsolation Isolations::getMiniIsoWEleFootprintRemoval(const pat::PackedCan
 }
 bool Isolations::eleIsInFootprint(const pat::Electron * electron,  const unsigned int pfCandIDX){
 
-    for ( auto itr = electron ->associatedPackedPFCandidates().begin(); itr != electron ->associatedPackedPFCandidates().end(); ++itr )
-    {
-        if( itr->key() == pfCandIDX ) return true;
-    }
+//    for ( auto itr = electron ->associatedPackedPFCandidates().begin(); itr != electron ->associatedPackedPFCandidates().end(); ++itr )
+//    {
+//        if( itr->key() == pfCandIDX ) return true;
+//    }
     return false;
 }
 
