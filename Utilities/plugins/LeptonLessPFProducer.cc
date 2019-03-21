@@ -103,14 +103,21 @@ public:
 			if( e_dz > 0 && std::fabs(lep->gsfTrack()->dz(vtx_pt)  ) >= e_dz)continue;
 			if( e_sip3D > 0 && sip3d >= e_sip3D) continue;
 
-			int cutList = lep->userInt(e_ID);
+
             bool pass = true;
-            for(unsigned int iC = 0; iC < 20; ++iC){
-                if(int(iC) == e_isoMask) continue;
-                if(cutList & (int(1) << iC)) continue;
-                pass = false;
-                break;
+
+            if(e_isoMask<0){
+                if(!lep->electronID(e_ID)) pass = false;
+            } else {
+                int cutList = lep->userInt(e_ID);
+                for(unsigned int iC = 0; iC < 20; ++iC){
+                    if(int(iC) == e_isoMask) continue;
+                    if(cutList & (int(1) << iC)) continue;
+                    pass = false;
+                    break;
+                }
             }
+
             if(!pass) continue;
 			for(unsigned int iC = 0;iC < lep->associatedPackedPFCandidates().size(); ++iC){
 	            int pdg = std::abs(lep->associatedPackedPFCandidates()[iC]->pdgId());
