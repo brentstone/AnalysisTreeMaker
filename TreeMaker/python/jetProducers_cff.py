@@ -107,7 +107,7 @@ def ak8JetSequences(process,isRealData):
                runOnMC=(not isRealData),miniAOD=True, addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, 
                subJETCorrPayload='AK4PFPuppi',subJETCorrLevels = JETCorrLevels,bTagDiscriminators=bTagDiscriminators,subjetBTagDiscriminators=subjetBTagDiscriminators)
 
-    jetToolbox(process, 'ak8',  'jetSequence','out',PUMethod = 'Puppi', postFix='NoLep', JETCorrPayload = 'AK8PFPuppi', JETCorrLevels = JETCorrLevels,
+    jetToolbox(process, 'ak8',  'jetSequence','out',PUMethod = 'Puppi', postFix='NoLep', newPFCollection=True, nameNewPFCollection='leptonLesspuppi', JETCorrPayload = 'AK8PFPuppi', JETCorrLevels = JETCorrLevels,
            runOnMC=(not isRealData),miniAOD=True, addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, 
            subJETCorrPayload='AK4PFPuppi',subJETCorrLevels = JETCorrLevels, bTagDiscriminators=['None'],subjetBTagDiscriminators=['None'])
     
