@@ -37,7 +37,7 @@
 
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
+#include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -118,8 +118,6 @@ private:
   std::vector<std::string> variablesOrder_;
   std::vector<float> values_;
   TMVA::Reader* reader_;
-  tensorflow::GraphDef* graph_;
-  tensorflow::Session* session_;
 
   std::string name_;
   std::string backend_;
