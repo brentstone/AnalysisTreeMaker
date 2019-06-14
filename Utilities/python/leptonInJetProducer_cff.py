@@ -1,37 +1,50 @@
 import FWCore.ParameterSet.Config as cms
 
-leptonInJetProducer = cms.EDProducer('LepInJetProducer',
-                                     srcPF = cms.InputTag("packedPFCandidates"),
-                                     src = cms.InputTag("updatedJetsAK8"),
-                                     srcEle = cms.InputTag("slimmedElectrons"),
-                                     srcMu = cms.InputTag("slimmedMuons")
-)
+lepInJetVars = cms.EDProducer('LepInJetProducer',
+                              srcPF = cms.InputTag("packedPFCandidates"),
+                              src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
+                              srcEle = cms.InputTag("slimmedElectrons"),
+                              srcMu = cms.InputTag("slimmedMuons")
+                              )
 
 from RecoJets.JetProducers.ECFAdder_cfi import ECFAdder
 
 ecfNbeta1 = ECFAdder.clone(
-             src = cms.InputTag("updatedJetsAK8"),
+             src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
              ecftype = cms.string("N")
              )
 
 ecfMbeta1 = ECFAdder.clone(
-             src = cms.InputTag("updatedJetsAK8"),
+             src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
              ecftype = cms.string("M")
              )
 
 ecfDbeta1 = ECFAdder.clone(
-             src = cms.InputTag("updatedJetsAK8"),
+             src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
              ecftype = cms.string("D")
              )
 
 ecfUbeta1 = ECFAdder.clone(
-             src = cms.InputTag("updatedJetsAK8"),
+             src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
              ecftype = cms.string("U")
              )
 
-from  PhysicsTools.NanoAOD.common_cff import *
+updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
+                                            src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
+                                            userFloats = cms.PSet(lsf3 = cms.InputTag("lepInJetVars:lsf3"),
+                                                                  dRLep = cms.InputTag("lepInJetVars:dRLep"),
+                                                                  n2b1 = cms.InputTag("ecfNbeta1:ecfN2"),
+                                                                  d2b1 = cms.InputTag("ecfDbeta1:ecfD2"),
+                                                                  m2b1 = cms.InputTag("ecfMbeta1:ecfM2"),
+                                                                  n3b1 = cms.InputTag("ecfNbeta1:ecfN3"),
+                                                                  u3b1 = cms.InputTag("ecfUbeta1:ecfU3"),
+                                                                  u2b1 = cms.InputTag("ecfUbeta1:ecfU2"),
+                                                                  ),
+                                            userInts = cms.PSet(muonIdx3SJ = cms.InputTag("lepInJetVars:muIdx3SJ"),
+                                                                electronIdx3SJ = cms.InputTag("lepInJetVars:eleIdx3SJ"),
+                                                                ),
+                                            )
 
-#from PhysicsTools.PatAlgos.BaseMVAValueMapProducer 
 lepInJetMVA = cms.EDProducer('JetBaseMVAValueMapProducer',
                              src = cms.InputTag("updatedJetsAK8WithUserData"),
                              weightFile =  cms.FileInPath("AnalysisTreeMaker/Utilities/data/lsf3bdt_BDT.weights.xml"),
