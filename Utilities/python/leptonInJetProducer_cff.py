@@ -1,4 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+import re
+from collections import OrderedDict
+from RecoJets.JetProducers.ECF_cff import ecf
 
 lepInJetVars = cms.EDProducer('LepInJetProducer',
                               srcPF = cms.InputTag("packedPFCandidates"),
@@ -10,22 +13,22 @@ lepInJetVars = cms.EDProducer('LepInJetProducer',
 from RecoJets.JetProducers.ECFAdder_cfi import ECFAdder
 
 ecfNbeta1 = ECFAdder.clone(
-             src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
+             src = cms.InputTag("ak8PFJetsPuppiwLepSoftDrop"),
              ecftype = cms.string("N")
              )
 
 ecfMbeta1 = ECFAdder.clone(
-             src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
+             src = cms.InputTag("ak8PFJetsPuppiwLepSoftDrop"),
              ecftype = cms.string("M")
              )
 
 ecfDbeta1 = ECFAdder.clone(
-             src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
+             src = cms.InputTag("ak8PFJetsPuppiwLepSoftDrop"),
              ecftype = cms.string("D")
              )
 
 ecfUbeta1 = ECFAdder.clone(
-             src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
+             src = cms.InputTag("ak8PFJetsPuppiwLepSoftDrop"),
              ecftype = cms.string("U")
              )
 
@@ -45,7 +48,7 @@ updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
                                                                 ),
                                             )
 
-lepInJetMVA = cms.EDProducer('JetBaseMVAValueMapProducer',
+lepInJetMVA = cms.EDProducer('JetBaseMVAValueMapProducerT',
                              src = cms.InputTag("updatedJetsAK8WithUserData"),
                              weightFile =  cms.FileInPath("AnalysisTreeMaker/Utilities/data/lsf3bdt_BDT.weights.xml"),
                              name = cms.string("lepInJetMVA"),
