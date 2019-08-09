@@ -198,13 +198,13 @@ void BaseMVAValueMapProducer<T>::fillDescriptions(edm::ConfigurationDescriptions
   descriptions.add(modname, desc);
 }
 
-typedef BaseMVAValueMapProducer<pat::Jet> JetBaseMVAValueMapProducer;
-typedef BaseMVAValueMapProducer<pat::Muon> MuonBaseMVAValueMapProducer;
-typedef BaseMVAValueMapProducer<pat::Electron> EleBaseMVAValueMapProducer;
+typedef BaseMVAValueMapProducer<pat::Jet> JetBaseMVAValueMapProducerT;
+typedef BaseMVAValueMapProducer<pat::Muon> MuonBaseMVAValueMapProducerT;
+typedef BaseMVAValueMapProducer<pat::Electron> EleBaseMVAValueMapProducerT;
 
 //define this as a plug-in                                                                                                                                                                                         
-DEFINE_FWK_MODULE(JetBaseMVAValueMapProducer);
-DEFINE_FWK_MODULE(MuonBaseMVAValueMapProducer);
-DEFINE_FWK_MODULE(EleBaseMVAValueMapProducer);
+DEFINE_FWK_MODULE(JetBaseMVAValueMapProducerT);
+DEFINE_FWK_MODULE(MuonBaseMVAValueMapProducerT);
+DEFINE_FWK_MODULE(EleBaseMVAValueMapProducerT);
 
 #endif
