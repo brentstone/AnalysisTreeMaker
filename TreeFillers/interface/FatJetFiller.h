@@ -33,9 +33,20 @@ private:
 //    spv_float deep_flavor        = make_spv_float();
     spv_float tau1               = make_spv_float();
     spv_float tau2               = make_spv_float();
+
+
+    spv_float ecfN2              = make_spv_float();
+    spv_float ecfM2              = make_spv_float();
+    spv_float ecfD2              = make_spv_float();
+    spv_float ecfN3              = make_spv_float();
+    spv_float ecfU3              = make_spv_float();
+    spv_float ecfU2              = make_spv_float();
     spv_float tau3               = make_spv_float();
-    spv_float ecfb1              = make_spv_float();
-    spv_float ecfb2              = make_spv_float();
+    spv_float tau4               = make_spv_float();
+    spv_float lsf3               = make_spv_float();
+    spv_float dRLep              = make_spv_float();
+    spv_float lepInJetMVA        = make_spv_float();
+
 
     spv_int8  hadronFlavor       = make_spv_int8 ();
     spv_int8  partonFlavor       = make_spv_int8 ();
@@ -68,16 +79,19 @@ private:
     std::string subjetType           = "";
     bool isPuppi = false;
     bool addBTaggingInfo = false;
+    bool addLSFInfo = false;
 
 
 	std::string jetDef   ;
 	std::string subjetDef;
     edm::EDGetTokenT<std::vector<pat::Jet> >          token_jets;
     edm::EDGetTokenT<reco::GenJetCollection>          token_genJets;
+    edm::EDGetTokenT<edm::ValueMap<float>>                 token_mva;
     float minJetPT = 0;
 
     edm::Handle<std::vector<pat::Jet> >          han_jets;
     edm::Handle<reco::GenJetCollection>          han_genJets;
+    edm::Handle<edm::ValueMap<float>>            han_mva;
 
     edm::ESHandle<JetCorrectorParametersCollection> jetCorParameters;
     std::unique_ptr<JetCorrectionUncertainty> jetCorUnc;

@@ -11,18 +11,22 @@ ak8PuppiNoLepFatJetFiller = cms.PSet(
     subjetDef                       = cms.string('SoftDrop'),  
     jetType                         = cms.string('AK8PFPuppi'),
     subjetType                      = cms.string('AK4PFPuppi'),  
-    addBTaggingInfo                 = cms.bool(False)
+    addBTaggingInfo                 = cms.bool(False),
+    addLSFInfo                      = cms.bool(False),
+    mva                             = cms.InputTag('packedPatJetsAK8PFPuppiNoLepSoftDroplepInJetMVAValueMap'),
 )
 ak8PuppiFatJetFiller = cms.PSet(
     ignore                          = cms.bool(False),
     branchName                      = cms.string("ak8PuppiJet"),
     fillGenJets                     = cms.bool(True),
-    minJetPT                        = cms.double(170),
+    minJetPT                        = cms.double(40),
     jets                            = cms.InputTag('packedPatJetsAK8PFPuppiwLepSoftDrop'),
     genjets                         = cms.InputTag('ak8GenJetsNoNu'),     
     jetDef                          = cms.string('PuppiwLep'),  
     subjetDef                       = cms.string('SoftDrop'),  
     jetType                         = cms.string('AK8PFPuppi'),
     subjetType                      = cms.string('AK4PFPuppi'),
-    addBTaggingInfo                 = cms.bool(True)
+    addBTaggingInfo                 = cms.bool(True),
+    addLSFInfo                      = cms.bool(True),
+    mva                             = cms.InputTag('packedPatJetsAK8PFPuppiwLepSoftDroplepInJetMVAValueMap'),
 )

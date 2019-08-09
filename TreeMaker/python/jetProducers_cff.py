@@ -74,6 +74,7 @@ def addECF(proc,jetSeq,postFix,ecfType,ecfBeta,ecfN3):
              mod["PFJetsSoftDropValueMap"]+':'+mod["ECF"+ecfVar]+ecfType+'2',
             mod["PFJetsSoftDropValueMap"]+':'+mod["ECF"+ecfVar]+ecfType+'3' ]
     
+
 def producePF(process) :    
     process.load("AnalysisTreeMaker.Utilities.leptonLessPFProducer_cff")
     process.load('CommonTools.PileupAlgos.Puppi_cff') #https://twiki.cern.ch/twiki/bin/view/CMS/JetToolbox#New_PF_Collection
@@ -111,10 +112,15 @@ def ak8JetSequences(process,isRealData):
            runOnMC=(not isRealData),miniAOD=True, addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, 
            subJETCorrPayload='AK4PFPuppi',subJETCorrLevels = JETCorrLevels, bTagDiscriminators=['None'],subjetBTagDiscriminators=['None'])
     
-    addECF(process,process.jetSequence,'NoLep',"N",1,False)
-    addECF(process,process.jetSequence,'NoLep',"N",2,False)
-    addECF(process,process.jetSequence,'wLep',"N",1,False)
-    addECF(process,process.jetSequence,'wLep',"N",2,False)
+#     addECF(process,process.jetSequence,'NoLep',"N",1,False)
+#     addECF(process,process.jetSequence,'NoLep',"N",2,False)
+#     addECF(process,process.jetSequence,'wLep',"N",1,False)
+#     addECF(process,process.jetSequence,'wLep',"N",2,False)
+    from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
+    addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
+
+
+    
     
     #because there was a built in 100 GeV cut????
     process.ak8PFJetsPuppiwLepSoftDrop.jetPtMin = 10
