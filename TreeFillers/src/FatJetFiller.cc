@@ -11,8 +11,7 @@ namespace AnaTM{
 //--------------------------------------------------------------------------------------------------
 FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
         edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra):
-                                                                BaseFiller(fullParamSet,psetName,"FatJetFiller"),
-                                                                isRealData(isRealData),dataEra(dataEra)
+        BaseFiller(fullParamSet,psetName,"FatJetFiller"), isRealData(isRealData),dataEra(dataEra)
 {
     if(ignore()) return;
     jetType      =cfg.getParameter<std::string>("jetType");

@@ -118,6 +118,12 @@ process.p = cms.Path()
 #==============================================================================================================================#
 #==============================================================================================================================#
 
+
+# process.load('AnalysisTreeMaker.TreeMaker.btagFilter_cff')
+# process.btagFilter.type = type
+# process.p += process.btagFilter  
+
+
 #filter out events that dont pass a chosen trigger in data
 if isRealData :
      process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')

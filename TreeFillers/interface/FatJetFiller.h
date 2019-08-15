@@ -2,7 +2,12 @@
 #define ANALYSISTREEMAKER_TREEFILLERS_FatJetFILLER_H
 
 #include "AnalysisTreeMaker/TreeMaker/interface/BaseFiller.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+class BTagFilter;
 
 namespace AnaTM{
 //--------------------------------------------------------------------------------------------------
@@ -98,6 +103,8 @@ private:
 
     edm::ESHandle<JetCorrectorParametersCollection> subjetCorParameters;
     std::unique_ptr<JetCorrectionUncertainty> subjetCorUnc;
+
+    friend class ::BTagFilter; //for the btag filtering...easier than making accessor functions
 };
 }
 
