@@ -3,83 +3,6 @@ import re
 from collections import OrderedDict
 from RecoJets.JetProducers.ECF_cff import ecf
 
-lepInJetVars = cms.EDProducer('LepInJetProducer',
-                              srcPF = cms.InputTag("packedPFCandidates"),
-                              src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
-                              srcEle = cms.InputTag("slimmedElectrons"),
-                              srcMu = cms.InputTag("slimmedMuons")
-                              )
-
-from RecoJets.JetProducers.ECFAdder_cfi import ECFAdder
-
-ecfNbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppiwLepSoftDrop"),
-             ecftype = cms.string("N")
-             )
-
-ecfMbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppiwLepSoftDrop"),
-             ecftype = cms.string("M")
-             )
-
-ecfDbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppiwLepSoftDrop"),
-             ecftype = cms.string("D")
-             )
-
-ecfUbeta1 = ECFAdder.clone(
-             src = cms.InputTag("ak8PFJetsPuppiwLepSoftDrop"),
-             ecftype = cms.string("U")
-             )
-
-updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
-                                            src = cms.InputTag("packedPatJetsAK8PFPuppiwLepSoftDrop"),
-                                            userFloats = cms.PSet(lsf3 = cms.InputTag("lepInJetVars:lsf3"),
-                                                                  dRLep = cms.InputTag("lepInJetVars:dRLep"),
-                                                                  n2b1 = cms.InputTag("ecfNbeta1:ecfN2"),
-                                                                  d2b1 = cms.InputTag("ecfDbeta1:ecfD2"),
-                                                                  m2b1 = cms.InputTag("ecfMbeta1:ecfM2"),
-                                                                  n3b1 = cms.InputTag("ecfNbeta1:ecfN3"),
-                                                                  u3b1 = cms.InputTag("ecfUbeta1:ecfU3"),
-                                                                  u2b1 = cms.InputTag("ecfUbeta1:ecfU2"),
-                                                                  ),
-                                            userInts = cms.PSet(muonIdx3SJ = cms.InputTag("lepInJetVars:muIdx3SJ"),
-                                                                electronIdx3SJ = cms.InputTag("lepInJetVars:eleIdx3SJ"),
-                                                                ),
-                                            )
-
-lepInJetMVA = cms.EDProducer('JetBaseMVAValueMapProducerT',
-                             src = cms.InputTag("updatedJetsAK8WithUserData"),
-                             weightFile =  cms.FileInPath("AnalysisTreeMaker/Utilities/data/lsf3bdt_BDT.weights.xml"),
-                             name = cms.string("lepInJetMVA"),
-                             isClassifier = cms.bool(True),
-                             variablesOrder = cms.vstring(["clf_LSF3","clf_dRLep",
-                                                           "n2b1:=clf_e3_v2_sdb1/(clf_e2_sdb1*clf_e2_sdb1)",
-                                                           "m2b1:=clf_e3_v1_sdb1/clf_e2_sdb1",
-                                                           "d2b1:=clf_e3_sdb1/(clf_e2_sdb1*clf_e2_sdb1*clf_e2_sdb1)",
-                                                           "n3b1:=clf_e4_v2_sdb1/(clf_e3_v1_sdb1*clf_e3_v1_sdb1)",
-                                                           "tau21:=clf_Tau2/clf_Tau1",
-                                                           "tau31:=clf_Tau3/clf_Tau1",
-                                                           "tau32:=clf_Tau3/clf_Tau2",
-                                                           "tau43:=clf_Tau4/clf_Tau3",
-                                                           "u3b1:=clf_e4_v1_sdb1",
-                                                           "u2b1:=clf_e3_v1_sdb1",
-                                                           ]),
-                             variables = cms.PSet(clf_LSF3 = cms.string("userFloat('lsf3')"),
-                                                  clf_dRLep = cms.string("userFloat('dRLep')"),                                                                                                           
-                                                  n2b1 = cms.string("userFloat('n2b1')"),
-                                                  m2b1 = cms.string("userFloat('m2b1')"),
-                                                  d2b1 = cms.string("userFloat('d2b1')"),
-                                                  n3b1 = cms.string("userFloat('n3b1')"),
-                                                  tau21 = cms.string("userFloat('NjettinessAK8Puppi:tau2')/userFloat('NjettinessAK8Puppi:tau1')"),
-                                                  tau31 = cms.string("userFloat('NjettinessAK8Puppi:tau3')/userFloat('NjettinessAK8Puppi:tau1')"),
-                                                  tau32 = cms.string("userFloat('NjettinessAK8Puppi:tau3')/userFloat('NjettinessAK8Puppi:tau2')"),
-                                                  tau43 = cms.string("userFloat('NjettinessAK8Puppi:tau4')/userFloat('NjettinessAK8Puppi:tau3')"),
-                                                  u3b1 = cms.string("userFloat('u3b1')"),
-                                                  u2b1 = cms.string("userFloat('u2b1')"),
-                                                  )
-                             )
-
 def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
     match = re.match("([a-zA-Z]+)(\d+)", jetAlgo)
     if not match :
@@ -120,10 +43,10 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
     
     # create the ECF variables based on the groomed jets
     ecfProd = ecf.clone( src = cms.InputTag( mod["pfJetsSoftDrop"] ),
-                ecftype = cms.string( "N" ),
-                alpha = cms.double( 1 ),
-                beta = cms.double( 1 )
-                )
+                         ecftype = cms.string( "N" ),
+                         alpha = cms.double( 1 ),
+                         beta = cms.double( 1 )
+                         )
     setattr( proc, mod["ecfNbeta1"], ecfProd.clone(ecftype = cms.string( "N" ) ))
     setattr( proc, mod["ecfMbeta1"], ecfProd.clone(ecftype = cms.string( "M" ),
       cuts = cms.vstring( '', '', 'pt>10000'  ) ))
@@ -188,11 +111,11 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
     
     #create the lepton in jets variables
     setattr( proc, mod["lepInJetV"], cms.EDProducer('LepInJetProducer',
-                        srcPF = cms.InputTag("packedPFCandidates"), #doesnt do anything
-                        src = cms.InputTag(mod["PATJets"]),
-                        srcEle = cms.InputTag("slimmedElectrons"),
-                        srcMu = cms.InputTag("slimmedMuons")
-                        ))
+                                                    srcPF = cms.InputTag("packedPFCandidates"), #doesnt do anything
+                                                    src = cms.InputTag(mod["PATJets"]),
+                                                    srcEle = cms.InputTag("slimmedElectrons"),
+                                                    srcMu = cms.InputTag("slimmedMuons")
+                                                    ))
     jetSeq += getattr(proc, mod["lepInJetV"])
     getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["lepInJetV"]))
     
