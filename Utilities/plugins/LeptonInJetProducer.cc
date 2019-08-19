@@ -29,10 +29,30 @@ bool matchByCommonSourceCandidatePtr(const C1 & c1, const C2 & c2) {
   for(unsigned int i1 = 0 ; i1 < c1.numberOfSourceCandidatePtrs();i1++){
     auto  c1s=c1.sourceCandidatePtr(i1);
     for(unsigned int i2 = 0 ; i2 < c2.numberOfSourceCandidatePtrs();i2++) {
-      if(c2.sourceCandidatePtr(i2)==c1s) return true;
+      if(c2.sourceCandidatePtr(i2)==c1s) {
+	return true;
+      }
     }
   }
   return false;
+}
+
+template <class C1>
+int leptonInJet(const pat::Jet &jet, const C1 & leptons){
+  for(unsigned ilep(0); ilep < leptons->size(); ilep++){
+    int indpf(-1);
+    unsigned npflep(leptons->ptrAt(ilep)->numberOfSourceCandidatePtrs());
+    if(leptons->ptrAt(ilep)->isMuon() && npflep==1){ indpf = 0;}
+    if(leptons->ptrAt(ilep)->isElectron() && npflep==2){ indpf = 1;} // Electrons have a missing reference at 0
+    if(indpf>=0){ // The lepton is PF -> looping over PF cands in jet
+      for (unsigned ijet(0); ijet < jet.numberOfSourceCandidatePtrs(); ijet++)
+	if(jet.sourceCandidatePtr(ijet) == leptons->ptrAt(ilep)->sourceCandidatePtr(indpf))
+	  return ilep;
+    } else { // The lepton is not PF, matching with deltaR
+      if( reco::deltaR(jet.eta(), jet.phi(), leptons->ptrAt(ilep)->eta(), leptons->ptrAt(ilep)->phi()) < 0.8) return ilep;
+    }
+  } // Loop over leptons
+  return -1;
 }
 
 template <typename T>
@@ -86,6 +106,7 @@ LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
     unsigned int nJet = srcJet->size();
     unsigned int nEle = srcEle->size();
     unsigned int nMu  = srcMu->size();
+    unsigned int nPF  = srcPF->size();
 
     std::vector<float> *vlsf3 = new std::vector<float>;
     std::vector<float> *vdRLep = new std::vector<float>;
@@ -114,38 +135,49 @@ LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
       }
 
       // match to leading and closest electron or muon
+      /*
+      double pfDR(999);
+      for(unsigned int ip=0; ip<nPF;ip++){
+	const pat::PackedCandidate & itPF = (*srcPF)[ip];
+	double dR = reco::deltaR(itJet.eta(), itJet.phi(), itPF.eta(), itPF.phi());
+	if(dR < pfDR && (fabs(itPF.pdgId())==11||fabs(itPF.pdgId())==13)) {
+	  std::cout << " id " << fabs(itPF.pdgId()) << " dr " << dR << " pt " << itPF.pt() << std::endl;
+	  pfDR = dR;
+	}
+      }
+      */
+
       double dRmin(0.8),dRele(999),dRmu(999),dRtmp(999),dRLep(-1);
-      for (unsigned int il(0); il < nEle; il++) {
-	auto itLep = srcEle->ptrAt(il);
-	if(matchByCommonSourceCandidatePtr(*itLep,itJet)){
-	  dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), itLep->eta(), itLep->phi());
-	  if(dRtmp < dRmin && dRtmp < dRele && itLep->pt() > lepPt) {
-	    lepPt = itLep->pt();
-	    lepEta = itLep->eta();
-	    lepPhi = itLep->phi();
-	    lepId = 11;
-	    ele_pfmatch_index = il;
-	    dRele = dRtmp;
-	    break;
-	  }
-	} 
+      ele_pfmatch_index = leptonInJet(itJet, srcEle);
+      if(ele_pfmatch_index!=-1) { 
+	auto itLep = srcEle->ptrAt(ele_pfmatch_index);
+	dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), itLep->eta(), itLep->phi());
+        if(dRtmp < dRmin && dRtmp < dRele && itLep->pt() > lepPt) {
+          lepPt = itLep->pt();
+          lepEta = itLep->eta();
+          lepPhi = itLep->phi();
+          lepId = 11;
+	  dRele = dRtmp;
+	}
       }
       if(dRele < 0.8) dRLep = dRele;
-      for (unsigned int il(0); il < nMu; il++) {
-        auto itLep = srcMu->ptrAt(il);
-        if(matchByCommonSourceCandidatePtr(*itLep,itJet)){
-          dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), itLep->eta(), itLep->phi());
-	  if(dRtmp < dRmin && dRtmp < dRele && dRtmp < dRmu && itLep->pt() > lepPt) {
-	    lepPt = itLep->pt();
-            lepEta = itLep->eta();
-            lepPhi = itLep->phi();
-            lepId = 13;
-	    ele_pfmatch_index = -1;
-            mu_pfmatch_index = il;
-	    dRmu = dRtmp;
-            break;
-	  }
-        }
+      //if(ele_pfmatch_index!=-1){
+      //auto itPFL = (*srcPF)[ele_pfmatch_index];
+      //std::cout << "ele pfmatch " << ele_pfmatch_index << " pt "<< itPFL.pt() << " id " << itPFL.pdgId() << std::endl;
+      //}
+
+      mu_pfmatch_index = leptonInJet(itJet, srcMu);
+      if(mu_pfmatch_index!=-1){
+        auto itLep = srcMu->ptrAt(mu_pfmatch_index);
+	dRtmp = reco::deltaR(itJet.eta(), itJet.phi(), itLep->eta(), itLep->phi());
+	if(dRtmp < dRmin && dRtmp < dRele && dRtmp < dRmu && itLep->pt() > lepPt) {
+	  lepPt = itLep->pt();
+	  lepEta = itLep->eta();
+	  lepPhi = itLep->phi();
+	  lepId = 13;
+	  ele_pfmatch_index = -1;
+	  dRmu = dRtmp;
+	}
       }
       if(dRmu < 0.8) dRLep =dRmu;
 
@@ -157,7 +189,6 @@ LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
       veleIdx3SJ->push_back( ele_pfmatch_index );
       vmuIdx3SJ->push_back( mu_pfmatch_index );
     }
-
 
     // Filling table
     std::unique_ptr<edm::ValueMap<float>> lsf3V(new edm::ValueMap<float>());
