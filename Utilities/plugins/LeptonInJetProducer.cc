@@ -104,9 +104,9 @@ LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
     iEvent.getByToken(srcMu_, srcMu);
 
     unsigned int nJet = srcJet->size();
-    unsigned int nEle = srcEle->size();
-    unsigned int nMu  = srcMu->size();
-    unsigned int nPF  = srcPF->size();
+//    unsigned int nEle = srcEle->size();
+//    unsigned int nMu  = srcMu->size();
+//    unsigned int nPF  = srcPF->size();
 
     std::vector<float> *vlsf3 = new std::vector<float>;
     std::vector<float> *vdRLep = new std::vector<float>;
