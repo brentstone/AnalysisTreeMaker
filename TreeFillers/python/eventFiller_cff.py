@@ -4,6 +4,7 @@ EventFiller = cms.PSet(
     ignore                 = cms.bool(False),
     branchName             = cms.string("event"),
     addPDFWeights          = cms.bool(False),
+    addPrefiringWeights    = cms.bool(False),
     sampParam              = cms.int32(-1),
     vertices               = cms.InputTag('offlineSlimmedPrimaryVertices'),
     rho                    = cms.InputTag('fixedGridRhoFastjetAll'),
