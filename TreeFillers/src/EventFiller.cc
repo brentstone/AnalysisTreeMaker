@@ -17,7 +17,8 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 		mcProcess(mcProcess),
 		signalType_input(signalType_input),
 		sampParam_input(cfg.getParameter<int>("sampParam")),
-		addPDFWeights(cfg.getParameter<bool>("addPDFWeights"))
+		addPDFWeights(cfg.getParameter<bool>("addPDFWeights")),
+		addPrefiringWeights(cfg.getParameter<bool>("addPrefiringWeights"))
 
 {
 	if(ignore()) return;
@@ -27,10 +28,11 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	token_met   =cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("met"));
 	token_rawMet=cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("rawMet"));
 	token_vanMet=cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("vanMet"));
-	token_prefweight    =cc.consumes<double>(edm::InputTag("prefiringweight:NonPrefiringProb"));
-	token_prefweightup  =cc.consumes<double>(edm::InputTag("prefiringweight:NonPrefiringProbUp"));
-	token_prefweightdown=cc.consumes<double>(edm::InputTag("prefiringweight:NonPrefiringProbDown"));
-
+	if(addPrefiringWeights){
+	    token_prefweight    =cc.consumes<double>(edm::InputTag("prefiringweight:nonPrefiringProb"));
+	    token_prefweightup  =cc.consumes<double>(edm::InputTag("prefiringweight:nonPrefiringProbUp"));
+	    token_prefweightdown=cc.consumes<double>(edm::InputTag("prefiringweight:nonPrefiringProbDown"));
+	}
 	if(!isRealData){
 		token_puSum   =cc.consumes<std::vector<PileupSummaryInfo>>
 		        (cfg.getParameter<edm::InputTag>("puSummaryInfo"));
@@ -82,9 +84,11 @@ void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	iEvent.getByToken(token_rawMet  ,han_rawMet  );
 	iEvent.getByToken(token_vanMet  ,han_vanMet  );
 
-	iEvent.getByToken(token_prefweight  ,han_prefweight  );
-	iEvent.getByToken(token_prefweightup  ,han_prefweightup  );
-	iEvent.getByToken(token_prefweightdown  ,han_prefweightdown  );
+	if(addPrefiringWeights){
+	    iEvent.getByToken(token_prefweight  ,han_prefweight  );
+	    iEvent.getByToken(token_prefweightup  ,han_prefweightup  );
+	    iEvent.getByToken(token_prefweightdown  ,han_prefweightdown  );
+	}
 
 	if(!realData){
 		iEvent.getByToken(token_puSum   ,han_puSum   );
@@ -136,9 +140,11 @@ void EventFiller::setValues(){
 		  nTruePUInts         =num_true_interactions;
 		  genWeight           =han_genEvent	->weight();
 		  process             =static_cast<size8>(mcProcess);
-		  prefweight        =*han_prefweight    ;
-		  prefweightup      =*han_prefweightup  ;
-		  prefweightdown    =*han_prefweightdown;
+		  if(addPrefiringWeights){
+	          prefweight        =*han_prefweight    ;
+	          prefweightup      =*han_prefweightup  ;
+	          prefweightdown    =*han_prefweightdown;
+		  }
 		  signalType        = signalType_input;
 		    if(addPDFWeights){
 		      const auto& pdfWeights = han_lheEventInfo->weights();
