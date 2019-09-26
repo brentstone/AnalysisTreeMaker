@@ -132,6 +132,7 @@ enum METFilters{
     ,Flag_trkPOG_toomanystripclus53X
     ,Flag_trkPOG_logErrorTooManyClusters
     ,Flag_METFilters
+    ,FLAG_ecalBadCalibFilterUpdate
     ,Flag_NFilters
 };
 
