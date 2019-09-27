@@ -82,12 +82,14 @@ type = options.type
 
 
 isRealData = ('Run' in type)
+isSignal   = ('signal' in sample)
 
 from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 if isRealData and not isCrab:
     setupJSONFiltering(process,type)
 
 #==============================================================================================================================#
+#Setup the tree maker
 #==============================================================================================================================#
 process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , globalTag = cms.string('')                                 
@@ -95,7 +97,7 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , type = cms.string(type)
                                  , EventFiller               = cms.PSet(EventFiller)
                                  , METFilterFiller           = cms.PSet(METFilterFiller)
-#                                  , TriggerFiller             = cms.PSet(TriggerFiller)
+                                 , TriggerFiller             = cms.PSet(TriggerFiller)
 #                                  , ak4JetFiller              = cms.PSet(ak4JetFiller)
 #                                  , ak4PuppiJetFiller         = cms.PSet(ak4PuppiJetFiller)
 # #                                  , ak4PuppiNoLepJetFiller    = cms.PSet(ak4PuppiNoLepJetFiller)
@@ -108,29 +110,35 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,type)
 process.treeMaker.EventFiller.sampParam = options.sampParam;
 # turn off for now
-# if 'signal' in sample:
+# if isSignal:
 #     process.treeMaker.EventFiller.addPDFWeights = True;
-#==============================================================================================================================#
-#==============================================================================================================================#
 
-
+#==============================================================================================================================#
+#Event counting: needed for event weights
+#==============================================================================================================================#
 process.p = cms.Path()
+process.load('AnalysisTreeMaker.TreeMaker.eventCounter_cff')
+process.eventCounter.type = type
+process.eventCounter.genEvent = process.treeMaker.EventFiller.genEvent
+process.p += process.eventCounter  
+
+
 #==============================================================================================================================#
+# Event filters
+#==============================================================================================================================#
+if not isSignal:
+    process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
+    process.triggerFilter.type = type
+    process.triggerFilter.sample = sample
+    process.p += process.triggerFilter 
+# process.load('AnalysisTreeMaker.TreeMaker.btagFilter_cff')
+# process.btagFilter.type = type
+# process.p += process.btagFilter  
+
+#==============================================================================================================================#
+# Customization
 #==============================================================================================================================#
 
-# 
-# # process.load('AnalysisTreeMaker.TreeMaker.btagFilter_cff')
-# # process.btagFilter.type = type
-# # process.p += process.btagFilter  
-# 
-# 
-# #filter out events that dont pass a chosen trigger in data
-# if isRealData :
-#      process.load('AnalysisTreeMaker.TreeMaker.triggerFilter_cff')
-#      process.triggerFilter.type = type
-#      process.triggerFilter.sample = sample
-#      process.p += process.triggerFilter     
-# 
 # #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes
 # if '2017' in type:
 #     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
@@ -193,6 +201,7 @@ if '2017' in type or '2018' in type : #https://twiki.cern.ch/twiki/bin/viewauth/
     process.treeMaker.METFilterFiller.ecalBadCalibFilterUpdate = True;    
     
  
-# #==============================================================================================================================#
+#==============================================================================================================================#
+# Tree maker is the last step
 #==============================================================================================================================#
 process.p += process.treeMaker
