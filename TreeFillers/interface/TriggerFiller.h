@@ -9,7 +9,9 @@
 namespace AnaTM{
 class TriggerFiller : public BaseFiller {
 public:
-	TriggerFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc,FillerConstants::DataEra dataEra,FillerConstants::Dataset dataset);
+	TriggerFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
+	        edm::ConsumesCollector&& cc,FillerConstants::DataEra dataEra,
+	        FillerConstants::Dataset dataset);
 	virtual ~TriggerFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
@@ -22,7 +24,9 @@ public:
 //	size64 triggerPrescales=0;
 
 private:
+	void fill2016Info();
 	void fill2017Info();
+//	void fill2018Info();
 
 
 	edm::EDGetTokenT<edm::TriggerResults>                    token_trigBits      ;
