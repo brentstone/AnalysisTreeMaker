@@ -13,10 +13,13 @@ public:
         std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
         std::cout << " ++  Setting up TriggerFilter"<<std::endl;
         std::cout << " \033[1;34m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\033[0m"  << std::endl;
-        std::string typeStr = iConfig.getParameter<std::string>("type"   );
-        std::string sample     = iConfig.getParameter<std::string>("sample"    );
+        const std::string typeStr = iConfig.getParameter<std::string>("type"   );
+        const std::string sample     = iConfig.getParameter<std::string>("sample"    );
+        const bool isRealData               = strFind(typeStr,"Run");
+
         trigFiller.reset(new AnaTM::TriggerFiller(iConfig,"TriggerFiller",consumesCollector(),
-                FillerConstants::getDataEra(typeStr), FillerConstants::getDataset(sample)));
+                FillerConstants::getDataEra(typeStr),
+                isRealData ? FillerConstants::getDataset(sample) : FillerConstants::NODATASET ));
 }
 	virtual ~TriggerFilter(){};
 	virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup){

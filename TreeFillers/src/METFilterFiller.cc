@@ -5,16 +5,23 @@
 namespace AnaTM{
 
 METFilterFiller::METFilterFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName, edm::ConsumesCollector&& cc, bool isRealData):
-		BaseFiller(fullParamSet,psetName,"METFilterFiller"), isRealData(isRealData)
+		BaseFiller(fullParamSet,psetName,"METFilterFiller"), isRealData(isRealData),
+		ecalBadCalibFilterUpdate(cfg.getParameter<bool>("ecalBadCalibFilterUpdate"))
 {
 		if(ignore()) return;
 		token_trigBits         =cc.consumes<edm::TriggerResults> (cfg.getParameter<edm::InputTag>("trigBits"));
+		if(ecalBadCalibFilterUpdate)
+		    ecalBadCalibFilterUpdate_token=
+		            cc.consumes< bool >(edm::InputTag("ecalBadCalibReducedMINIAODFilter"));
+
 	    data.addSingle(metFilters           ,branchName,"metFilters"           );
 	    fillNames();
 };
 
 void METFilterFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	iEvent.getByToken(token_trigBits, han_trigBits);
+	if(ecalBadCalibFilterUpdate)
+	    iEvent.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
 	triggerNames  = &iEvent.triggerNames(*han_trigBits);
 };
 
@@ -28,6 +35,9 @@ void METFilterFiller::setValues(){
 		      if(han_trigBits->accept(i))FillerConstants::addPass(metFilters,filt);
 		      break;
 		  }
+	  }
+	  if(ecalBadCalibFilterUpdate && (*passecalBadCalibFilterUpdate )){
+	      FillerConstants::addPass(metFilters,FillerConstants::FLAG_ecalBadCalibFilterUpdate);
 	  }
 };
 
@@ -59,6 +69,7 @@ void METFilterFiller::fillNames(){
     filterNames[FillerConstants::Flag_trkPOG_toomanystripclus53X               ] ="Flag_trkPOG_toomanystripclus53X";
     filterNames[FillerConstants::Flag_trkPOG_logErrorTooManyClusters           ] ="Flag_trkPOG_logErrorTooManyClusters";
     filterNames[FillerConstants::Flag_METFilters                               ] ="Flag_METFilters";
+    filterNames[FillerConstants::FLAG_ecalBadCalibFilterUpdate                 ] ="DUMMY_CUSTOMRUN_ecalBadCalibReducedMINIAODFilter";
 }
 
 

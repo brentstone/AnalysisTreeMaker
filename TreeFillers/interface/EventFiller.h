@@ -48,6 +48,7 @@ private:
 	const FillerConstants::SignalType  signalType_input;
 	const int   sampParam_input;
 	const bool  addPDFWeights;
+	const bool  addPrefiringWeights;
 
 
 	// Start Tree content

@@ -20,8 +20,11 @@ private:
 
 	size metFilters                = 0;
 	bool isRealData = false;
+	bool ecalBadCalibFilterUpdate = false;
 	edm::EDGetTokenT<edm::TriggerResults>  token_trigBits;
 	edm::Handle<edm::TriggerResults> han_trigBits;
+	edm::EDGetTokenT<bool>  ecalBadCalibFilterUpdate_token;
+	edm::Handle< bool > passecalBadCalibFilterUpdate ;
 	const edm::TriggerNames *              triggerNames =0;
 
 	std::vector<std::string> filterNames;
