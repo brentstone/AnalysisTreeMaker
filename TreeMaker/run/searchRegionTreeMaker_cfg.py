@@ -83,6 +83,7 @@ type = options.type
 
 isRealData = ('Run' in type)
 isSignal   = ('signal' in sample)
+isTTBar    = ('ttbar' in sample)
 
 from AnalysisTreeMaker.TreeMaker.treeMaker_cff import *
 if isRealData and not isCrab:
@@ -122,6 +123,14 @@ process.eventCounter.type = type
 process.eventCounter.genEvent = process.treeMaker.EventFiller.genEvent
 process.p += process.eventCounter  
 
+#==============================================================================================================================#
+#gen mtt histogram filling: needed for ttbar xsec reweighting
+#==============================================================================================================================#
+if isTTBar:
+    process.load('AnalysisTreeMaker.TreeMaker.genMttFiller_cff')
+    process.genMttFiller.genEvent = process.treeMaker.EventFiller.genEvent
+    process.genMttFiller.genParticles = process.treeMaker.GenParticleFiller.genParticles
+    process.p += process.genMttFiller
 
 #==============================================================================================================================#
 # Event filters
