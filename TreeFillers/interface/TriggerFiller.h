@@ -26,7 +26,7 @@ public:
 private:
 	void fill2016Info();
 	void fill2017Info();
-//	void fill2018Info();
+	void fill2018Info();
 
 
 	edm::EDGetTokenT<edm::TriggerResults>                    token_trigBits      ;

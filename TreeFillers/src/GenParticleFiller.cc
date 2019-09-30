@@ -27,7 +27,7 @@ GenParticleFiller::GenParticleFiller(const edm::ParameterSet& fullParamSet,
     data.addVector(nmoms   ,branchName,"parts_N","nmoms"   );
     data.addVector(firstmom,branchName,"parts_N","firstmom");
     data.addVector(assoc   ,branchName,"assoc_N","assoc" );
-    data.addSingle(mTTBar        ,branchName,"mTTBar",6);
+    data.addSingle(mTTBar        ,branchName,"mTTBar",10);
     data.addSingle(nME_bquarks,branchName,"nME_bquarks");
     data.addSingle(nPY_bquarks,branchName,"nPY_bquarks");
 
