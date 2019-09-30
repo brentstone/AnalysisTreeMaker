@@ -13,7 +13,7 @@ class EventFiller;
 class MuonFiller : public BaseFiller {
 public:
 	MuonFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
-	        edm::ConsumesCollector&& cc, const EventFiller * eventFiller);
+	        edm::ConsumesCollector&& cc, bool isRealData, const EventFiller * eventFiller);
 	virtual ~MuonFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
@@ -30,12 +30,15 @@ private:
 	spv_float sip3D          = make_spv_float();
 	spv_float miniIso        = make_spv_float();
 	spv_float dBRelISO       = make_spv_float();
-	spv_float trackerIso     = make_spv_float();
 	spv_float ptRel          = make_spv_float();
 	spv_float ptRatio        = make_spv_float();
 	spv_float dRnorm         = make_spv_float();
 	spv_float lepAct_o_pt    = make_spv_float();
-    float minPT                = 0;
+
+	spv_int8 simType        = make_spv_int8();
+
+	bool isRealData = false;
+	float minPT                = 0;
 
     double miniiso_mindr    = 0;
     double miniiso_maxdr    = 0;

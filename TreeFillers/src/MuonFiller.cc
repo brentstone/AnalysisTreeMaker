@@ -10,8 +10,8 @@ using namespace FillerConstants;
 namespace AnaTM{
 
 MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
-        edm::ConsumesCollector&& cc, const EventFiller * eventFiller):
-				        BaseFiller(fullParamSet,psetName,"MuonFiller")
+        edm::ConsumesCollector&& cc, bool isRealData, const EventFiller * eventFiller):
+				        BaseFiller(fullParamSet,psetName,"MuonFiller"), isRealData(isRealData)
 {
     if(ignore()) return;
     if(eventFiller == 0)
@@ -50,11 +50,13 @@ MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string&
     data.addVector(sip3D      ,branchName,"muons_N","sip3D"      ,6);
     data.addVector(miniIso    ,branchName,"muons_N","miniIso"    ,6);
     data.addVector(dBRelISO   ,branchName,"muons_N","dBRelISO"   ,6);
-    data.addVector(trackerIso ,branchName,"muons_N","trackerIso" ,6);
     data.addVector(ptRel      ,branchName,"muons_N","ptRel"      ,6);
     data.addVector(ptRatio    ,branchName,"muons_N","ptRatio"    ,6);
     data.addVector(dRnorm     ,branchName,"muons_N","dRnorm"     ,6);
     data.addVector(lepAct_o_pt,branchName,"muons_N","lepAct_o_pt",6);
+
+    if(!isRealData)
+        data.addVector(simType,branchName,"muons_N","simType");
 }
 ;
 void MuonFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -91,7 +93,7 @@ void MuonFiller::setValues(){
         if (lep->passed(reco::Muon::PFIsoMedium           )) addPass(lepID,MUID_PFIsoMedium           );
         if (lep->passed(reco::Muon::PFIsoTight            )) addPass(lepID,MUID_PFIsoTight            );
         if (lep->passed(reco::Muon::PFIsoVeryTight        )) addPass(lepID,MUID_PFIsoVeryTight        );
-        //		   if (lep->passed(reco::Muon::PFIsoVeryVeryTight    )) addPass(lepID,MUID_PFIsoVeryVeryTight    ); CMSSW_10
+//        if (lep->passed(reco::Muon::PFIsoVeryVeryTight    )) addPass(lepID,MUID_PFIsoVeryVeryTight    ); CMSSW_10
         if (lep->passed(reco::Muon::TkIsoLoose            )) addPass(lepID,MUID_TkIsoLoose            );
         if (lep->passed(reco::Muon::TkIsoTight            )) addPass(lepID,MUID_TkIsoTight            );
         if (lep->passed(reco::Muon::SoftCutBasedId        )) addPass(lepID,MUID_SoftCutBasedId        );
@@ -103,10 +105,10 @@ void MuonFiller::setValues(){
         if (lep->passed(reco::Muon::MiniIsoMedium         )) addPass(lepID,MUID_MiniIsoMedium         );
         if (lep->passed(reco::Muon::MiniIsoTight          )) addPass(lepID,MUID_MiniIsoTight          );
         if (lep->passed(reco::Muon::MiniIsoVeryTight      )) addPass(lepID,MUID_MiniIsoVeryTight      );
-        //		   if (lep->passed(reco::Muon::TriggerIdLoose        )) addPass(lepID,MUID_TriggerIdLoose        ); CMSSW_10
-        //		   if (lep->passed(reco::Muon::InTimeMuon            )) addPass(lepID,MUID_InTimeMuon            ); CMSSW_10
-        //		   if (lep->passed(reco::Muon::MultiIsoLoose         )) addPass(lepID,MUID_MultiIsoLoose         ); CMSSW_10
-        //		   if (lep->passed(reco::Muon::MultiIsoMedium        )) addPass(lepID,MUID_MultiIsoMedium        ); CMSSW_10
+//        		   if (lep->passed(reco::Muon::TriggerIdLoose        )) addPass(lepID,MUID_TriggerIdLoose        ); CMSSW_10
+//        		   if (lep->passed(reco::Muon::InTimeMuon            )) addPass(lepID,MUID_InTimeMuon            ); CMSSW_10
+//        		   if (lep->passed(reco::Muon::MultiIsoLoose         )) addPass(lepID,MUID_MultiIsoLoose         ); CMSSW_10
+//        		   if (lep->passed(reco::Muon::MultiIsoMedium        )) addPass(lepID,MUID_MultiIsoMedium        ); CMSSW_10
         id->push_back(lepID);
 
 
@@ -127,9 +129,7 @@ void MuonFiller::setValues(){
         const double puIso  = lep->pfIsolationR04().sumPUPt;
         const double dbCorrectedIsolation = chIso + std::max( nIso + phoIso - .5*puIso, 0. ) ;
         const double dbCorrectedRelIso = dbCorrectedIsolation/lep->pt();
-        const double tkRelIso = lep->isolationR03().sumPt/lep->pt();
         dBRelISO->push_back(dbCorrectedRelIso);
-        trackerIso->push_back(tkRelIso);
         ptRatio->push_back(lep->jetPtRatio());
         ptRel->push_back(lep->jetPtRel());
         pat::PFIsolation a;
@@ -139,6 +139,13 @@ void MuonFiller::setValues(){
                 miniiso_mindr, miniiso_maxdr, miniiso_kt_scale, *han_miniiso_rho);
         dRnorm->push_back(jetActvars[0]);
         lepAct_o_pt->push_back(jetActvars[1]);
+
+        if(!isRealData){
+            //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+            int8 sT = lep->simType() == reco::Unknown ? int8(127) : int8(lep->simType());
+            simType->push_back(sT);
+        }
+
     }
 }
 
