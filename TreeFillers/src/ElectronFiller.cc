@@ -14,8 +14,9 @@ using namespace FillerConstants;
 namespace AnaTM{
 //--------------------------------------------------------------------------------------------------
 ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
-        edm::ConsumesCollector&& cc, const EventFiller * eventFiller):
-				        BaseFiller(fullParamSet,psetName,"ElectronFiller")
+        edm::ConsumesCollector&& cc,FillerConstants::DataEra dataEra,
+        const EventFiller * eventFiller): BaseFiller(fullParamSet,psetName,"ElectronFiller"),
+                dataEra(dataEra)
 {
     if(ignore()) return;
     if(eventFiller == 0) throw cms::Exception(
@@ -42,9 +43,7 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
     data.addVector(sip3D      ,branchName,"electrons_N","sip3D"                ,6);
     data.addVector(mvaID      ,branchName,"electrons_N","mvaID"                ,6);
     data.addVector(miniIso    ,branchName,"electrons_N","miniIso"              ,6);
-    data.addVector(miniIsoFP  ,branchName,"electrons_N","miniIsoFP"            ,6);
     data.addVector(eaRelIso   ,branchName,"electrons_N","eaRelIso"             ,6);
-    data.addVector(trackerIso ,branchName,"electrons_N","trackerIso"           ,6);
     data.addVector(dRnorm     ,branchName,"electrons_N","dRnorm"               ,6);
     data.addVector(lepAct_o_pt,branchName,"electrons_N","lepAct_o_pt"          ,6);
     data.addVector(sc_act_o_pt,branchName,"electrons_N","sc_act_o_pt"          ,6);
@@ -134,24 +133,21 @@ void ElectronFiller::setValues(){
 
 
 
-        const float eA = Isolations::electronEA(lep->superCluster()->eta());
+        const float eA = Isolations::electronEA(dataEra==FillerConstants::ERA_2016,
+                lep->superCluster()->eta());
         const auto& iso = lep->pfIsolationVariables();
         // EA uses fixedGridRhoFastjetAll, which is what eventFiller stores
         //(https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPFBasedIsolationRun2)
         const float eAIso = ( iso.sumChargedHadronPt
                 + std::max( 0.0f, iso.sumNeutralHadronEt + iso.sumPhotonEt - eA*event->getRho()) );
+        miniIso->push_back(
+                Isolations::getRelMiniIso(corrP4.pt(),lep->miniPFIsolation(),eA,event->getRho()));
 
-        miniIso->push_back(Isolations::getEleRelMiniIsoPUCorrected(
-                lep->miniPFIsolation(),&*lep,event->getRho(),
-                0.05,0.2,10.0));
 
-        miniIsoFP->push_back(Isolations::getEleRelMiniIsoWFootprintRemovalPUCorrected(
-                &*han_pfCands,&*lep,event->getRho()));
-        eaRelIso    ->push_back(eAIso/lep->pt());
-        trackerIso  ->push_back(lep->userFloat("heepTrkPtIso")/lep->pt());
+        eaRelIso    ->push_back(eAIso/corrP4.pt());
 
         const std::vector<float> jetActvars = TnPJetActVars::getPFJetActVars(han_pfCands,
-                dynamic_cast<const reco::Candidate *>(&*lep), 0.05, 0.2, 10., event->getRho());
+                dynamic_cast<const reco::Candidate *>(&*lep),corrP4.pt(),eA, event->getRho());
 
         dRnorm      ->push_back(jetActvars[0]);
         lepAct_o_pt ->push_back(jetActvars[1]);

@@ -103,7 +103,7 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
 # #                                  , ak4PuppiNoLepJetFiller    = cms.PSet(ak4PuppiNoLepJetFiller)
 #                                  , ak8PuppiNoLepFatJetFiller = cms.PSet(ak8PuppiNoLepFatJetFiller)
 #                                  , ak8PuppiFatJetFiller      = cms.PSet(ak8PuppiFatJetFiller)
-#                                  , ElectronFiller            = cms.PSet(ElectronFiller)
+                                , ElectronFiller            = cms.PSet(ElectronFiller)
                                 , MuonFiller                = cms.PSet(MuonFiller)  
                                 , GenParticleFiller         = cms.PSet(GenParticleFiller)
                                  )
@@ -140,20 +140,21 @@ if not isSignal:
 #==============================================================================================================================#
 
 # #https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes
-# if '2017' in type:
-#     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-#     setupEgammaPostRecoSeq(process,
-#     runVID=True,
-#     era='2017-Nov17ReReco')  #era is new to select between 2016 / 2017,  it defaults to 2017
-#     process.p += process.egammaPostRecoSeq
-#     process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')
-# if '2016' in type:
-#     from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
-#     setupEgammaPostRecoSeq(process,
-#                        runEnergyCorrections=False, #corrections by default are fine so no need to re-run
-#                        era='2016-Legacy')
-#     process.p += process.egammaPostRecoSeq
-#     process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')  
+from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
+if '2018' in type:
+    setupEgammaPostRecoSeq(process,era='2018-Prompt')  
+if '2017' in type: 
+    setupEgammaPostRecoSeq(process,
+    runVID=True,  #if you want the Fall17V2 IDs, set this to True or remove (default is True)
+    era='2017-Nov17ReReco')  #era is new to select between 2016 / 2017,  it defaults to 2017
+if '2016' in type:
+    setupEgammaPostRecoSeq(process,
+                        runVID=True,
+                        runEnergyCorrections=False, #no point in re-running them, they are already fine
+                        era='2016-Legacy')
+process.p += process.egammaPostRecoSeq
+process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')
+
 # 
 # from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
 # defaultJetSequences(process,isRealData)

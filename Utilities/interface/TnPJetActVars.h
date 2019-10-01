@@ -9,21 +9,9 @@
 namespace TnPJetActVars{
 
 std::vector<float> getPFJetActVars(edm::Handle<pat::PackedCandidateCollection> pfcands,
-			  const reco::Candidate* ptcl,
-			  double r_iso_min, double r_iso_max, double kt_scale, double rho);
+			  const reco::Candidate* ptcl, const double lepPT, const double ea,
+			          const double rho);
 
-
-float muonRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
-                const math::XYZTLorentzVector& p4,
-                const float sumP4PTIso,
-                const float dr,
-                const float rho);
-
-float eleRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
-        const pat::Electron * lep,
-        const float sumP4PTIso,
-        const float dr,
-        const float rho);
 }
 
 

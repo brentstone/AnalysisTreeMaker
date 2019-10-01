@@ -15,7 +15,8 @@ class EventFiller;
 class ElectronFiller : public BaseFiller {
 public:
 	ElectronFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
-	        edm::ConsumesCollector&& cc, const EventFiller * eventFiller);
+	        edm::ConsumesCollector&& cc,FillerConstants::DataEra dataEra,
+	        const EventFiller * eventFiller);
 	virtual ~ElectronFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
@@ -40,9 +41,7 @@ private:
 
 	spv_float mvaID                = make_spv_float();
 	spv_float miniIso              = make_spv_float();
-    spv_float miniIsoFP            = make_spv_float();
 	spv_float eaRelIso             = make_spv_float();
-	spv_float trackerIso           = make_spv_float();
 
 	spv_float dRnorm               = make_spv_float();
 	spv_float lepAct_o_pt          = make_spv_float();
@@ -67,7 +66,7 @@ private:
 	spv_float  e1x5OverE5x5         = make_spv_float();
 	spv_float  isolEmHadDepth1      = make_spv_float();
 
-
+	FillerConstants::DataEra dataEra;
     float minPT                = 0;
     bool  storeIDVars          = 0;
 

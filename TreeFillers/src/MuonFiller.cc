@@ -10,8 +10,10 @@ using namespace FillerConstants;
 namespace AnaTM{
 
 MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
-        edm::ConsumesCollector&& cc, bool isRealData, const EventFiller * eventFiller):
-				        BaseFiller(fullParamSet,psetName,"MuonFiller"), isRealData(isRealData)
+        edm::ConsumesCollector&& cc, bool isRealData, FillerConstants::DataEra dataEra,
+        const EventFiller * eventFiller):
+                BaseFiller(fullParamSet,psetName,"MuonFiller"), isRealData(isRealData),
+                dataEra(dataEra)
 {
     if(ignore()) return;
     if(eventFiller == 0)
@@ -62,7 +64,6 @@ MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string&
 void MuonFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(token_muons         ,han_muons     );
     iEvent.getByToken(token_pfCands       ,han_pfCands     );
-    iEvent.getByToken(token_miniiso_rho   ,han_miniiso_rho     );
 };
 void MuonFiller::setValues(){
     if(!event->isLoaded()){
@@ -117,9 +118,11 @@ void MuonFiller::setValues(){
         const double dB3D  = fabs(lep->dB(pat::Muon::PV3D));
         const double edB3D = fabs(lep->edB(pat::Muon::PV3D));
         sip3D->push_back(edB3D>0?dB3D/edB3D:0);
-        miniIso->push_back(Isolations::getMuonRelMiniIsoPUCorrected(
-                lep->miniPFIsolation(),lep->p4(),*han_miniiso_rho,
-                miniiso_mindr,miniiso_maxdr,miniiso_kt_scale));
+
+        const float eA = Isolations::muonEA(dataEra==FillerConstants::ERA_2016,lep->eta());
+
+        miniIso->push_back(Isolations::getRelMiniIso(lep->pt(),
+                lep->miniPFIsolation(),eA,event->getRho()));
 
         // Because things are too hard to store as floats?
         // https://github.com/cms-sw/cmssw/blob/master/DataFormats/MuonReco/src/MuonSelectors.cc
@@ -135,8 +138,7 @@ void MuonFiller::setValues(){
         pat::PFIsolation a;
 
         std::vector<float> jetActvars = TnPJetActVars::getPFJetActVars(han_pfCands,
-                dynamic_cast<const reco::Candidate *>(&*lep),
-                miniiso_mindr, miniiso_maxdr, miniiso_kt_scale, *han_miniiso_rho);
+                dynamic_cast<const reco::Candidate *>(&*lep),lep->pt(),eA,event->getRho());
         dRnorm->push_back(jetActvars[0]);
         lepAct_o_pt->push_back(jetActvars[1]);
 

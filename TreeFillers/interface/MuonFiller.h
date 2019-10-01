@@ -13,7 +13,8 @@ class EventFiller;
 class MuonFiller : public BaseFiller {
 public:
 	MuonFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
-	        edm::ConsumesCollector&& cc, bool isRealData, const EventFiller * eventFiller);
+	        edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra,
+	        const EventFiller * eventFiller);
 	virtual ~MuonFiller() {};
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
@@ -38,6 +39,7 @@ private:
 	spv_int8 simType        = make_spv_int8();
 
 	bool isRealData = false;
+	FillerConstants::DataEra dataEra;
 	float minPT                = 0;
 
     double miniiso_mindr    = 0;

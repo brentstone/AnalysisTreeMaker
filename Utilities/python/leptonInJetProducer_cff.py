@@ -113,7 +113,7 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
     setattr( proc, mod["lepInJetV"], cms.EDProducer('LepInJetProducer',
                                                     srcPF = cms.InputTag("packedPFCandidates"), #doesnt do anything
                                                     src = cms.InputTag(mod["PATJets"]),
-                                                    srcEle = cms.InputTag("slimmedElectrons"),
+                                                    srcEle = cms.InputTag("slimmedElectrons",'','run'),
                                                     srcMu = cms.InputTag("slimmedMuons")
                                                     ))
     jetSeq += getattr(proc, mod["lepInJetV"])

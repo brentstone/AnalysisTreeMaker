@@ -110,27 +110,25 @@ void TriggerFiller::fill2017Info(){
 }
 void TriggerFiller::fill2018Info(){
     triggerInfo.resize(FillerConstants::HLT18_NTrig);
-    triggerInfo[FillerConstants::HLT18_Ele28_WPTight_Gsf                                 ]= {FillerConstants::PD_SingleMuon    ,"HLT_Ele28_WPTight_Gsf"                                 };
-    triggerInfo[FillerConstants::HLT18_Ele28_eta2p1_WPTight_Gsf_HT150                    ]= {FillerConstants::PD_SingleMuon    ,"HLT_Ele28_eta2p1_WPTight_Gsf_HT150"                    };
-    triggerInfo[FillerConstants::HLT18_Ele28_HighEta_SC20_Mass55                         ]= {FillerConstants::PD_SingleMuon    ,"HLT_Ele28_HighEta_SC20_Mass55"                         };
-    triggerInfo[FillerConstants::HLT18_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned]= {FillerConstants::PD_SingleMuon    ,"HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned"};
-    triggerInfo[FillerConstants::HLT18_Ele32_WPTight_Gsf                                 ]= {FillerConstants::PD_SingleMuon    ,"HLT_Ele32_WPTight_Gsf"                                 };
-    triggerInfo[FillerConstants::HLT18_Ele15_IsoVVVL_PFHT450                             ]= {FillerConstants::PD_SingleMuon    ,"HLT_Ele15_IsoVVVL_PFHT450"                             };
-    triggerInfo[FillerConstants::HLT18_Ele115_CaloIdVT_GsfTrkIdT                         ]= {FillerConstants::PD_SingleMuon    ,"HLT_Ele115_CaloIdVT_GsfTrkIdT"                         };
-    triggerInfo[FillerConstants::HLT18_Ele50_CaloIdVT_GsfTrkIdT_PFJet165                 ]= {FillerConstants::PD_SingleMuon    ,"HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165"                 };
-    triggerInfo[FillerConstants::HLT18_IsoMu24                                           ]= {FillerConstants::PD_SingleMuon    ,"HLT_IsoMu24"                                           };
-    triggerInfo[FillerConstants::HLT18_Mu15_IsoVVVL_PFHT450                              ]= {FillerConstants::PD_SingleMuon    ,"HLT_Mu15_IsoVVVL_PFHT450"                              };
-    triggerInfo[FillerConstants::HLT18_Mu50                                              ]= {FillerConstants::PD_SingleMuon    ,"HLT_Mu50"                                              };
-    triggerInfo[FillerConstants::HLT18_Mu25_TkMu0_Phi                                    ]= {FillerConstants::PD_SingleMuon    ,"HLT_Mu25_TkMu0_Phi"                                    };
-    triggerInfo[FillerConstants::HLT18_AK8PFJet400_TrimMass30                            ]= {FillerConstants::PD_SingleMuon    ,"HLT_AK8PFJet400_TrimMass30"                            };
-    triggerInfo[FillerConstants::HLT18_AK8PFHT800_TrimMass50                             ]= {FillerConstants::PD_SingleMuon    ,"HLT_AK8PFHT800_TrimMass50"                             };
-    triggerInfo[FillerConstants::HLT18_PFHT1050                                          ]= {FillerConstants::PD_SingleMuon    ,"HLT_PFHT1050"                                          };
-    triggerInfo[FillerConstants::HLT18_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB        ]= {FillerConstants::PD_SingleMuon    ,"HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB"        };
-    triggerInfo[FillerConstants::HLT18_AK8PFJet330_TrimMass30_PFAK8BTagCSV               ]= {FillerConstants::PD_SingleMuon    ,"HLT_AK8PFJet330_TrimMass30_PFAK8BTagCSV"               };
-    triggerInfo[FillerConstants::HLT18_PFHT500_PFMET100_PFMHT100_IDTight                 ]= {FillerConstants::PD_SingleMuon    ,"HLT_PFHT500_PFMET100_PFMHT100_IDTight"                 };
-    triggerInfo[FillerConstants::HLT18_PFHT700_PFMET85_PFMHT85_IDTight                   ]= {FillerConstants::PD_SingleMuon    ,"HLT_PFHT700_PFMET85_PFMHT85_IDTight"                   };
-    triggerInfo[FillerConstants::HLT18_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60          ]= {FillerConstants::PD_SingleMuon    ,"HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60"          };
-    triggerInfo[FillerConstants::HLT18_PFMETTypeOne140_PFMHT140_IDTight                  ]= {FillerConstants::PD_SingleMuon    ,"HLT_PFMETTypeOne140_PFMHT140_IDTight"                  };
+    triggerInfo[FillerConstants::HLT18_Ele28_WPTight_Gsf                                 ]= {FillerConstants::PD_EGamma    ,"HLT_Ele28_WPTight_Gsf"                                 };
+    triggerInfo[FillerConstants::HLT18_Ele28_eta2p1_WPTight_Gsf_HT150                    ]= {FillerConstants::PD_EGamma    ,"HLT_Ele28_eta2p1_WPTight_Gsf_HT150"                    };
+    triggerInfo[FillerConstants::HLT18_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned]= {FillerConstants::PD_EGamma    ,"HLT_Ele30_eta2p1_WPTight_Gsf_CentralPFJet35_EleCleaned"};
+    triggerInfo[FillerConstants::HLT18_Ele32_WPTight_Gsf                                 ]= {FillerConstants::PD_EGamma    ,"HLT_Ele32_WPTight_Gsf"                                 };
+    triggerInfo[FillerConstants::HLT18_Ele15_IsoVVVL_PFHT450                             ]= {FillerConstants::PD_EGamma    ,"HLT_Ele15_IsoVVVL_PFHT450"                             };
+    triggerInfo[FillerConstants::HLT18_Ele115_CaloIdVT_GsfTrkIdT                         ]= {FillerConstants::PD_EGamma    ,"HLT_Ele115_CaloIdVT_GsfTrkIdT"                         };
+    triggerInfo[FillerConstants::HLT18_Ele50_CaloIdVT_GsfTrkIdT_PFJet165                 ]= {FillerConstants::PD_EGamma    ,"HLT_Ele50_CaloIdVT_GsfTrkIdT_PFJet165"                 };
+    triggerInfo[FillerConstants::HLT18_IsoMu24                                           ]= {FillerConstants::PD_SingleMuon,"HLT_IsoMu24"                                           };
+    triggerInfo[FillerConstants::HLT18_Mu15_IsoVVVL_PFHT450                              ]= {FillerConstants::PD_SingleMuon,"HLT_Mu15_IsoVVVL_PFHT450"                              };
+    triggerInfo[FillerConstants::HLT18_Mu50                                              ]= {FillerConstants::PD_SingleMuon,"HLT_Mu50"                                              };
+    triggerInfo[FillerConstants::HLT18_AK8PFJet400_TrimMass30                            ]= {FillerConstants::PD_JetHT     ,"HLT_AK8PFJet400_TrimMass30"                            };
+    triggerInfo[FillerConstants::HLT18_AK8PFHT800_TrimMass50                             ]= {FillerConstants::PD_JetHT     ,"HLT_AK8PFHT800_TrimMass50"                             };
+    triggerInfo[FillerConstants::HLT18_PFHT1050                                          ]= {FillerConstants::PD_JetHT     ,"HLT_PFHT1050"                                          };
+    triggerInfo[FillerConstants::HLT18_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4    ]= {FillerConstants::PD_JetHT     ,"HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4"    };
+    triggerInfo[FillerConstants::HLT18_AK8PFJet330_TrimMass30_PFAK8BTagCSV_p1            ]= {FillerConstants::PD_JetHT     ,"HLT_AK8PFJet330_TrimMass30_PFAK8BTagCSV_p1"            };
+    triggerInfo[FillerConstants::HLT18_PFHT500_PFMET100_PFMHT100_IDTight                 ]= {FillerConstants::PD_JetHT     ,"HLT_PFHT500_PFMET100_PFMHT100_IDTight"                 };
+    triggerInfo[FillerConstants::HLT18_PFHT700_PFMET85_PFMHT85_IDTight                   ]= {FillerConstants::PD_JetHT     ,"HLT_PFHT700_PFMET85_PFMHT85_IDTight"                   };
+    triggerInfo[FillerConstants::HLT18_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60          ]= {FillerConstants::PD_MET       ,"HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60"          };
+    triggerInfo[FillerConstants::HLT18_PFMETTypeOne140_PFMHT140_IDTight                  ]= {FillerConstants::PD_MET       ,"HLT_PFMETTypeOne140_PFMHT140_IDTight"                  };
 
 
 }

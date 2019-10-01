@@ -1,27 +1,32 @@
 #include "../interface/TnPJetActVars.h"
 #include "../interface/Isolations.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
+
+
 #include <cmath>
 
 // Compute the pt ratio of jet activity to lepton activity and the normalized deltaR (dR_lepAct / dR_miniIsoCone)
 
 std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandidateCollection> pfcands,
-        const reco::Candidate* ptcl,
-        double r_iso_min, double r_iso_max, double kt_scale, double rho=0) {
+        const reco::Candidate* ptcl, const double lepPT, const double ea,
+        const double rho
+) {
 
     const auto& p4 = ptcl->p4();
-    const float r_miso = pat::miniIsoDr(p4,r_iso_min,r_iso_max,kt_scale);
+    const float r_miso = Isolations::getMiniIsoR(p4.pt());
     const float r_SAcone = 0.4;
     const float dZ_cut =0;
 
     double deadcone_nh(0.), deadcone_ch(0.), deadcone_ph(0.) /*,deadcone_pu(0.)*/;
     if(ptcl->isElectron()) {
-        if (fabs(ptcl->eta())>1.479) {deadcone_ch = 0.015; /*deadcone_pu = 0.015*/; deadcone_ph = 0.08;}
+        if (((const reco::GsfElectron*)(ptcl))->isEE())
+        {deadcone_ch = 0.015; /*deadcone_pu = 0.015*/; deadcone_ph = 0.08;}
     } else if(ptcl->isMuon()) {
         deadcone_ch = 0.0001; /*deadcone_pu = 0.01*/; deadcone_ph = 0.01;deadcone_nh = 0.01;
     } else printf("ptcl is not electron or muon\n");
     const double ptthresh = ptcl->isElectron() ? 0 : 0.5;
+
+
 
     //loop logic from https://github.com/cms-sw/cmssw/blob/master/PhysicsTools/PatUtils/src/MiniIsolation.cc
     float chiso=0, nhiso=0, phiso=0;
@@ -63,7 +68,13 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
     const float dR_lepact = deltaR(p4, PFactMom);
 
     const float dR_lepactNORM = dR_lepact / r_miso;
-    const float PtRatio_lepact = ptcl->isElectron() ? eleRelMiniIsoPUCorrected(isos,(const pat::Electron*)ptcl,PFactMom.pt(),r_SAcone,rho) : muonRelMiniIsoPUCorrected(isos,p4,PFactMom.pt(),r_SAcone,rho);
+
+    const double stdISO =  isos.chargedHadronIso() + isos.neutralHadronIso() +isos.photonIso();
+    const double eACor = rho*ea* r_SAcone*r_SAcone/(0.3*0.3);
+    const double corrStdISO =  isos.chargedHadronIso() +
+            std::max(0.0, isos.neutralHadronIso()+isos.photonIso() - eACor);
+    const double corrSumP4PT = PFactMom.pt() * (stdISO > 0 ? corrStdISO/stdISO : 1.0);
+    const float PtRatio_lepact = corrSumP4PT/lepPT;
 
     return { dR_lepactNORM, PtRatio_lepact};
 
@@ -85,31 +96,4 @@ std::vector<float> TnPJetActVars::getPFJetActVars(edm::Handle<pat::PackedCandida
      */
 }
 
-float TnPJetActVars::muonRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
-        const math::XYZTLorentzVector& p4,
-        const float sumP4PTIso,
-        const float dr,
-        const float rho){
-    //pat function includes the division by the lepton pt
-    const double stdISO =  iso.chargedHadronIso() + iso.neutralHadronIso() +iso.photonIso();
-    const double sumCorr = stdISO > 0 ? p4.pt()*pat::muonRelMiniIsoPUCorrected(iso,p4,dr,rho) /stdISO : 1.0;
-    return sumP4PTIso*sumCorr/p4.pt();
-}
-
-
-
-float TnPJetActVars::eleRelMiniIsoPUCorrected(const pat::PFIsolation& iso,
-        const pat::Electron * lep,
-        const float sumP4PTIso,
-        const float dr,
-        const float rho){
-
-    const float effArea = Isolations::electronEA(lep->superCluster()->eta());
-    const double eaCorrection = rho * effArea * (dr/0.3) * (dr/0.3);
-    const double correctedIso = iso.chargedHadronIso() + std::max(0.0, iso.neutralHadronIso()+iso.photonIso() - eaCorrection);
-    const double origIso = iso.chargedHadronIso() +  iso.neutralHadronIso() +  iso.photonIso();
-    const double sumCorr = origIso > 0 ? correctedIso/origIso : 1.0;
-
-    return sumP4PTIso*sumCorr/lep->pt();
-}
 
