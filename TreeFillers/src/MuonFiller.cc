@@ -24,23 +24,7 @@ MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string&
     token_muons   =cc.consumes<pat::MuonCollection >(cfg.getParameter<edm::InputTag>("muons"));
     token_pfCands =cc.consumes<pat::PackedCandidateCollection>(
             cfg.getParameter<edm::InputTag>("pfCandidates"));
-    token_miniiso_rho  =cc.consumes<double>(cfg.getParameter<edm::InputTag>("miniiso_rho"));
 
-    //sanity check to make sure that we are consistent for min-iso with what is done in PAT
-    miniiso_mindr    = cfg.getParameter<double>("miniiso_mindr");
-    miniiso_maxdr    = cfg.getParameter<double>("miniiso_maxdr");
-    miniiso_kt_scale = cfg.getParameter<double>("miniiso_kt_scale");
-    if(miniiso_mindr != 0.05 || miniiso_maxdr != 0.2 ||  miniiso_kt_scale != 10.0){
-        throw cms::Exception("MuonFiller::MuonFiller()",
-                "Something changed in the default mini-iso parameters...you need to figure it out!");
-
-    }
-    if(!strFind(cfg.getParameter<edm::InputTag>("miniiso_rho").label(),
-            "fixedGridRhoFastjetCentralNeutral")){
-        throw cms::Exception("MuonFiller::MuonFiller()",
-                "Something changed in the default muon rho parameter...you need to figure it out!");
-
-    }
 
     data.addVector(pt         ,branchName,"muons_N","pt"         ,10);
     data.addVector(eta        ,branchName,"muons_N","eta"        ,10);
