@@ -41,6 +41,8 @@ private:
     spv_float deep_W             = make_spv_float();
     spv_float tau1               = make_spv_float();
     spv_float tau2               = make_spv_float();
+    spv_float sdMass_z0p15       = make_spv_float();
+    spv_float sdMass_z0p05       = make_spv_float();
 
 
     spv_float ecfN2              = make_spv_float();

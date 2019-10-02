@@ -140,8 +140,6 @@ if not isSignal:
 #==============================================================================================================================#
 from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
 defaultJetSequences(process,isRealData)
-process.p += process.leptonLessPFProducer
-process.p += process.leptonLesspuppi
 
 #==============================================================================================================================#
 # Customization

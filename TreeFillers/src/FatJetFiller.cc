@@ -64,6 +64,8 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
     }
     data.addVector(tau1           ,branchName,"jets_N","tau1"              ,8);
     data.addVector(tau2           ,branchName,"jets_N","tau2"              ,8);
+    data.addVector(sdMass_z0p15   ,branchName,"jets_N","sdMass_z0p15"      ,10);
+    data.addVector(sdMass_z0p05   ,branchName,"jets_N","sdMass_z0p05"      ,10);
 
 
     if(!isRealData){
@@ -174,6 +176,8 @@ void FatJetFiller::setValues(){
 
         tau1->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau1"));
         tau2->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau2"));
+        sdMass_z0p15->push_back(jet.userFloat("ak8PFJets"+jetDef+"SoftDropMassZ0p15"));
+        sdMass_z0p05->push_back(jet.userFloat("ak8PFJets"+jetDef+"SoftDropMassZ0p05"));
 
         if(addLSFInfo){
             ecfN2      ->push_back(jet.userFloat("ak8PFJets"+jetDef+"SoftDropecfValueMap:ecfN2b1"));
