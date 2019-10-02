@@ -94,7 +94,7 @@ void MuonFiller::setValues(){
         if (lep->passed(reco::Muon::PFIsoMedium           )) addPass(lepID,MUID_PFIsoMedium           );
         if (lep->passed(reco::Muon::PFIsoTight            )) addPass(lepID,MUID_PFIsoTight            );
         if (lep->passed(reco::Muon::PFIsoVeryTight        )) addPass(lepID,MUID_PFIsoVeryTight        );
-//        if (lep->passed(reco::Muon::PFIsoVeryVeryTight    )) addPass(lepID,MUID_PFIsoVeryVeryTight    ); CMSSW_10
+        if (lep->passed(reco::Muon::PFIsoVeryVeryTight    )) addPass(lepID,MUID_PFIsoVeryVeryTight    );
         if (lep->passed(reco::Muon::TkIsoLoose            )) addPass(lepID,MUID_TkIsoLoose            );
         if (lep->passed(reco::Muon::TkIsoTight            )) addPass(lepID,MUID_TkIsoTight            );
         if (lep->passed(reco::Muon::SoftCutBasedId        )) addPass(lepID,MUID_SoftCutBasedId        );
@@ -106,10 +106,10 @@ void MuonFiller::setValues(){
         if (lep->passed(reco::Muon::MiniIsoMedium         )) addPass(lepID,MUID_MiniIsoMedium         );
         if (lep->passed(reco::Muon::MiniIsoTight          )) addPass(lepID,MUID_MiniIsoTight          );
         if (lep->passed(reco::Muon::MiniIsoVeryTight      )) addPass(lepID,MUID_MiniIsoVeryTight      );
-//        		   if (lep->passed(reco::Muon::TriggerIdLoose        )) addPass(lepID,MUID_TriggerIdLoose        ); CMSSW_10
-//        		   if (lep->passed(reco::Muon::InTimeMuon            )) addPass(lepID,MUID_InTimeMuon            ); CMSSW_10
-//        		   if (lep->passed(reco::Muon::MultiIsoLoose         )) addPass(lepID,MUID_MultiIsoLoose         ); CMSSW_10
-//        		   if (lep->passed(reco::Muon::MultiIsoMedium        )) addPass(lepID,MUID_MultiIsoMedium        ); CMSSW_10
+        if (lep->passed(reco::Muon::TriggerIdLoose        )) addPass(lepID,MUID_TriggerIdLoose        );
+        if (lep->passed(reco::Muon::InTimeMuon            )) addPass(lepID,MUID_InTimeMuon            );
+        if (lep->passed(reco::Muon::MultiIsoLoose         )) addPass(lepID,MUID_MultiIsoLoose         );
+        if (lep->passed(reco::Muon::MultiIsoMedium        )) addPass(lepID,MUID_MultiIsoMedium        );
         id->push_back(lepID);
 
 
