@@ -16,6 +16,7 @@ JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& p
     if(ignore()) return;
     jetType      =cfg.getParameter<std::string>("jetType");
     fillGenJets  =cfg.getParameter<bool>("fillGenJets");
+    addBTaggingInfo=cfg.getParameter<bool>("addBTaggingInfo");
     token_jets   =cc.consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"));
     minJetPT     = cfg.getParameter<double>("minJetPT");
     isPuppi = ASTypes::strFind(jetType,"Puppi") || ASTypes::strFind(jetType,"puppi");
@@ -30,9 +31,11 @@ JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& p
     data.addVector(toRawFact   ,branchName,"jets_N","toRawFact"             ,8);
     data.addVector(metUnc_rawPx,branchName,"jets_N","metUnc_rawPx"          ,8);
     data.addVector(metUnc_rawPy,branchName,"jets_N","metUnc_rawPy"          ,8);
+if(addBTaggingInfo){
     data.addVector(csv         ,branchName,"jets_N","csv"                   ,10);
     data.addVector(deep_csv    ,branchName,"jets_N","deep_csv"              ,10);
-//    data.addVector(deep_flavor ,branchName,"jets_N","deep_flavor"           ,10);
+    data.addVector(deep_flavor ,branchName,"jets_N","deep_flavor"           ,10);
+}
     data.addVector(id          ,branchName,"jets_N","id"                    );
 
     if(!isRealData){
@@ -254,12 +257,14 @@ void JetFiller::setValues(){
             metUnc_rawPy->push_back(raw_p4.py());
         }
 
-        csv->push_back(jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-        deep_csv->push_back(jet.bDiscriminator("pfDeepCSVJetTags:probb")
-                + jet.bDiscriminator("pfDeepCSVJetTags:probbb"));
-//        deep_flavor->push_back(jet.bDiscriminator("pfDeepFlavourJetTags:probb")
-//                +jet.bDiscriminator("pfDeepFlavourJetTags:probbb")
-//                +jet.bDiscriminator("pfDeepFlavourJetTags:problepb"));
+        if(addBTaggingInfo){
+                    csv->push_back(jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+                    deep_csv->push_back(jet.bDiscriminator("pfDeepCSVJetTags:probb")
+                            + jet.bDiscriminator("pfDeepCSVJetTags:probbb"));
+                    deep_flavor->push_back(jet.bDiscriminator("pfDeepFlavourJetTags:probb")
+                            +jet.bDiscriminator("pfDeepFlavourJetTags:probbb")
+                            +jet.bDiscriminator("pfDeepFlavourJetTags:problepb"));
+        }
 
         size8 idStat = 0;
         const int puID = isPuppi ? 0 : jet.userInt("pileupJetId:fullId");

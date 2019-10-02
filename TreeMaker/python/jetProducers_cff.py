@@ -84,51 +84,87 @@ def producePF(process) :
     process.leptonLesspuppi = process.puppi.clone(candName = cms.InputTag('leptonLessPFProducer'))                                       
     
 def ak4JetSequences(process,isRealData):
-#     bTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags','pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb']
-#     bTagDiscriminators = ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb']
-    bTagDiscriminators = ['None']
+    bTagDiscriminators = ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb','pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfCombinedInclusiveSecondaryVertexV2BJetTags']
     JETCorrLevels = ['L1FastJet','L2Relative','L3Absolute']
     if isRealData: JETCorrLevels.append('L2L3Residual')  
-    #new JECs
-    jetToolbox(process, 'ak4', 'jetSequence', 'out', PUMethod='CHS', updateCollection='slimmedJets', JETCorrPayload='AK4PFchs', JETCorrLevels=JETCorrLevels, runOnMC=(not isRealData), bTagDiscriminators=bTagDiscriminators)
-    jetToolbox(process, 'ak4', 'jetSequence', 'out', PUMethod='Puppi', updateCollection='slimmedJetsPuppi', JETCorrPayload='AK4PFPuppi', JETCorrLevels=JETCorrLevels, runOnMC=(not isRealData),bTagDiscriminators=bTagDiscriminators)
-    #leptonless
-#     jetToolbox(process, 'ak4', 'jetSequence', 'out',postFix="NoLep", PUMethod = 'Puppi', JETCorrPayload = 'AK4PFPuppi', JETCorrLevels = JETCorrLevels,runOnMC=(not isRealData),miniAOD=True, newPFCollection=True, nameNewPFCollection='leptonLesspuppi', bTagDiscriminators=bTagDiscriminators)
-    
+#     jetToolbox(process, 'ak4', 'jetSequence', 'noOutput', PUMethod='CHS', updateCollection='slimmedJets', JETCorrPayload='AK4PFchs', JETCorrLevels=JETCorrLevels, runOnMC=(not isRealData), bTagDiscriminators=['None'])    
+#     jetToolbox(process, 'ak4', 'jetSequence', 'noOutput', PUMethod='Puppi',postFix='wNewBTagging',  JETCorrPayload='AK4PFPuppi', JETCorrLevels=JETCorrLevels, runOnMC=(not isRealData),bTagDiscriminators=bTagDiscriminators)
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+    updateJetCollection(
+       process,
+       jetSource = cms.InputTag('slimmedJets'),
+       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+       svSource = cms.InputTag('slimmedSecondaryVertices'),
+       jetCorrections = ('AK4PFchs', cms.vstring(JETCorrLevels), 'None'),
+       btagDiscriminators = bTagDiscriminators,
+       postfix='NewDFTraining',
+       printWarning = False
+    )
+
+
 def ak8JetSequences(process,isRealData):
     #https://twiki.cern.ch/twiki/bin/view/CMS/Hbbtagging#V4_training
-    bTagDiscriminators = ['pfBoostedDoubleSecondaryVertexAK8BJetTags']
-    subjetBTagDiscriminators = ['pfCombinedInclusiveSecondaryVertexV2BJetTags','pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb']
+    bTagDiscriminators = ['pfMassIndependentDeepDoubleBvLJetTags:probHbb'] #https://twiki.cern.ch/twiki/bin/view/CMS/Hbbtagging
+    subjetBTagDiscriminators = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb']
     JETCorrLevels = ['L1FastJet','L2Relative','L3Absolute']
     if isRealData: JETCorrLevels.append('L2L3Residual')  
-#     jetToolbox(process, 'ak8', 'jetSequence', 'out', PUMethod='Puppi', updateCollection='slimmedJetsAK8', JETCorrPayload='AK8PFPuppi', JETCorrLevels=JETCorrLevels, 
-#                runOnMC=(not isRealData), updateCollectionSubjets='slimmedJetsAK8PFPuppiSoftDropPacked',subJETCorrLevels = JETCorrLevels, subJETCorrPayload='AK4PFPuppi', bTagDiscriminators=bTagDiscriminators,subjetBTagDiscriminators=subjetBTagDiscriminators)    
-
-    jetToolbox(process, 'ak8',  'jetSequence','out',PUMethod = 'Puppi', postFix='wLep', JETCorrPayload = 'AK8PFPuppi', JETCorrLevels = JETCorrLevels,
-               runOnMC=(not isRealData),miniAOD=True, addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, 
+    
+    
+    jetToolbox(process, 'ak8',  'jetSequence','noOutput',PUMethod = 'Puppi', postFix='wLep', JETCorrPayload = 'AK8PFPuppi', JETCorrLevels = JETCorrLevels,
+               runOnMC=(not isRealData), addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, 
                subJETCorrPayload='AK4PFPuppi',subJETCorrLevels = JETCorrLevels,bTagDiscriminators=bTagDiscriminators,subjetBTagDiscriminators=subjetBTagDiscriminators)
-
-    jetToolbox(process, 'ak8',  'jetSequence','out',PUMethod = 'Puppi', postFix='NoLep', newPFCollection=True, nameNewPFCollection='leptonLesspuppi', JETCorrPayload = 'AK8PFPuppi', JETCorrLevels = JETCorrLevels,
-           runOnMC=(not isRealData),miniAOD=True, addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, 
+ 
+    jetToolbox(process, 'ak8',  'jetSequence','noOutput',PUMethod = 'Puppi', postFix='NoLep', newPFCollection=True, nameNewPFCollection='leptonLesspuppi', JETCorrPayload = 'AK8PFPuppi', JETCorrLevels = JETCorrLevels,
+           runOnMC=(not isRealData), addSoftDrop=True, addSoftDropSubjets=True, addNsub=True, 
            subJETCorrPayload='AK4PFPuppi',subJETCorrLevels = JETCorrLevels, bTagDiscriminators=['None'],subjetBTagDiscriminators=['None'])
+    
+    #https://twiki.cern.ch/twiki/bin/viewauth/CMS/DeepAKXTagging#CMSSW_recipes
+    from RecoBTag.MXNet.pfDeepBoostedJet_cff import pfDeepBoostedJetTags, pfMassDecorrelatedDeepBoostedJetTags
+    from RecoBTag.MXNet.Parameters.V02.pfDeepBoostedJetPreprocessParams_cfi import pfDeepBoostedJetPreprocessParams as pfDeepBoostedJetPreprocessParamsV02
+    from RecoBTag.MXNet.Parameters.V02.pfMassDecorrelatedDeepBoostedJetPreprocessParams_cfi import pfMassDecorrelatedDeepBoostedJetPreprocessParams as pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+    pfDeepBoostedJetTags.preprocessParams = pfDeepBoostedJetPreprocessParamsV02
+    pfDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-symbol.json'
+    pfDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/full/resnet-0000.params'
+    pfMassDecorrelatedDeepBoostedJetTags.preprocessParams = pfMassDecorrelatedDeepBoostedJetPreprocessParamsV02
+    pfMassDecorrelatedDeepBoostedJetTags.model_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-symbol.json'
+    pfMassDecorrelatedDeepBoostedJetTags.param_path = 'RecoBTag/Combined/data/DeepBoostedJet/V02/decorrelated/resnet-0000.params'
+    
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    from RecoBTag.MXNet.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
+    updateJetCollection(
+        process,
+        jetSource=cms.InputTag('packedPatJetsAK8PFPuppiwLepSoftDrop'),
+        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        svSource = cms.InputTag('slimmedSecondaryVertices'),
+        rParam=0.8,
+        jetCorrections = ('AK8PFPuppi', cms.vstring(JETCorrLevels), 'None'),
+        btagDiscriminators = ['pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsQCD','pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:HbbvsQCD','pfDeepBoostedDiscriminatorsJetTags:HbbvsQCD'],
+        postfix='AK8wLepWithPuppiDaughters',   # !!! postfix must contain "WithPuppiDaughter" !!!
+        printWarning = False
+    )
+    updateJetCollection(
+        process,
+        jetSource=cms.InputTag('packedPatJetsAK8PFPuppiNoLepSoftDrop'),
+        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        svSource = cms.InputTag('slimmedSecondaryVertices'),
+        rParam=0.8,
+        jetCorrections = ('AK8PFPuppi', cms.vstring(JETCorrLevels), 'None'),
+        btagDiscriminators = ['pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD'],
+        postfix='AK8NoLepWithPuppiDaughters',   # !!! postfix must contain "WithPuppiDaughter" !!!
+        printWarning = False
+    )    
     
 #     addECF(process,process.jetSequence,'NoLep',"N",1,False)
 #     addECF(process,process.jetSequence,'NoLep',"N",2,False)
 #     addECF(process,process.jetSequence,'wLep',"N",1,False)
 #     addECF(process,process.jetSequence,'wLep',"N",2,False)
-    from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
-    addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
-
-
-    
-    
+#     from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
+#     addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
+        
     #because there was a built in 100 GeV cut????
     process.ak8PFJetsPuppiwLepSoftDrop.jetPtMin = 10
     process.ak8PFJetsPuppiNoLepSoftDrop.jetPtMin = 10
-    
-#     process.patJetsAK8PFPuppiNoLep.discriminatorSources = cms.VInputTag(cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTagsAK8PFPuppiNoLep"), cms.InputTag("pfDeepCSVJetTagsAK8PFPuppiNoLep","probbb"), 
-#         cms.InputTag("pfBoostedDoubleSecondaryVertexAK8BJetTagsAK8PFPuppiNoLep"), cms.InputTag("pfDeepCSVJetTagsAK8PFPuppiNoLep","probb"))
-#     process.patJetsAK8PFPuppiNoLep.tagInfoSources = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfosAK8PFPuppiNoLep"), cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfosAK8PFPuppiNoLep"), cms.InputTag("pfDeepCSVTagInfosAK8PFPuppiNoLep"), cms.InputTag("pfBoostedDoubleSVAK8TagInfosAK8PFPuppiNoLep")) 
     
 
 def defaultJetSequences(process, isRealData):

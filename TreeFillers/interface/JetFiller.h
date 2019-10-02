@@ -40,7 +40,7 @@ protected:
 	spv_float metUnc_rawPy       = make_spv_float();
 	spv_float csv                = make_spv_float();
 	spv_float deep_csv           = make_spv_float();
-//	spv_float deep_flavor        = make_spv_float();
+	spv_float deep_flavor        = make_spv_float();
 	spv_size8 id                 = make_spv_size8();
 	spv_int8  hadronFlavor       = make_spv_int8 ();
 	spv_int8  partonFlavor       = make_spv_int8 ();
@@ -52,6 +52,7 @@ protected:
 	spv_float gen_mass           = make_spv_float();
 
     bool isRealData           = false;
+    bool addBTaggingInfo      = false;
     const FillerConstants::DataEra     dataEra;
     std::string jetType           = "";
     bool isPuppi = false;

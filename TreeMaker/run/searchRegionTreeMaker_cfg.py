@@ -4,7 +4,6 @@ import re
 process = cms.Process('run')
 
 process.options = cms.untracked.PSet(
-    allowUnscheduled=cms.untracked.bool(True),
     wantSummary=cms.untracked.bool(True)
 )
 
@@ -98,11 +97,11 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  , EventFiller               = cms.PSet(EventFiller)
                                  , METFilterFiller           = cms.PSet(METFilterFiller)
                                  , TriggerFiller             = cms.PSet(TriggerFiller)
-#                                  , ak4JetFiller              = cms.PSet(ak4JetFiller)
-#                                  , ak4PuppiJetFiller         = cms.PSet(ak4PuppiJetFiller)
+                                , ak4JetFiller              = cms.PSet(ak4JetFiller)
+#                                 , ak4PuppiJetFiller         = cms.PSet(ak4PuppiJetFiller)
 # #                                  , ak4PuppiNoLepJetFiller    = cms.PSet(ak4PuppiNoLepJetFiller)
-#                                  , ak8PuppiNoLepFatJetFiller = cms.PSet(ak8PuppiNoLepFatJetFiller)
-#                                  , ak8PuppiFatJetFiller      = cms.PSet(ak8PuppiFatJetFiller)
+                                , ak8PuppiNoLepFatJetFiller = cms.PSet(ak8PuppiNoLepFatJetFiller)
+                                , ak8PuppiFatJetFiller      = cms.PSet(ak8PuppiFatJetFiller)
                                 , ElectronFiller            = cms.PSet(ElectronFiller)
                                 , MuonFiller                = cms.PSet(MuonFiller)  
                                 , GenParticleFiller         = cms.PSet(GenParticleFiller)
@@ -135,6 +134,15 @@ if not isSignal:
 # process.btagFilter.type = type
 # process.p += process.btagFilter  
 
+
+#==============================================================================================================================#
+# Jet producers
+#==============================================================================================================================#
+from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
+defaultJetSequences(process,isRealData)
+process.p += process.leptonLessPFProducer
+process.p += process.leptonLesspuppi
+
 #==============================================================================================================================#
 # Customization
 #==============================================================================================================================#
@@ -155,10 +163,7 @@ if '2016' in type:
 process.p += process.egammaPostRecoSeq
 process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')
 
-# 
-# from AnalysisTreeMaker.TreeMaker.jetProducers_cff import defaultJetSequences
-# defaultJetSequences(process,isRealData)
-#     
+
 # from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
 # metCorrections(process,process.treeMaker,isRealData,type)        
 # if '2017' in type:

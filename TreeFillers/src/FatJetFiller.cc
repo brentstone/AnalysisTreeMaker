@@ -20,6 +20,7 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
 
     fillGenJets  =cfg.getParameter<bool>("fillGenJets");
     addBTaggingInfo=cfg.getParameter<bool>("addBTaggingInfo");
+    addWTaggingInfo=cfg.getParameter<bool>("addWTaggingInfo");
     addLSFInfo     =cfg.getParameter<bool>("addLSFInfo");
     token_jets   =cc.consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"));
     minJetPT     = cfg.getParameter<double>("minJetPT");
@@ -38,8 +39,13 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
     data.addVector(toRawFact      ,branchName,"jets_N","toRawFact"         ,8);
     data.addVector(id             ,branchName,"jets_N","id"                );
     if(addBTaggingInfo){
-        data.addVector(bbt            ,branchName,"jets_N","bbt"               ,8);
-//        data.addVector(deep_flavor    ,branchName,"jets_N","deep_flavor"       ,10);
+        data.addVector(bbt            ,branchName,"jets_N","bbt"               ,10);
+        data.addVector(deep_MDZHbb    ,branchName,"jets_N","deep_MDZHbb"       ,10);
+        data.addVector(deep_MDHbb     ,branchName,"jets_N","deep_MDHbb"        ,10);
+        data.addVector(deep_Hbb       ,branchName,"jets_N","deep_Hbb"          ,10);
+    }
+    if(addWTaggingInfo){
+        data.addVector(deep_W         ,branchName,"jets_N","deep_W"               ,10);
     }
     if(addLSFInfo){
         token_mva=cc.consumes<edm::ValueMap<float>>(
@@ -81,7 +87,7 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
     data.addVector(sj_mass        ,branchName,"subjets_N","sj_mass"        ,10);
     data.addVector(sj_toRawFact   ,branchName,"subjets_N","sj_toRawFact"   ,8);
     if(addBTaggingInfo){
-        data.addVector(sj_csv         ,branchName,"subjets_N","sj_csv"         ,10);
+//        data.addVector(sj_csv         ,branchName,"subjets_N","sj_csv"         ,10);
         data.addVector(sj_deep_csv    ,branchName,"subjets_N","sj_deep_csv"    ,10);
     }
     if(!isRealData){
@@ -153,12 +159,17 @@ void FatJetFiller::setValues(){
         id->push_back(idStat);
 
         if(addBTaggingInfo){
-            bbt->push_back(jet.bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags"));
-
-//            deep_flavor ->push_back(
-//                    jet.bDiscriminator("pfDeepFlavourJetTags:probb")
-//                    +jet.bDiscriminator("pfDeepFlavourJetTags:probbb")
-//                    +jet.bDiscriminator("pfDeepFlavourJetTags:problepb"));
+            bbt->push_back(jet.bDiscriminator("pfMassIndependentDeepDoubleBvLJetTags:probHbb"));
+            deep_MDZHbb ->push_back(jet.bDiscriminator(
+                    "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:ZHbbvsQCD"));
+            deep_MDHbb ->push_back(jet.bDiscriminator(
+                    "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:HbbvsQCD"));
+            deep_Hbb ->push_back(jet.bDiscriminator(
+                    "pfDeepBoostedDiscriminatorsJetTags:HbbvsQCD"));
+        }
+        if(addWTaggingInfo){
+            deep_W ->push_back(jet.bDiscriminator(
+                    "pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD"));
         }
 
         tau1->push_back(jet.userFloat("NjettinessAK8"+jetDef+":tau1"));
@@ -205,8 +216,8 @@ void FatJetFiller::setValues(){
             sj_mass        ->push_back(sj->mass());
             sj_toRawFact   ->push_back( sj->pt()  > 0 ? sj->correctedP4(0).pt()/sj->pt() : 0);
             if(addBTaggingInfo){
-                sj_csv         ->push_back(
-                        sj->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+//                sj_csv         ->push_back(
+//                        sj->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
                 sj_deep_csv    ->push_back(
                         sj->bDiscriminator("pfDeepCSVJetTags:probb")
                         + sj->bDiscriminator("pfDeepCSVJetTags:probbb"));
