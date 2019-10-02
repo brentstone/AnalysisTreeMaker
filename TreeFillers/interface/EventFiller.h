@@ -66,8 +66,10 @@ private:
     float    met_unclUp_phi =0;
     float    met_raw_pt     =0;
     float    met_raw_phi    =0;
-    float    met_van_pt      =0;
-    float    met_van_phi     =0;
+    float    met_van_pt     =0;
+    float    met_van_phi    =0;
+    float    met_puppi_pt   =0;
+    float    met_puppi_phi  =0;
     float    nTruePUInts    =0;
     float    genWeight      =0;
     size8    process        =0;
@@ -86,6 +88,7 @@ private:
     edm::EDGetTokenT<pat::METCollection>              token_met     ;
     edm::EDGetTokenT<pat::METCollection>              token_rawMet  ;
     edm::EDGetTokenT<pat::METCollection>              token_vanMet  ;
+    edm::EDGetTokenT<pat::METCollection>              token_puppiMet  ;
     edm::EDGetTokenT<std::vector<PileupSummaryInfo> > token_puSum   ;
     edm::EDGetTokenT<GenEventInfoProduct>             token_genEvent;
     edm::EDGetTokenT<LHEEventProduct>                 token_lheEventInfo  ;
@@ -100,6 +103,7 @@ private:
     edm::Handle<pat::METCollection>              han_met     ;
     edm::Handle<pat::METCollection>              han_rawMet  ;
     edm::Handle<pat::METCollection>              han_vanMet     ;
+    edm::Handle<pat::METCollection>              han_puppiMet     ;
     edm::Handle<GenEventInfoProduct>             han_genEvent;
     edm::Handle<LHEEventProduct>                 han_lheEventInfo;
     edm::Handle< double > han_prefweight;

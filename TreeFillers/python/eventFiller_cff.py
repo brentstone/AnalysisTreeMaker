@@ -12,6 +12,7 @@ EventFiller = cms.PSet(
     met                    = cms.InputTag('slimmedMETs'),
     rawMet                 = cms.InputTag('slimmedMETs'),
     vanMet                 = cms.InputTag('slimmedMETs'),  
+    puppiMet               = cms.InputTag('slimmedMETsPuppi'),  
     genEvent               = cms.InputTag('generator'),
     lheEvent               = cms.InputTag('externalLHEProducer'),
 )
