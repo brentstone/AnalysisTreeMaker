@@ -28,6 +28,7 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	token_met   =cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("met"));
 	token_rawMet=cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("rawMet"));
 	token_vanMet=cc.consumes<pat::METCollection>    (cfg.getParameter<edm::InputTag>("vanMet"));
+	token_puppiMet=cc.consumes<pat::METCollection>  (cfg.getParameter<edm::InputTag>("puppiMet"));
 	if(addPrefiringWeights){
 	    token_prefweight    =cc.consumes<double>(edm::InputTag("prefiringweight:nonPrefiringProb"));
 	    token_prefweightup  =cc.consumes<double>(edm::InputTag("prefiringweight:nonPrefiringProbUp"));
@@ -60,6 +61,8 @@ EventFiller::EventFiller(const edm::ParameterSet& fullParamSet, const std::strin
 	data.addSingle(met_raw_phi   ,branchName,"met_raw_phi"   ,10);
     data.addSingle(met_van_pt    ,branchName,"met_van_pt"    ,10);
     data.addSingle(met_van_phi   ,branchName,"met_van_phi"   ,10);
+    data.addSingle(met_puppi_pt  ,branchName,"met_puppi_pt"    ,10);
+    data.addSingle(met_puppi_phi ,branchName,"met_puppi_phi"   ,10);
 	data.addSingle(dataEra       ,branchName,"dataEra"           );
 	if(isRealData){
 	    data.addSingle(dataset       ,branchName,"dataset"       );
@@ -83,6 +86,7 @@ void EventFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	iEvent.getByToken(token_met     ,han_met     );
 	iEvent.getByToken(token_rawMet  ,han_rawMet  );
 	iEvent.getByToken(token_vanMet  ,han_vanMet  );
+	iEvent.getByToken(token_puppiMet  ,han_puppiMet  );
 
 	if(addPrefiringWeights){
 	    iEvent.getByToken(token_prefweight  ,han_prefweight  );
@@ -126,6 +130,8 @@ void EventFiller::setValues(){
 	  met_raw_phi      = han_rawMet->front().uncorPhi();
 	  met_van_pt       = han_vanMet->front().pt();
 	  met_van_phi      = han_vanMet->front().phi();
+	  met_puppi_pt     = han_puppiMet->front().pt();
+	  met_puppi_phi    = han_puppiMet->front().phi();
 	  dataEra            =static_cast<size8>(dataEra_input);
 	  if(realData){
 		  dataset            =static_cast<size8>(dataset_input);
