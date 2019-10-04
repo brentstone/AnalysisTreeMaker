@@ -1,12 +1,15 @@
 
 #include "AnalysisTreeMaker/TreeFillers/interface/JetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/FillerConstants.h"
+#include "AnalysisTreeMaker/Utilities/interface/JetID.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 using ASTypes::size8;
 using ASTypes::int8;
 namespace AnaTM{
+//--------------------------------------------------------------------------------------------------
+JetFiller::~JetFiller() {};
 //--------------------------------------------------------------------------------------------------
 JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
         edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra):
@@ -23,6 +26,21 @@ JetFiller::JetFiller(const edm::ParameterSet& fullParamSet, const std::string& p
     if(!isRealData && fillGenJets)
         token_genJets=cc.consumes<reco::GenJetCollection>(
                 cfg.getParameter<edm::InputTag>("genjets"));
+
+    switch(dataEra){
+    case FillerConstants::ERA_2016 :
+        jetIDCalc.reset(new JetID2016Calculator(isPuppi) );
+        break;
+    case FillerConstants::ERA_2017 :
+        jetIDCalc.reset(new JetID2017Calculator(isPuppi) );
+        break;
+    case FillerConstants::ERA_2018 :
+        jetIDCalc.reset(new JetID2018Calculator(isPuppi) );
+        break;
+    default:
+        throw cms::Exception( "JetFiller::JetFiller()","We can't handle this data era yet!");
+    }
+
 
     data.addVector(pt          ,branchName,"jets_N","pt"                    ,10);
     data.addVector(eta         ,branchName,"jets_N","eta"                   ,10);
@@ -63,160 +81,6 @@ void JetFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         jetCorUnc.reset(new JetCorrectionUncertainty(JetCorPar));
     }
 };
-
-//--------------------------------------------------------------------------------------------------
-bool JetFiller::passLooseID2016(const pat::Jet& jet)  {
-    const float aEta    = std::fabs(jet.eta());
-    const float neutHF  = jet.neutralHadronEnergyFraction();
-    const float neutEMF = jet.neutralEmEnergyFraction();
-    const int   nC      = jet.chargedMultiplicity()+jet.neutralMultiplicity();
-    const int   cM      = jet.chargedMultiplicity();
-    const int   nM      = jet.neutralMultiplicity();
-    const float chrgHF  = jet.chargedHadronEnergyFraction();
-    const float chrgEMF = jet.chargedEmEnergyFraction();
-
-    if(aEta <= 2.7){
-        if(neutHF >= 0.99) return false;
-        if(neutEMF >= 0.99) return false;
-        if(nC <= 1) return false;
-        if(aEta <= 2.4){
-            if(chrgHF == 0) return false;
-            if(cM == 0) return false;
-            if(chrgEMF >= 0.99) return false;
-        }
-    } else if(aEta <= 3.0){
-        if(neutEMF <= 0.01) return false;
-        if(neutHF  >= 0.98) return false;
-        if(nM      <= 2) return false;
-    } else {
-        if(neutEMF >= 0.90) return false;
-        if(nM      <= 10) return false;
-    }
-    return true;
-}
-//--------------------------------------------------------------------------------------------------
-bool JetFiller::passTightID2016(const pat::Jet& jet)  {
-    const float aEta    = std::fabs(jet.eta());
-    const float neutHF  = jet.neutralHadronEnergyFraction();
-    const float neutEMF = jet.neutralEmEnergyFraction();
-    const int   nC      = jet.chargedMultiplicity()+jet.neutralMultiplicity();
-    const int   cM      = jet.chargedMultiplicity();
-    const int   nM      = jet.neutralMultiplicity();
-    const float chrgHF  = jet.chargedHadronEnergyFraction();
-    const float chrgEMF = jet.chargedEmEnergyFraction();
-
-    if(aEta <= 2.7){
-        if(neutHF >= 0.90) return false;
-        if(neutEMF >= 0.90) return false;
-        if(nC <= 1) return false;
-        if(aEta <= 2.4){
-            if(chrgHF == 0) return false;
-            if(cM == 0) return false;
-            if(chrgEMF >= 0.99) return false;
-        }
-    } else if(aEta <= 3.0){
-        if(neutEMF <= 0.01) return false;
-        if(neutHF  >= 0.98) return false;
-        if(nM      <= 2) return false;
-    } else {
-        if(neutEMF >= 0.90) return false;
-        if(nM      <= 10) return false;
-    }
-    return true;
-}
-//--------------------------------------------------------------------------------------------------
-std::pair<float,float> JetFiller::getPuppiMult(const pat::Jet& jet){
-    float puppiMultiplicity = 0;
-    float neutralPuppiMultiplicity = 0;
-    float neutralHadronPuppiMultiplicity = 0;
-    float photonPuppiMultiplicity = 0;
-    float HFHadronPuppiMultiplicity = 0;
-    float HFEMPuppiMultiplicity = 0;
-
-    for (unsigned i = 0; i < jet.numberOfDaughters(); i++) {
-        const pat::PackedCandidate &dau =
-                static_cast<const pat::PackedCandidate &>(*jet.daughter(i));
-        auto weight = dau.puppiWeight();
-        puppiMultiplicity += weight;
-        // This logic is taken from RecoJets/JetProducers/src/JetSpecific.cc
-        switch (std::abs(dau.pdgId())) {
-          case 130: //PFCandidate::h0 :    // neutral hadron
-            neutralHadronPuppiMultiplicity += weight;
-            neutralPuppiMultiplicity += weight;
-            break;
-          case 22: //PFCandidate::gamma:   // photon
-            photonPuppiMultiplicity += weight;
-            neutralPuppiMultiplicity += weight;
-            break;
-          case 1: // PFCandidate::h_HF :    // hadron in HF
-            HFHadronPuppiMultiplicity += weight;
-            neutralPuppiMultiplicity += weight;
-            break;
-          case 2: //PFCandidate::egamma_HF :    // electromagnetic in HF
-            HFEMPuppiMultiplicity += weight;
-            neutralPuppiMultiplicity += weight;
-            break;
-        }
-    }
-
-   return std::make_pair(puppiMultiplicity,neutralPuppiMultiplicity);
-     //[total][neutral]
-}
-//--------------------------------------------------------------------------------------------------
-bool JetFiller::passTightID2017(const pat::Jet& jet, bool isPuppi, bool leptonVeto)  {
-
-    std::pair<float,float> pMult;
-    if(isPuppi) pMult = getPuppiMult(jet);
-
-
-    //var defs https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
-    const float aEta     = std::fabs(jet.eta());
-    const float neutHadF = jet.neutralHadronEnergyFraction();
-    const float neutEMF  = jet.neutralEmEnergyFraction();
-    const float chrgEMF  = jet.chargedEmEnergyFraction();
-    const float muonF    = jet.muonEnergyFraction();
-    const int   numCon   = isPuppi ?  int(pMult.first) : jet.chargedMultiplicity()
-            +jet.neutralMultiplicity();
-    const float chrgHF   = jet.chargedHadronEnergyFraction();
-    const int   numNeut  = isPuppi ?  int(pMult.second) : jet.neutralMultiplicity();
-    const int   numChrg  = jet.chargedMultiplicity();
-
-
-
-    if(aEta <= 2.7){
-        if(neutHadF >= 0.90) return false;
-        if(neutEMF >= 0.90) return false;
-        if(numCon <= 1) return false;
-        if(aEta <= 2.4){
-            if(chrgHF == 0) return false;
-            if(numChrg == 0) return false;
-        }
-        if(leptonVeto){
-            if(chrgEMF>=0.8) return false;
-            if(muonF>=0.8) return false;
-        }
-    } else if(aEta <= 3.0){
-        if(isPuppi){
-            if(neutHadF>=0.99) return false;
-        }else {
-            if(neutEMF <= 0.02) return false;
-            if(neutEMF >= 0.99) return false;
-            if(numNeut <= 2) return false;
-        }
-    } else {
-        if(isPuppi){
-            if(neutEMF >= 0.90) return false;
-            if(neutHadF<=0.02) return false;
-            if(numNeut <= 2) return false;
-            if(numNeut >= 15) return false;
-        } else {
-            if(neutEMF >= 0.90) return false;
-            if(neutHadF<=0.02) return false;
-            if(numNeut <= 10) return false;
-        }
-    }
-    return true;
-}
 //--------------------------------------------------------------------------------------------------
 void JetFiller::processGenJets(){
     for(unsigned int iG = 0; iG < han_genJets->size(); ++iG){
@@ -272,18 +136,12 @@ void JetFiller::setValues(){
         if(puID & (1 << 1) ) FillerConstants::addPass(idStat,FillerConstants::JETID_PU_M);
         if(puID & (1 << 0) ) FillerConstants::addPass(idStat,FillerConstants::JETID_PU_T);
 
+        jetIDCalc->fillJetInfo(jet);
+        if(jetIDCalc->passTightID())
+            FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+        if(jetIDCalc->passTightLepVetoID())
+            FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHTNOLEP);
 
-        if(dataEra == FillerConstants::ERA_2016){
-            if(passLooseID2016(jet))
-                FillerConstants::addPass(idStat,FillerConstants::JETID_LOOSE);
-            if(passTightID2016(jet))
-                FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
-        } else {
-            if(passTightID2017(jet,isPuppi,false))
-                FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
-            if(passTightID2017(jet,isPuppi,true))
-                FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHTNOLEP);
-        }
 
         id->push_back(idStat);
 

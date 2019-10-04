@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 namespace AnaTM{
+class JetIDCalculator;
 //--------------------------------------------------------------------------------------------------
 // JetFiller
 //--------------------------------------------------------------------------------------------------
@@ -18,14 +19,10 @@ class JetFiller : public BaseFiller {
 public:
 	JetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
 	        edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra);
-	virtual ~JetFiller() {};
+	virtual ~JetFiller();
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
 
-	static bool passLooseID2016(const pat::Jet& jet);
-	static bool passTightID2016(const pat::Jet& jet);
-	static bool passTightID2017(const pat::Jet& jet, bool isPuppi, bool leptonVeto);
-	static std::pair<float,float> getPuppiMult(const pat::Jet& jet); //[total][neutral]
 
 protected:
 	void processGenJets();
@@ -66,6 +63,7 @@ protected:
 
     edm::ESHandle<JetCorrectorParametersCollection> jetCorParameters;
     std::unique_ptr<JetCorrectionUncertainty> jetCorUnc;
+    std::unique_ptr<JetIDCalculator> jetIDCalc;
 
 };
 }
