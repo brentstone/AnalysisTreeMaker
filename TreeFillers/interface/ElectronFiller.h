@@ -47,6 +47,7 @@ private:
 	spv_float lepAct_o_pt          = make_spv_float();
 	spv_float sc_act_o_pt          = make_spv_float();
 	spv_float sc_dr_act            = make_spv_float();
+	spv_float tthMVA               = make_spv_float();
 
 	//ID vars (for cut based)
 	spv_size16 passMedCutBased     = make_spv_size16();

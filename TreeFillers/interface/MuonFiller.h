@@ -35,6 +35,7 @@ private:
 	spv_float ptRatio        = make_spv_float();
 	spv_float dRnorm         = make_spv_float();
 	spv_float lepAct_o_pt    = make_spv_float();
+	spv_float tthMVA        = make_spv_float();
 
 	spv_int8 simType        = make_spv_int8();
 

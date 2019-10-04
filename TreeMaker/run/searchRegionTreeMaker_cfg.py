@@ -169,7 +169,7 @@ if '2016' in type:
                         era='2016-Legacy')
 process.p += process.egammaPostRecoSeq
 process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')
-
+process.leptonLessPFProducer.electrons    = cms.InputTag('slimmedElectrons','','run')
 
 #https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription
 from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
@@ -213,8 +213,12 @@ if '2017' in type or '2018' in type : #https://twiki.cern.ch/twiki/bin/viewauth/
         debug = cms.bool(False)
         )    
     process.p += process.ecalBadCalibReducedMINIAODFilter
-    process.treeMaker.METFilterFiller.ecalBadCalibFilterUpdate = True;    
+    process.treeMaker.METFilterFiller.ecalBadCalibFilterUpdate = True;
     
+from AnalysisTreeMaker.TreeMaker.addLeptonMVA_cff import muonMVA
+muonMVA(process, process.treeMaker,type,cms.InputTag('slimmedMuons'))
+from AnalysisTreeMaker.TreeMaker.addLeptonMVA_cff import electronMVA
+electronMVA(process, process.treeMaker,type,cms.InputTag('slimmedElectrons','','run'))    
  
 #==============================================================================================================================#
 # Tree maker is the last step

@@ -34,12 +34,13 @@ MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string&
     data.addVector(d0         ,branchName,"muons_N","d0"         ,6);
     data.addVector(dz         ,branchName,"muons_N","dz"         ,6);
     data.addVector(sip3D      ,branchName,"muons_N","sip3D"      ,6);
-    data.addVector(miniIso    ,branchName,"muons_N","miniIso"    ,6);
+    data.addVector(miniIso    ,branchName,"muons_N","miniIso"    ,8);
     data.addVector(dBRelISO   ,branchName,"muons_N","dBRelISO"   ,6);
     data.addVector(ptRel      ,branchName,"muons_N","ptRel"      ,6);
     data.addVector(ptRatio    ,branchName,"muons_N","ptRatio"    ,6);
     data.addVector(dRnorm     ,branchName,"muons_N","dRnorm"     ,6);
     data.addVector(lepAct_o_pt,branchName,"muons_N","lepAct_o_pt",6);
+    data.addVector(tthMVA     ,branchName,"muons_N","tthMVA",8);
 
     if(!isRealData)
         data.addVector(simType,branchName,"muons_N","simType");
@@ -125,6 +126,8 @@ void MuonFiller::setValues(){
                 dynamic_cast<const reco::Candidate *>(&*lep),lep->pt(),eA,event->getRho());
         dRnorm->push_back(jetActvars[0]);
         lepAct_o_pt->push_back(jetActvars[1]);
+
+        tthMVA->push_back(lep->userFloat("muonMVATTH"));
 
         if(!isRealData){
             //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2

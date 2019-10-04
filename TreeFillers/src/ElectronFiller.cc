@@ -48,6 +48,7 @@ ElectronFiller::ElectronFiller(const edm::ParameterSet& fullParamSet, const std:
     data.addVector(lepAct_o_pt,branchName,"electrons_N","lepAct_o_pt"          ,6);
     data.addVector(sc_act_o_pt,branchName,"electrons_N","sc_act_o_pt"          ,6);
     data.addVector(sc_dr_act  ,branchName,"electrons_N","sc_dr_act"            ,6);
+    data.addVector(tthMVA     ,branchName,"electrons_N","tthMVA"               ,8);
     if(storeIDVars){
         data.addVector(passMedCutBased      ,branchName,"electrons_N","passMedCutBased"      );
         data.addVector(passTightCutBased    ,branchName,"electrons_N","passTightCutBased"    );
@@ -156,6 +157,8 @@ void ElectronFiller::setValues(){
         getSCActivity(&*lep,vtx_pt,eA,sc_rato,sc_dr);
         sc_act_o_pt ->push_back(sc_rato);
         sc_dr_act   ->push_back(sc_dr);
+
+        tthMVA->push_back(lep->userFloat("electronMVATTH"));
 
         if(storeIDVars){
             passMedCutBased      ->push_back(lep->userInt("cutBasedElectronID-Fall17-94X-V2-medium"));
