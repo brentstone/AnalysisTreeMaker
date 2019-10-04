@@ -171,11 +171,13 @@ process.p += process.egammaPostRecoSeq
 process.treeMaker.ElectronFiller.electrons = cms.InputTag('slimmedElectrons','','run')
 
 
-# from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
-# metCorrections(process,process.treeMaker,isRealData,type)        
-# if '2017' in type:
-#     process.p += process.fullPatMetSequenceModifiedMET
-#     
+#https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription
+from AnalysisTreeMaker.TreeMaker.metCorrections_cff import metCorrections
+metCorrections(process,process.treeMaker,isRealData,type)        
+if '2017' in type:
+    process.p += process.fullPatMetSequenceModifiedMET
+
+     
 if '2017' in type or '2016' in type : #https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
     from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
     process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
