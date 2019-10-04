@@ -1,30 +1,37 @@
 # AnalysisTreeMaker
 
 ## Setup commands
+
 ```Shell
-cmsrel CMSSW_9_4_11_patch1
-cd CMSSW_9_4_11_patch1/src
+cmsrel CMSSW_10_2_16_patch2
+cd CMSSW_10_2_16_patch2/src
 cmsenv
+git cms-init
 git clone git@github.com:{USERNAME}/AnalysisTreeMaker.git 
 git clone git@github.com:CSCUCLA/AnalysisSupport.git
-git cms-merge-topic cms-met:METFixEE2017_949_v2
-git cms-merge-topic cms-egamma:EgammaID_949
-git cms-merge-topic cms-egamma:EgammaPostRecoTools_940
-git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_94X_v3
+git cms-addpkg RecoMET/METFilters 
+git cms-merge-topic cms-met:METFixEE2017_949_v2_backport_to_102X 
+git cms-merge-topic cms-egamma:EgammaPostRecoTools 
+git cms-merge-topic cms-egamma:PhotonIDValueMapSpeedup1029 
+git cms-merge-topic cms-egamma:slava77-btvDictFix_10210 
+git cms-addpkg EgammaAnalysis/ElectronTools
+rm EgammaAnalysis/ElectronTools/data -rf
+git clone git@github.com:cms-data/EgammaAnalysis-ElectronTools.git EgammaAnalysis/ElectronTools/data
+git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToolbox_102X_v2
 git cms-addpkg RecoBTag/TensorFlow
-git cms-merge-topic lathomas:L1Prefiring_9_4_9
-cp AnalysisTreeMaker/patch/L1ECALPrefiringWeightProducer.cc L1Prefiring/EventWeightProducer/plugins/
-mkdir L1Prefiring/EventWeightProducer/data
-cp L1Prefiring/EventWeightProducer/files/L1PrefiringMaps_new.root L1Prefiring/EventWeightProducer/data/
+git cms-addpkg PhysicsTools/NanoAOD
+git clone git@github.com:cms-data/PhysicsTools-NanoAOD.git PhysicsTools/NanoAOD/data
 scram b -j24  
 ```
 
-* EE noise mitigation: https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETUncertaintyPrescription#Instructions%20for%20%209_4_X,%20X%20>=0%20f  
-* Egamma ID for 2017+2016: https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes  
-    * 949 -> if you want the V2 IDs, otherwise skip  
-    * 940 -> just adds in an extra file to have a setup function to make things easier  
-* Jet Toolbox: https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetToolbox  
-* DeepJet: https://twiki.cern.ch/twiki/bin/view/CMS/DeepJet#94X_installation_recipe_X_10  
-    * Also works for the Hbb Tagger (https://twiki.cern.ch/twiki/bin/view/CMS/Hbbtagging)  
-    * Not needed for our release: git cherry-pick 94ceae257f846998c357fcad408986cc8a039152  
-* L1-ECAL prefiring: https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe  
+* RecoMET/MetFIlters: For 2017/18 ecalBadCalibReducedMINIAODFilter (https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2) 
+* METFixEE2017_949_v2_backport_to_102X: EE noise mitigation: (https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription) 
+* Egamma ID: https://twiki.cern.ch/twiki/bin/view/CMS/EgammaPostRecoRecipes  
+  * EgammaPostRecoTools: just adds in an extra file to have a setup function to make things easier 
+  * PhotonIDValueMapSpeedup1029: optional but speeds up the photon ID value module so things fun faster
+  * slava77-btvDictFix_10210: fixes the Run2018D dictionary issue, see https://github.com/cms-sw/cmssw/issues/26182, may not be necessary for later releases, try it first and see if it works
+  * EgammaAnalysis/ElectronTools: now to add the scale and smearing for 2018 (eventually this will not be necessary in later releases but is harmless to do regardless)
+* JetToolbox: https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetToolbox
+* TensorFlow: For deep Hbb tagging (https://twiki.cern.ch/twiki/bin/view/CMS/Hbbtagging)
+* PysicsTools/NanoAOD: For ttH MVA
+
