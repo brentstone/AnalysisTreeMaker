@@ -2,6 +2,7 @@
 #define ANALYSISTREEMAKER_TREEFILLERS_FatJetFILLER_H
 
 #include "AnalysisTreeMaker/TreeMaker/interface/BaseFiller.h"
+#include "AnalysisTreeMaker/TreeFillers/interface/FillerConstants.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -10,6 +11,7 @@
 class BTagFilter;
 
 namespace AnaTM{
+class JetIDCalculator;
 //--------------------------------------------------------------------------------------------------
 // FatJetFiller
 //--------------------------------------------------------------------------------------------------
@@ -17,7 +19,7 @@ class FatJetFiller : public BaseFiller {
 public:
 	FatJetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
 	        edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra);
-	virtual ~FatJetFiller() {};
+	virtual ~FatJetFiller();
 	virtual void load(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 	virtual void setValues();
 
@@ -39,6 +41,7 @@ private:
     spv_float deep_MDHbb         = make_spv_float();
     spv_float deep_Hbb           = make_spv_float();
     spv_float deep_W             = make_spv_float();
+
     spv_float tau1               = make_spv_float();
     spv_float tau2               = make_spv_float();
     spv_float sdMass_z0p15       = make_spv_float();
@@ -109,6 +112,7 @@ private:
 
     edm::ESHandle<JetCorrectorParametersCollection> subjetCorParameters;
     std::unique_ptr<JetCorrectionUncertainty> subjetCorUnc;
+    std::unique_ptr<JetIDCalculator> jetIDCalc;
 
     friend class ::BTagFilter; //for the btag filtering...easier than making accessor functions
 };

@@ -1,13 +1,15 @@
 
-#include "AnalysisTreeMaker/TreeFillers/interface/JetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/FatJetFiller.h"
 #include "AnalysisTreeMaker/TreeFillers/interface/FillerConstants.h"
+#include "AnalysisTreeMaker/Utilities/interface/JetID.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 using ASTypes::size8;
 using ASTypes::int8;
 
 namespace AnaTM{
+//--------------------------------------------------------------------------------------------------
+FatJetFiller::~FatJetFiller() {};
 //--------------------------------------------------------------------------------------------------
 FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::string& psetName,
         edm::ConsumesCollector&& cc, bool isRealData,FillerConstants::DataEra dataEra):
@@ -30,6 +32,20 @@ FatJetFiller::FatJetFiller(const edm::ParameterSet& fullParamSet, const std::str
 
     jetDef =cfg.getParameter<std::string>("jetDef");
     subjetDef=cfg.getParameter<std::string>("subjetDef");
+
+    switch(dataEra){
+    case FillerConstants::ERA_2016 :
+        jetIDCalc.reset(new JetID2016Calculator(isPuppi) );
+        break;
+    case FillerConstants::ERA_2017 :
+        jetIDCalc.reset(new JetID2017Calculator(isPuppi) );
+        break;
+    case FillerConstants::ERA_2018 :
+        jetIDCalc.reset(new JetID2018Calculator(isPuppi) );
+        break;
+    default:
+        throw cms::Exception( "FatJetFiller::FatJetFiller()","We can't handle this data era yet!");
+    }
 
 
     data.addVector(pt             ,branchName,"jets_N","pt"                ,10);
@@ -146,17 +162,11 @@ void FatJetFiller::setValues(){
 
         size8 idStat = 0;
         if(jet.hasPFSpecific()){
-            if(dataEra == FillerConstants::ERA_2016){
-                if(JetFiller::passLooseID2016(jet))
-                    FillerConstants::addPass(idStat,FillerConstants::JETID_LOOSE);
-                if(JetFiller::passTightID2016(jet))
-                    FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
-            } else {
-                if(JetFiller::passTightID2017(jet,isPuppi,false))
-                    FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
-                if(JetFiller::passTightID2017(jet,isPuppi,true))
-                    FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHTNOLEP);
-            }
+            jetIDCalc->fillJetInfo(jet);
+            if(jetIDCalc->passTightID())
+                FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHT);
+            if(jetIDCalc->passTightLepVetoID())
+                FillerConstants::addPass(idStat,FillerConstants::JETID_TIGHTNOLEP);
         }
         id->push_back(idStat);
 
