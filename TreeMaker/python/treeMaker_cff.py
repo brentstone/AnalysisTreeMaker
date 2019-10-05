@@ -18,24 +18,24 @@ def setupTreeMakerAndGlobalTag(process, analyzer, isRealData, type):
     
     if '2016' in type:
         if isRealData:
-            analyzer.globalTag = "102X_dataRun2_v11" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+            analyzer.globalTag = "102X_dataRun2_v12" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
         else:
             analyzer.globalTag = "102X_mcRun2_asymptotic_v7" #https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD
     
     if '2017' in type:
         if isRealData:
-            analyzer.globalTag = "102X_dataRun2_v11" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+            analyzer.globalTag = "102X_dataRun2_v12" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
         else:
             analyzer.globalTag = "102X_mc2017_realistic_v7" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
     
     if '2018' in type:
         if isRealData:
             if 'D' in type:
-                analyzer.globalTag = "102X_dataRun2_v11" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+                analyzer.globalTag = "102X_dataRun2_v12" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
             else:
-                analyzer.globalTag = "102X_dataRun2_Prompt_v14" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+                analyzer.globalTag = "102X_dataRun2_Prompt_v15" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
         else:
-            analyzer.globalTag = "102X_upgrade2018_realistic_v19" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+            analyzer.globalTag = "102X_upgrade2018_realistic_v20" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
     
     process.GlobalTag.globaltag = analyzer.globalTag
         
