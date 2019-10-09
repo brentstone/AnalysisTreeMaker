@@ -21,6 +21,7 @@ git clone git@github.com:cms-jet/JetToolbox.git JMEAnalysis/JetToolbox -b jetToo
 git cms-addpkg RecoBTag/TensorFlow
 git cms-addpkg PhysicsTools/NanoAOD
 git clone git@github.com:cms-data/PhysicsTools-NanoAOD.git PhysicsTools/NanoAOD/data
+git cms-merge-topic 28098
 scram b -j24  
 ```
 
@@ -33,5 +34,6 @@ scram b -j24
   * EgammaAnalysis/ElectronTools: now to add the scale and smearing for 2018 (eventually this will not be necessary in later releases but is harmless to do regardless)
 * JetToolbox: https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetToolbox
 * TensorFlow: For deep Hbb tagging (https://twiki.cern.ch/twiki/bin/view/CMS/Hbbtagging)
-* PysicsTools/NanoAOD: For ttH MVA
+* PysicsTools/NanoAOD: For ttH MVA 
+* 28098 merge-topic: new global tags have pt dependent JER corrections....need this for a fix (https://github.com/cms-sw/cmssw/pull/28098) 
 
