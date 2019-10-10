@@ -28,6 +28,7 @@ def addECF(proc,jetSeq,postFix,ecfType,ecfBeta,ecfN3):
     mod["PFJetsSoftDropValueMap"] = mod["PFJetsSoftDrop"]+'ValueMap' ########    
     mod["PATJets"] = patJets+mod["PATJetsLabelPost"]
 
+
     from RecoJets.JetProducers.ECF_cff import ecf
     ecfVar = ecfType.lower()+"b"+str(int(ecfBeta))
     mod["ECF"+ecfVar] = ecfVar+mod["SubstructureLabel"]+'SoftDrop'
@@ -45,7 +46,7 @@ def addECF(proc,jetSeq,postFix,ecfType,ecfBeta,ecfN3):
                  mod["ECF"+ecfVar]+':ecf'+ecfType+'2',
                 mod["ECF"+ecfVar]+':ecf'+ecfType+'3'
                 ]
-    
+
     
     if hasattr(proc, mod["PFJetsSoftDropValueMap"]) :
         getattr(proc,mod["PFJetsSoftDropValueMap"]).values += [
@@ -81,7 +82,7 @@ def addECF(proc,jetSeq,postFix,ecfType,ecfBeta,ecfN3):
     getattr(proc, mod["PATJets"]).userData.userFloats.src += [
              mod["PFJetsSoftDropValueMap"]+':'+mod["ECF"+ecfVar]+ecfType+'2',
             mod["PFJetsSoftDropValueMap"]+':'+mod["ECF"+ecfVar]+ecfType+'3' ]
-    
+
 
 def producePF(process) :    
     from CommonTools.PileupAlgos.Puppi_cff import puppi
@@ -185,16 +186,13 @@ def ak8JetSequences(process,isRealData):
         printWarning = False
     )    
     
-#     addECF(process,process.jetSequence,'NoLep',"N",1,False)
-#     addECF(process,process.jetSequence,'NoLep',"N",2,False)
-#     addECF(process,process.jetSequence,'wLep',"N",1,False)
-#     addECF(process,process.jetSequence,'wLep',"N",2,False)
-#     from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
-#     addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
+    #addECF(process,process.jetSequence,'NoLep',"N",1,False)
+    #addECF(process,process.jetSequence,'NoLep',"N",2,False)
+    #addECF(process,process.jetSequence,'wLep',"N",1,False)
+    #addECF(process,process.jetSequence,'wLep',"N",2,False)
+    from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
+    addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
         
-
-    
-
 def defaultJetSequences(process, isRealData):
     producePF(process)
     ak4JetSequences(process,isRealData)

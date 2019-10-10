@@ -3,6 +3,12 @@ import re
 from collections import OrderedDict
 from RecoJets.JetProducers.ECF_cff import ecf
 
+#https://raw.githubusercontent.com/cms-jet/JetToolbox/jetToolbox_102X/python/jetToolbox_cff.py
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+def _addProcessAndTask(proc, label, module):
+    task = getPatAlgosToolsTask(proc)
+    addToProcessAndTask(label, module, proc, task)
+
 def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
     match = re.match("([a-zA-Z]+)(\d+)", jetAlgo)
     if not match :
@@ -47,20 +53,16 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
                          alpha = cms.double( 1 ),
                          beta = cms.double( 1 )
                          )
-    setattr( proc, mod["ecfNbeta1"], ecfProd.clone(ecftype = cms.string( "N" ) ))
-    setattr( proc, mod["ecfMbeta1"], ecfProd.clone(ecftype = cms.string( "M" ),
+    
+
+    
+    
+    _addProcessAndTask( proc, mod["ecfNbeta1"], ecfProd.clone(ecftype = cms.string( "N" ) ))
+    _addProcessAndTask( proc, mod["ecfMbeta1"], ecfProd.clone(ecftype = cms.string( "M" ),
       cuts = cms.vstring( '', '', 'pt>10000'  ) ))
-    setattr( proc, mod["ecfDbeta1"], ecfProd.clone(ecftype = cms.string( "D" ),
+    _addProcessAndTask( proc, mod["ecfDbeta1"], ecfProd.clone(ecftype = cms.string( "D" ),
       cuts = cms.vstring( '', '', 'pt>10000'  ) ))
-    setattr( proc, mod["ecfUbeta1"], ecfProd.clone(ecftype = cms.string( "U" ) ))
-    jetSeq += getattr(proc, mod["ecfNbeta1"])
-    jetSeq += getattr(proc, mod["ecfMbeta1"])
-    jetSeq += getattr(proc, mod["ecfDbeta1"])
-    jetSeq += getattr(proc, mod["ecfUbeta1"])
-    getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["ecfNbeta1"]))
-    getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["ecfMbeta1"]))
-    getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["ecfDbeta1"]))
-    getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["ecfUbeta1"]))
+    _addProcessAndTask( proc, mod["ecfUbeta1"], ecfProd.clone(ecftype = cms.string( "U" ) ))
     
     #add the ECFs to the groomed pat jets
     getattr(proc, mod["patJetsSoftDrop"]).userData.userFloats.src += [
@@ -72,8 +74,8 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
         mod["ecfUbeta1"]+":ecfU2"
         ]
     
-    #match the groomed jets to the ungroomed PFJets
-    setattr(proc, mod["ecfValueMap"],
+    #match the groomed jets to the ungroomed PFJets        
+    _addProcessAndTask(proc, mod["ecfValueMap"],
             cms.EDProducer("RecoJetToPatJetDeltaRValueMapProducer",
                 src = cms.InputTag(mod["PFJets"]),
                 matched = cms.InputTag(mod["patJetsSoftDrop"]),
@@ -95,9 +97,6 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
                 'ecfU2b1'
                 ]),
              )) 
-            
-    jetSeq += getattr(proc, mod["ecfValueMap"])
-    getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["ecfValueMap"]))
     
     #add the ECF variables to the pat jets
     getattr(proc, mod["PATJets"]).userData.userFloats.src += [
@@ -110,17 +109,14 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
         ]
     
     #create the lepton in jets variables
-    setattr( proc, mod["lepInJetV"], cms.EDProducer('LepInJetProducer',
-                                                    srcPF = cms.InputTag("packedPFCandidates"), #doesnt do anything
+    _addProcessAndTask( proc, mod["lepInJetV"], cms.EDProducer('LepInJetProducer',
                                                     src = cms.InputTag(mod["PATJets"]),
                                                     srcEle = cms.InputTag("slimmedElectrons",'','run'),
                                                     srcMu = cms.InputTag("slimmedMuons")
                                                     ))
-    jetSeq += getattr(proc, mod["lepInJetV"])
-    getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["lepInJetV"]))
     
     #embed the user floats for the lepInJet vars
-    setattr( proc, mod["embeddedPATJets"], cms.EDProducer("PATJetUserDataEmbedder",
+    _addProcessAndTask( proc, mod["embeddedPATJets"], cms.EDProducer("PATJetUserDataEmbedder",
         src = cms.InputTag( mod["PATJets"]),
         userFloats = cms.PSet(lsf3 = cms.InputTag(mod["lepInJetV"]+":lsf3"),
                               dRLep = cms.InputTag(mod["lepInJetV"]+":dRLep"),
@@ -133,13 +129,13 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
 
     
 #     jetSeq += getattr(proc, mod["embeddedPATJets"])
-    getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["embeddedPATJets"]))
+#     getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["embeddedPATJets"]))
     
     #now redirect the next stage of the jet selection to use the embedded version
     getattr(proc, mod["selectedPATJets"]).src = cms.InputTag(mod["embeddedPATJets"]) 
     
     #now compute the MVA
-    setattr( proc, mod["lepInJetMVA"], cms.EDProducer('JetBaseMVAValueMapProducer',
+    _addProcessAndTask( proc, mod["lepInJetMVA"], cms.EDProducer('JetBaseMVAValueMapProducer',
         src = cms.InputTag(mod["packedJets"]),
         weightFile =  cms.FileInPath("AnalysisTreeMaker/Utilities/data/lsf3bdt_BDT.weights.xml"),
         name = cms.string("lepInJetMVA"),
@@ -170,5 +166,3 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
                              u2b1 = cms.string('userFloat("'+mod["ecfValueMap"]+':ecfU2b1")'),
                              )
         ))
-#     jetSeq += getattr(proc, mod["lepInJetMVA"])
-    getattr( proc, 'jetTask', cms.Task() ).add(getattr(proc,mod["lepInJetMVA"]))

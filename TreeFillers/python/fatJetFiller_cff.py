@@ -29,6 +29,6 @@ ak8PuppiFatJetFiller = cms.PSet(
     subjetType                      = cms.string('AK4PFPuppi'),
     addBTaggingInfo                 = cms.bool(True),
     addWTaggingInfo                 = cms.bool(False),
-    addLSFInfo                      = cms.bool(False),
+    addLSFInfo                      = cms.bool(True),
     mva                             = cms.InputTag('packedPatJetsAK8PFPuppiwLepSoftDroplepInJetMVAValueMap'),
 )
