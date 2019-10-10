@@ -10,6 +10,7 @@ METFilterFiller::METFilterFiller(const edm::ParameterSet& fullParamSet, const st
 {
 		if(ignore()) return;
 		token_trigBits         =cc.consumes<edm::TriggerResults> (cfg.getParameter<edm::InputTag>("trigBits"));
+		token_alttrigBits         =cc.consumes<edm::TriggerResults> (cfg.getParameter<edm::InputTag>("altTrigBits"));
 		if(ecalBadCalibFilterUpdate)
 		    ecalBadCalibFilterUpdate_token=
 		            cc.consumes< bool >(edm::InputTag("ecalBadCalibReducedMINIAODFilter"));
@@ -19,10 +20,14 @@ METFilterFiller::METFilterFiller(const edm::ParameterSet& fullParamSet, const st
 };
 
 void METFilterFiller::load(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-	iEvent.getByToken(token_trigBits, han_trigBits);
-	if(ecalBadCalibFilterUpdate)
+	    iEvent.getByToken(token_trigBits, han_trigBits);
+	    if(!han_trigBits.isValid()){
+	        iEvent.getByToken(token_alttrigBits, han_trigBits);
+	    }
+
+	    if(ecalBadCalibFilterUpdate)
 	    iEvent.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate);
-	triggerNames  = &iEvent.triggerNames(*han_trigBits);
+	    triggerNames  = &iEvent.triggerNames(*han_trigBits);
 };
 
 void METFilterFiller::setValues(){
