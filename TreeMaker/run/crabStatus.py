@@ -103,9 +103,9 @@ for filename in filelist :
 		pS += "\033[93m{m: <{w}}\033[0m".format(m="-",w=10)	
 	if nFailed :
 		pT = "{}/{:.0f}%".format(nFailed,100.0*nFailed/nTotal)
-		pS += "\033[93m{m: <{w}}\033[0m".format(m=pT,w=10)
+		pS += "\033[91m{m: <{w}}\033[0m".format(m=pT,w=10)
 	else :
-		pS += "\033[93m{m: <{w}}\033[0m".format(m="-",w=10)	
+		pS += "\033[91m{m: <{w}}\033[0m".format(m="-",w=10)	
 	if nIdle :
 		pT = "{}/{:.0f}%".format(nIdle,100.0*nIdle/nTotal)
 		pS += "{m: <{w}}".format(m=pT,w=10)
