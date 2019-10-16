@@ -192,7 +192,8 @@ def ak8JetSequences(process,isRealData):
     #addECF(process,process.jetSequence,'wLep',"N",2,False)
     from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
     addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
-        
+    process.packedPatJetsAK8PFPuppiwLepSoftDroplepInJetMVAValueMap.src = cms.InputTag('selectedUpdatedPatJetsAK8wLepWithPuppiDaughters')           
+
 def defaultJetSequences(process, isRealData):
     producePF(process)
     ak4JetSequences(process,isRealData)
