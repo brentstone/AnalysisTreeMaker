@@ -28,7 +28,6 @@ def addECF(proc,jetSeq,postFix,ecfType,ecfBeta,ecfN3):
     mod["PFJetsSoftDropValueMap"] = mod["PFJetsSoftDrop"]+'ValueMap' ########    
     mod["PATJets"] = patJets+mod["PATJetsLabelPost"]
 
-
     from RecoJets.JetProducers.ECF_cff import ecf
     ecfVar = ecfType.lower()+"b"+str(int(ecfBeta))
     mod["ECF"+ecfVar] = ecfVar+mod["SubstructureLabel"]+'SoftDrop'
@@ -186,14 +185,10 @@ def ak8JetSequences(process,isRealData):
         printWarning = False
     )    
     
-    #addECF(process,process.jetSequence,'NoLep',"N",1,False)
-    #addECF(process,process.jetSequence,'NoLep',"N",2,False)
-    #addECF(process,process.jetSequence,'wLep',"N",1,False)
-    #addECF(process,process.jetSequence,'wLep',"N",2,False)
     from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
     addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
     process.packedPatJetsAK8PFPuppiwLepSoftDroplepInJetMVAValueMap.src = cms.InputTag('selectedUpdatedPatJetsAK8wLepWithPuppiDaughters')           
-
+         
 def defaultJetSequences(process, isRealData):
     producePF(process)
     ak4JetSequences(process,isRealData)
