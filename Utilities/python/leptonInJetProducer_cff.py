@@ -110,7 +110,6 @@ def addJetVars(proc,jetSeq,jetAlgo,puLabel,postFix) : #addJetVars(process,proces
     
     #create the lepton in jets variables
     _addProcessAndTask( proc, mod["lepInJetV"], cms.EDProducer('LepInJetProducer',
-                                                    srcPF = cms.InputTag("packedPFCandidates"), #doesnt do anything
                                                     src = cms.InputTag(mod["PATJets"]),
                                                     srcEle = cms.InputTag("slimmedElectrons",'','run'),
                                                     srcMu = cms.InputTag("slimmedMuons")
