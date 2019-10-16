@@ -22,6 +22,7 @@ private:
 	bool isRealData = false;
 	bool ecalBadCalibFilterUpdate = false;
 	edm::EDGetTokenT<edm::TriggerResults>  token_trigBits;
+	edm::EDGetTokenT<edm::TriggerResults>  token_alttrigBits;
 	edm::Handle<edm::TriggerResults> han_trigBits;
 	edm::EDGetTokenT<bool>  ecalBadCalibFilterUpdate_token;
 	edm::Handle< bool > passecalBadCalibFilterUpdate ;

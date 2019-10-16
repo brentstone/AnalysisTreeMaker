@@ -21,7 +21,8 @@ METFilterFiller = cms.PSet(
     ignore                          = cms.bool(False),
     ecalBadCalibFilterUpdate        = cms.bool(False), 
     branchName                      = cms.string("event"),
-    trigBits                        = cms.InputTag('TriggerResults','','PAT'),  
+    trigBits                        = cms.InputTag('TriggerResults','','PAT'),
+    altTrigBits                     = cms.InputTag('TriggerResults','','RECO'),    
 )
 
 TriggerFiller = cms.PSet(
