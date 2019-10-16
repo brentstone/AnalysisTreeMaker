@@ -148,7 +148,7 @@ LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
       int ele_pfmatch_index(-1),mu_pfmatch_index(-1);
       float lepPt(-1),lepEta(-1),lepPhi(-1); 
       int lepId(-1); // save the id of the pf part matched for now
-      float dRmin(0.8),dRtmp(999.),ptmin(0),dRLep(-1);
+      float dRmin(0.8),dRtmp(999.),ptmin(0);
 
       leptonInJet(itJet, srcEle, dRtmp, ptmin, ele_pfmatch_index, lepId, dRmin);
       if(ele_pfmatch_index!=-1) {
@@ -162,11 +162,12 @@ LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, cons
 	lepPt =itLep->pt(); lepEta = itLep->eta(); lepPhi = itLep->phi(); lepId = 13;
       }
 
+
       std::vector<fastjet::PseudoJet> psub_3;
       std::sort(lClusterParticles.begin(),lClusterParticles.end(),orderPseudoJet);
       auto lsf_3 = calculateLSF(lClusterParticles, psub_3, lepPt, lepEta, lepPhi, lepId, 2.0, 3);
       vlsf3->push_back( std::get<0>(lsf_3));
-      vdRLep->push_back( dRLep );
+      vdRLep->push_back( dRtmp );
       veleIdx3SJ->push_back( ele_pfmatch_index );
       vmuIdx3SJ->push_back( mu_pfmatch_index );
       vidLep->push_back( lepId );
