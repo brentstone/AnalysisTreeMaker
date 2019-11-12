@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser(description='Execute a crab command on all file
 parser.add_argument("dir", help="Directory that contains the crab task directories [Default: crab]")
 parser.add_argument("com", help="Command to run")
 parser.add_argument("-s", "--sel", dest="sel", default=".+", help="Selection for tasks to run on in regex for anything after 'crab_' [Default: .+]")
+parser.add_argument("-o",dest="options", default="", help="crab command optional arguments to run")
 parser.add_argument("-d", "--dryRun",  dest="dryRun", action='store_true', default=False, help="Set to just show the commands but not execute. [Default: False]")
 args = parser.parse_args()
 
@@ -19,7 +20,7 @@ result = ps.communicate()
 filelist = result[0].rstrip('\n').split('\n')
 
 for filename in filelist :
-	cC = "crab " +  args.com + " " + filename 
+	cC = "crab " +  args.com + " " + args.options + " " + filename
 	print "---------"
 	print cC
 	if not args.dryRun:
@@ -31,5 +32,4 @@ for filename in filelist :
 # 		print result[0]
 		
 
-		
 		
