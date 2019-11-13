@@ -1,8 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 import re
 
+from Configuration.StandardSequences.Eras import eras
+
+
 process = cms.Process('run')
 
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+#process = cms.Process('run',eras.Run2_2017)
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 process.options = cms.untracked.PSet(
     wantSummary=cms.untracked.bool(True)
 )
