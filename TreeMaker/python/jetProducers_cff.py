@@ -180,14 +180,15 @@ def ak8JetSequences(process,isRealData):
         svSource = cms.InputTag('slimmedSecondaryVertices'),
         rParam=0.8,
         jetCorrections = ('AK8PFPuppi', cms.vstring(JETCorrLevels), 'None'),
-        btagDiscriminators = ['pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD'],
+#        btagDiscriminators = ['pfMassDecorrelatedDeepBoostedDiscriminatorsJetTags:WvsQCD'],
+        btagDiscriminators = ['None'],
         postfix='AK8NoLepWithPuppiDaughters',   # !!! postfix must contain "WithPuppiDaughter" !!!
         printWarning = False
     )    
     
-    from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
-    addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
-    process.packedPatJetsAK8PFPuppiwLepSoftDroplepInJetMVAValueMap.src = cms.InputTag('selectedUpdatedPatJetsAK8wLepWithPuppiDaughters')           
+#    from AnalysisTreeMaker.Utilities.leptonInJetProducer_cff import addJetVars
+#    addJetVars(process,process.jetSequence,"ak8","Puppi","wLep")
+#    process.packedPatJetsAK8PFPuppiwLepSoftDroplepInJetMVAValueMap.src = cms.InputTag('selectedUpdatedPatJetsAK8wLepWithPuppiDaughters')           
          
 def defaultJetSequences(process, isRealData):
     producePF(process)
