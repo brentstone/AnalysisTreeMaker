@@ -31,9 +31,9 @@ def setupTreeMakerAndGlobalTag(process, analyzer, isRealData, type):
     if '2018' in type:
         if isRealData:
             if 'D' in type:
-                analyzer.globalTag = "102X_dataRun2_v12" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
-            else:
                 analyzer.globalTag = "102X_dataRun2_Prompt_v15" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+            else:
+                analyzer.globalTag = "102X_dataRun2_v12" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
         else:
             analyzer.globalTag = "102X_upgrade2018_realistic_v20" #https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
     
