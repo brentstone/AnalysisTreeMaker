@@ -12,9 +12,9 @@ ak8PuppiNoLepFatJetFiller = cms.PSet(
     jetType                         = cms.string('AK8PFPuppi'),
     subjetType                      = cms.string('AK4PFPuppi'),  
     addBTaggingInfo                 = cms.bool(False),
-    addWTaggingInfo                 = cms.bool(True),
-    addLSFInfo                      = cms.bool(False),
-    mva                             = cms.InputTag('packedPatJetsAK8PFPuppiNoLepSoftDroplepInJetMVAValueMap'),
+#    addWTaggingInfo                 = cms.bool(True),
+#    addLSFInfo                      = cms.bool(False),
+#    mva                             = cms.InputTag('packedPatJetsAK8PFPuppiNoLepSoftDroplepInJetMVAValueMap'),
 )
 ak8PuppiFatJetFiller = cms.PSet(
     ignore                          = cms.bool(False),
@@ -28,7 +28,7 @@ ak8PuppiFatJetFiller = cms.PSet(
     jetType                         = cms.string('AK8PFPuppi'),
     subjetType                      = cms.string('AK4PFPuppi'),
     addBTaggingInfo                 = cms.bool(True),
-    addWTaggingInfo                 = cms.bool(False),
-    addLSFInfo                      = cms.bool(True),
-    mva                             = cms.InputTag('packedPatJetsAK8PFPuppiwLepSoftDroplepInJetMVAValueMap'),
+#    addWTaggingInfo                 = cms.bool(False),
+#    addLSFInfo                      = cms.bool(True),
+#    mva                             = cms.InputTag('packedPatJetsAK8PFPuppiwLepSoftDroplepInJetMVAValueMap'),
 )

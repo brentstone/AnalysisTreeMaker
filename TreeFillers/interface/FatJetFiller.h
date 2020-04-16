@@ -92,20 +92,20 @@ private:
     std::string subjetType           = "";
     bool isPuppi = false;
     bool addBTaggingInfo = false;
-    bool addWTaggingInfo = false;
-    bool addLSFInfo = false;
+//    bool addWTaggingInfo = false;
+//    bool addLSFInfo = false;
 
 
 	std::string jetDef   ;
 	std::string subjetDef;
     edm::EDGetTokenT<std::vector<pat::Jet> >          token_jets;
     edm::EDGetTokenT<reco::GenJetCollection>          token_genJets;
-    edm::EDGetTokenT<edm::ValueMap<float>>                 token_mva;
+//    edm::EDGetTokenT<edm::ValueMap<float>>                 token_mva;
     float minJetPT = 0;
 
     edm::Handle<std::vector<pat::Jet> >          han_jets;
     edm::Handle<reco::GenJetCollection>          han_genJets;
-    edm::Handle<edm::ValueMap<float>>            han_mva;
+//    edm::Handle<edm::ValueMap<float>>            han_mva;
 
     edm::ESHandle<JetCorrectorParametersCollection> jetCorParameters;
     std::unique_ptr<JetCorrectionUncertainty> jetCorUnc;
