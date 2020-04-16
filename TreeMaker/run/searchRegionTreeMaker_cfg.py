@@ -6,23 +6,6 @@ from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('run')
 
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-#process = cms.Process('run',eras.Run2_2017)
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print("YOU ARE USING THE INCORRECT ERA FOR DEEP CSV!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 process.options = cms.untracked.PSet(
     wantSummary=cms.untracked.bool(True)
 )
@@ -72,6 +55,13 @@ options.register('skipEvents',
 
 options.parseArguments()
 
+if '2016' in options.type:
+    process = cms.Process('run',eras.Run2_2016)
+elif '2017' in options.type:
+    process = cms.Process('run',eras.Run2_2017)
+elif '2018' in options.type:
+    process = cms.Process('run',eras.Run2_2018)
+
 process.TFileService = cms.Service('TFileService',
     fileName=cms.string(options.outputFile)
 )
@@ -98,7 +88,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 isCrab  = options.isCrab
 sample  = options.sample
 type = options.type
-
 
 isRealData = ('Run' in type)
 isSignal   = ('signal' in sample)
@@ -130,8 +119,8 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,type)
 process.treeMaker.EventFiller.sampParam = options.sampParam;
 # turn off for now
-# if isSignal:
-#     process.treeMaker.EventFiller.addPDFWeights = True;
+if isSignal:
+    process.treeMaker.EventFiller.addPDFWeights = True;
 
 #==============================================================================================================================#
 #Event counting: needed for event weights
@@ -197,7 +186,7 @@ metCorrections(process,process.treeMaker,isRealData,type)
 if '2017' in type:
     process.p += process.fullPatMetSequenceModifiedMET
 
-     
+# L1EcalPrefireWeights     
 if '2017' in type or '2016' in type : #https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
     from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
     process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
@@ -210,6 +199,7 @@ if '2017' in type or '2016' in type : #https://twiki.cern.ch/twiki/bin/viewauth/
     if not isRealData :
         process.treeMaker.EventFiller.addPrefiringWeights = True
         process.p += process.prefiringweight
+
 if '2017' in type or '2018' in type : #https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2
     process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
     baddetEcallist = cms.vuint32(
