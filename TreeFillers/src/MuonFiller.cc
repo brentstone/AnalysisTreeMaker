@@ -40,7 +40,7 @@ MuonFiller::MuonFiller(const edm::ParameterSet& fullParamSet, const std::string&
     data.addVector(ptRatio    ,branchName,"muons_N","ptRatio"    ,6);
     data.addVector(dRnorm     ,branchName,"muons_N","dRnorm"     ,6);
     data.addVector(lepAct_o_pt,branchName,"muons_N","lepAct_o_pt",6);
-    data.addVector(tthMVA     ,branchName,"muons_N","tthMVA",8);
+//    data.addVector(tthMVA     ,branchName,"muons_N","tthMVA",8);
 
     if(!isRealData)
         data.addVector(simType,branchName,"muons_N","simType");
@@ -127,7 +127,7 @@ void MuonFiller::setValues(){
         dRnorm->push_back(jetActvars[0]);
         lepAct_o_pt->push_back(jetActvars[1]);
 
-        tthMVA->push_back(lep->userFloat("muonMVATTH"));
+//        tthMVA->push_back(lep->userFloat("muonMVATTH"));
 
         if(!isRealData){
             //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
