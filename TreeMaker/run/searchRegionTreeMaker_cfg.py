@@ -118,7 +118,8 @@ process.treeMaker = cms.EDAnalyzer('SearchRegionTreeMaker'
                                  )
 setupTreeMakerAndGlobalTag(process,process.treeMaker,isRealData,type)
 process.treeMaker.EventFiller.sampParam = options.sampParam;
-# turn off for now
+
+# signal PDF weights
 if isSignal:
     process.treeMaker.EventFiller.addPDFWeights = True;
 
